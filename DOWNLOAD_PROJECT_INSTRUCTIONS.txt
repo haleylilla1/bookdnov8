@@ -1,0 +1,53 @@
+====================================
+HOW TO DOWNLOAD THIS PROJECT TO MAC
+====================================
+
+You're seeing this file, which means you found it! Great.
+
+Now here's how to download the ENTIRE project:
+
+METHOD 1: Using Replit's Files Panel
+=====================================
+1. Look at the left sidebar in Replit (where you found this file)
+2. Right-click on the ROOT folder (the very top folder name)
+3. You should see "Download" or "Download folder" option
+4. Click it and save to your Mac
+
+METHOD 2: Using Replit's Tools Menu
+====================================
+1. Look for "Tools" in the top menu bar
+2. Click Tools → Shell (or find the Shell icon)
+3. In the Shell, type this command:
+   zip -r bookd-project.zip . -x "node_modules/*" "*.git/*"
+4. After it finishes, you'll see "bookd-project.zip" in your Files
+5. Right-click bookd-project.zip → Download
+
+METHOD 3: If You Have the Old Folder on Mac
+============================================
+If you still have the folder from when you built Build 6 on November 9:
+
+1. Open Terminal on Mac
+2. Navigate to that old folder:
+   cd ~/Desktop/bookd-project
+   (or wherever you saved it)
+3. Pull latest changes:
+   git pull origin main
+4. Then continue with the build steps!
+
+====================================
+
+After you download and extract on your Mac:
+
+1. Open Terminal
+2. Navigate to the folder:
+   cd ~/Desktop/bookd-project
+3. Run sync command:
+   npx cap sync ios
+4. Open Xcode:
+   npx cap open ios
+5. Follow the Build 7 steps!
+
+====================================
+NEED HELP?
+If you can't find the download option, just tell me and we'll try another way!
+====================================

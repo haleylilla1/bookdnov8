@@ -1,0 +1,1427 @@
+import { 
+  users, 
+  gigs, 
+  goals, 
+  allocations, 
+  monthlyGoals,
+  weeklyGoals,
+  yearlyGoals,
+  invoices,
+  auditLogs,
+  dataExportRequests,
+  emergencyGigs,
+  baApplications,
+  agencies,
+  type User,
+  type UpsertUser,
+  type InsertUser, 
+  type Gig, 
+  type InsertGig, 
+  type Goal, 
+  type InsertGoal, 
+  type Allocation, 
+  type InsertAllocation,
+  type MonthlyGoal,
+  type InsertMonthlyGoal,
+  type WeeklyGoal,
+  type InsertWeeklyGoal,
+  type YearlyGoal,
+  type InsertYearlyGoal,
+  type Invoice,
+  type InsertInvoice,
+  expenses,
+  budgets,
+  expenseCategories,
+  type Expense,
+  type InsertExpense,
+  type Budget,
+  type InsertBudget,
+  type ExpenseCategory,
+  type InsertExpenseCategory,
+  type AuditLog,
+  type InsertAuditLog,
+  type DataExportRequest,
+  type InsertDataExportRequest,
+  type EmergencyGig,
+  type InsertEmergencyGig,
+  type BAApplication,
+  type InsertBAApplication,
+  type Agency,
+  type InsertAgency
+} from "@shared/schema";
+import bcrypt from "bcryptjs";
+import { db } from "./db";
+import { eq, and, gte, lt, lte, desc, count, sql, inArray } from "drizzle-orm";
+import { ultraSimpleCache } from "./ultra-simple-cache";
+
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  getUserByReplitId(replitId: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  upsertUserByReplitId(replitId: string, userData: Partial<User>): Promise<User>;
+  createUserWithPassword(email: string, password: string, name: string): Promise<User>;
+  validatePassword(email: string, password: string): Promise<User | null>;
+  
+  // Audit logging
+  logAudit(userId: number | null, action: string, tableName?: string, recordId?: number, oldValues?: any, newValues?: any, ipAddress?: string, userAgent?: string): Promise<void>;
+  
+  // Data export
+  requestDataExport(userId: number, requestType: string): Promise<void>;
+  getUserExportData(userId: number): Promise<any>;
+
+  // Gigs
+  getGig(id: number): Promise<Gig | undefined>;
+  getGigsByUser(userId: number, limit?: number, offset?: number): Promise<{ gigs: Gig[], total: number }>;
+  getGigsByDateRange(userId: number, startDate: string, endDate: string): Promise<Gig[]>;
+  createGig(gig: InsertGig): Promise<Gig>;
+  updateGig(id: number, gig: Partial<InsertGig>): Promise<Gig | undefined>;
+  deleteGig(id: number): Promise<boolean>;
+  
+  // Multi-day gig support
+  updateMultiDayGigs(multiDayGroupId: string, updateData: Partial<InsertGig>): Promise<Gig[]>;
+  deleteMultiDayGigs(multiDayGroupId: string): Promise<boolean>;
+  
+  // Dashboard data
+  getLightweightDashboardData(userId: number): Promise<any>;
+  getDashboardData(userId: number): Promise<any>;
+  
+  // Goals by period
+  getMonthlyGoalsByUser(userId: number, date: string): Promise<MonthlyGoal[]>;
+  getYearlyGoalsByUser(userId: number, date: string): Promise<YearlyGoal[]>;
+
+  // Goals
+  getGoal(id: number): Promise<Goal | undefined>;
+  getGoalsByUser(userId: number): Promise<Goal[]>;
+  createGoal(goal: InsertGoal): Promise<Goal>;
+  updateGoal(id: number, goal: Partial<InsertGoal>): Promise<Goal | undefined>;
+  deleteGoal(id: number): Promise<boolean>;
+
+  // Allocations
+  getAllocation(id: number): Promise<Allocation | undefined>;
+  getAllocationsByUser(userId: number): Promise<Allocation[]>;
+  getAllocationsByGig(gigId: number): Promise<Allocation[]>;
+  getAllocationsByGoal(goalId: number): Promise<Allocation[]>;
+  createAllocation(allocation: InsertAllocation): Promise<Allocation>;
+  updateAllocation(id: number, allocation: Partial<InsertAllocation>): Promise<Allocation | undefined>;
+  deleteAllocation(id: number): Promise<boolean>;
+
+  // Period Goals
+  getMonthlyGoal(userId: number, month: number, year: number): Promise<MonthlyGoal | undefined>;
+  setMonthlyGoal(userId: number, month: number, year: number, goalAmount: string): Promise<MonthlyGoal>;
+  getWeeklyGoal(userId: number, weekStartDate: string): Promise<WeeklyGoal | undefined>;
+  setWeeklyGoal(userId: number, weekStartDate: string, goalAmount: string): Promise<WeeklyGoal>;
+  getYearlyGoal(userId: number, year: number): Promise<YearlyGoal | undefined>;
+  setYearlyGoal(userId: number, year: number, goalAmount: string): Promise<YearlyGoal>;
+
+  // Invoices
+  getInvoice(id: number): Promise<Invoice | undefined>;
+  getInvoicesByUser(userId: number): Promise<Invoice[]>;
+  createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  updateInvoice(id: number, invoice: Partial<InsertInvoice>): Promise<Invoice | undefined>;
+  deleteInvoice(id: number): Promise<boolean>;
+
+  // Expenses
+  getExpense(id: number): Promise<Expense | undefined>;
+  getExpensesByUser(userId: number, limit?: number, offset?: number): Promise<{ expenses: Expense[], total: number }>;
+  getExpensesByDateRange(userId: number, startDate: string, endDate: string): Promise<Expense[]>;
+  createExpense(expense: InsertExpense): Promise<Expense>;
+  updateExpense(id: number, expense: Partial<InsertExpense>): Promise<Expense | undefined>;
+  deleteExpense(id: number): Promise<boolean>;
+
+  // Budgets
+  getBudget(id: number): Promise<Budget | undefined>;
+  getBudgetsByUser(userId: number): Promise<Budget[]>;
+  getBudgetsByMonth(userId: number, month: number, year: number): Promise<Budget[]>;
+  createBudget(budget: InsertBudget): Promise<Budget>;
+  updateBudget(id: number, budget: Partial<InsertBudget>): Promise<Budget | undefined>;
+  deleteBudget(id: number): Promise<boolean>;
+
+  // Expense Categories
+  getExpenseCategoriesByUser(userId: number): Promise<ExpenseCategory[]>;
+  createExpenseCategory(category: InsertExpenseCategory): Promise<ExpenseCategory>;
+  updateExpenseCategory(id: number, category: Partial<InsertExpenseCategory>): Promise<ExpenseCategory | undefined>;
+  deleteExpenseCategory(id: number): Promise<boolean>;
+
+  // Admin monitoring methods
+  getUserCount(): Promise<number>;
+  getRecentActivity(): Promise<{
+    activeUsers24h: number;
+    gigsCreated24h: number;
+    expensesAdded24h: number;
+    reportsGenerated24h: number;
+  }>;
+  getActiveUsers24h(): Promise<Array<{
+    id: number;
+    name: string | null;
+    email: string;
+    lastActivity: Date;
+    activityType: string;
+  }>>;
+  getSystemStats(): Promise<{
+    errorRate: number;
+    avgResponseTime: number;
+    dbConnections: number;
+  }>;
+  getUserGigCount(userId: number): Promise<number>;
+  getUserExpenseCount(userId: number): Promise<number>;
+  getUserTotalEarnings(userId: number): Promise<number>;
+
+  // Agency authentication methods
+  getAgency(id: number): Promise<Agency | undefined>;
+  getAgencyByEmail(email: string): Promise<Agency | undefined>;
+  createAgency(agency: InsertAgency): Promise<Agency>;
+  validateAgencyPassword(email: string, password: string): Promise<Agency | null>;
+  
+  // Emergency BA feature methods
+  getEmergencyGig(id: number): Promise<EmergencyGig | undefined>;
+  getActiveEmergencyGigs(city?: string): Promise<EmergencyGig[]>;
+  createEmergencyGig(gig: InsertEmergencyGig): Promise<EmergencyGig>;
+  updateEmergencyGig(id: number, gig: Partial<InsertEmergencyGig>): Promise<EmergencyGig | undefined>;
+  markEmergencyGigFilled(id: number): Promise<EmergencyGig | undefined>;
+  
+  createBAApplication(application: InsertBAApplication): Promise<BAApplication>;
+  getBAApplicationsForGig(gigId: number): Promise<BAApplication[]>;
+  getBAsForEmergencyGig(gigId: number): Promise<User[]>;
+  getBAsInCity(city: string): Promise<User[]>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    // Check cache first (5 minute TTL for user data)
+    const cacheKey = `user:${id}`;
+    const cached = await ultraSimpleCache.get(cacheKey);
+    if (cached) return cached;
+
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (user) {
+      await ultraSimpleCache.set(cacheKey, user, 300); // 5 minutes
+    }
+    return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    // Fast query with only essential fields for admin dashboard
+    const allUsers = await db.select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      subscriptionTier: users.subscriptionTier,
+      createdAt: users.createdAt,
+    }).from(users).orderBy(desc(users.createdAt));
+    return allUsers as User[];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, id))
+      .returning();
+    
+    // Comprehensive cache invalidation for user data
+    if (user) {
+      await Promise.all([
+        ultraSimpleCache.invalidate(`user:${id}`),
+        ultraSimpleCache.invalidate(`dashboard:${id}`),
+        ultraSimpleCache.invalidate(`gigs:${id}`),
+        ultraSimpleCache.invalidate(`goals:${id}`)
+      ]);
+    }
+    
+    return user || undefined;
+  }
+
+  async getUserByReplitId(replitId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.replitId, replitId));
+    return user;
+  }
+
+  // Google OAuth methods removed - using simple email/password authentication only
+
+  async upsertUserByReplitId(replitId: string, userData: Partial<User>): Promise<User> {
+    const existingUser = await this.getUserByReplitId(replitId);
+    
+    if (existingUser) {
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          ...userData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.replitId, replitId))
+        .returning();
+      return updatedUser;
+    } else {
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          replitId,
+          name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'New User',
+          email: userData.email || 'user@example.com',
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
+          ...userData,
+        })
+        .returning();
+      return newUser;
+    }
+  }
+
+  // Google OAuth upsert method removed - using simple email/password authentication only
+
+  async createUserWithPassword(email: string, password: string, name: string): Promise<User> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [user] = await db
+      .insert(users)
+      .values({
+        email,
+        passwordHash: hashedPassword,
+        name,
+        trialStartDate: new Date(),
+        trialEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      })
+      .returning();
+    return user;
+  }
+
+  async validatePassword(email: string, password: string): Promise<User | null> {
+    const user = await this.getUserByEmail(email);
+    if (!user || !user.passwordHash) {
+      return null;
+    }
+    
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    return isValid ? user : null;
+  }
+
+  async logAudit(
+    userId: number | null, 
+    action: string, 
+    tableName?: string, 
+    recordId?: number, 
+    oldValues?: any, 
+    newValues?: any, 
+    ipAddress?: string, 
+    userAgent?: string
+  ): Promise<void> {
+    await db.insert(auditLogs).values({
+      userId,
+      action,
+      tableName,
+      recordId,
+      oldValues,
+      newValues,
+      ipAddress,
+      userAgent,
+    });
+  }
+
+  async requestDataExport(userId: number, requestType: string): Promise<void> {
+    await db.insert(dataExportRequests).values({
+      userId,
+      requestType,
+      status: 'pending',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
+  }
+
+  async getUserExportData(userId: number): Promise<any> {
+    const user = await this.getUser(userId);
+    const gigsData = await this.getGigsByUser(userId, 1000); // Get all for export
+    const userGoals = await this.getGoalsByUser(userId);
+    const userAllocations = await this.getAllocationsByUser(userId);
+    const userInvoices = await this.getInvoicesByUser(userId);
+    const expensesData = await this.getExpensesByUser(userId, 1000); // Get all for export
+    const userBudgets = await this.getBudgetsByUser(userId);
+
+    return {
+      user,
+      gigs: gigsData.gigs,
+      goals: userGoals,
+      allocations: userAllocations,
+      invoices: userInvoices,
+      expenses: expensesData.expenses,
+      budgets: userBudgets,
+      exportedAt: new Date().toISOString(),
+    };
+  }
+
+  async getGig(id: number): Promise<Gig | undefined> {
+    const [gig] = await db.select().from(gigs).where(eq(gigs.id, id));
+    return gig || undefined;
+  }
+
+  async getGigsByUser(userId: number, limit: number = 10000, offset: number = 0): Promise<{ gigs: Gig[], total: number }> {
+    // Get total count first
+    const [totalResult] = await db.select({ count: count() }).from(gigs).where(eq(gigs.userId, userId));
+    const total = totalResult.count;
+
+    // Use proper Drizzle query with pagination and caching
+    const cacheKey = `gigs:${userId}:${limit}:${offset}`;
+    const cached = await ultraSimpleCache.get(cacheKey);
+    if (cached) return cached;
+
+    const userGigs = await db.select().from(gigs)
+      .where(eq(gigs.userId, userId))
+      .orderBy(desc(gigs.date))
+      .limit(limit)
+      .offset(offset);
+    
+    const result = { gigs: userGigs, total };
+    await ultraSimpleCache.set(cacheKey, result, 120); // 2 minutes
+    return result;
+  }
+
+  async getGigsByDateRange(userId: number, startDate: string, endDate: string): Promise<Gig[]> {
+    return await db
+      .select()
+      .from(gigs)
+      .where(and(
+        eq(gigs.userId, userId), // Fixed: use userId (Drizzle property name)
+        gte(gigs.date, startDate),
+        lt(gigs.date, endDate) // Fixed: Use lt instead of lte to exclude endDate
+      ))
+      .orderBy(gigs.date);
+  }
+
+  async createGig(insertGig: InsertGig): Promise<Gig> {
+    try {
+      const [gig] = await db
+        .insert(gigs)
+        .values(insertGig)
+        .returning();
+      
+      // Invalidate cache for this user
+      await ultraSimpleCache.invalidate(`gigs:${insertGig.userId}`);
+      
+      return gig;
+    } catch (error) {
+      throw new Error('Failed to create gig');
+    }
+  }
+
+  async updateGig(id: number, updateData: Partial<InsertGig>): Promise<Gig | undefined> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    try {
+      // Ensure receipt arrays are properly formatted for PostgreSQL
+      if (updateData.parkingReceipts) {
+        updateData.parkingReceipts = Array.isArray(updateData.parkingReceipts) 
+          ? updateData.parkingReceipts 
+          : [];
+      }
+      if (updateData.otherExpenseReceipts) {
+        updateData.otherExpenseReceipts = Array.isArray(updateData.otherExpenseReceipts) 
+          ? updateData.otherExpenseReceipts 
+          : [];
+      }
+
+      const [gig] = await db
+        .update(gigs)
+        .set(updateData)
+        .where(eq(gigs.id, id))
+        .returning();
+      
+      // Invalidate cache for affected user
+      if (gig) {
+        await Promise.all([
+          ultraSimpleCache.invalidate(`gigs:${gig.userId}`),
+          ultraSimpleCache.invalidate(`dashboard:${gig.userId}`)
+        ]);
+      }
+      
+      return gig || undefined;
+    } catch (error) {
+      console.error('Error updating gig:', error);
+      throw error;
+    }
+  }
+
+  async deleteGig(id: number): Promise<boolean> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    // Get gig first to know which user's cache to invalidate
+    const [gig] = await db.select().from(gigs).where(eq(gigs.id, id));
+    
+    // Delete linked expenses first to avoid foreign key constraint errors
+    await db.delete(expenses).where(eq(expenses.gigId, id));
+    
+    const result = await db.delete(gigs).where(eq(gigs.id, id));
+    
+    // Invalidate cache for affected user
+    if (gig) {
+      await Promise.all([
+        ultraSimpleCache.invalidate(`gigs:${gig.userId}`),
+        ultraSimpleCache.invalidate(`dashboard:${gig.userId}`)
+      ]);
+    }
+    
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Multi-day gig support methods
+  async updateMultiDayGigs(multiDayGroupId: string, updateData: Partial<InsertGig>): Promise<Gig[]> {
+    try {
+      const updatedGigs = await db
+        .update(gigs)
+        .set(updateData)
+        .where(eq(gigs.multiDayGroupId, multiDayGroupId))
+        .returning();
+      
+      // Invalidate cache for affected user
+      if (updatedGigs.length > 0) {
+        const userId = updatedGigs[0].userId;
+        await Promise.all([
+          ultraSimpleCache.invalidate(`gigs:${userId}`),
+          ultraSimpleCache.invalidate(`dashboard:${userId}`)
+        ]);
+      }
+      
+      return updatedGigs;
+    } catch (error) {
+      console.error('Error updating multi-day gigs:', error);
+      throw error;
+    }
+  }
+
+  async deleteMultiDayGigs(multiDayGroupId: string): Promise<boolean> {
+    try {
+      // Get one gig to know which user's cache to invalidate
+      const [sampleGig] = await db.select().from(gigs).where(eq(gigs.multiDayGroupId, multiDayGroupId)).limit(1);
+      
+      // Get all gig IDs in this multi-day group
+      const gigIdsToDelete = await db.select({ id: gigs.id }).from(gigs).where(eq(gigs.multiDayGroupId, multiDayGroupId));
+      
+      // Delete linked expenses for all gigs in this multi-day group
+      for (const { id } of gigIdsToDelete) {
+        await db.delete(expenses).where(eq(expenses.gigId, id));
+      }
+      
+      const result = await db.delete(gigs).where(eq(gigs.multiDayGroupId, multiDayGroupId));
+      
+      // Invalidate cache for affected user
+      if (sampleGig) {
+        await Promise.all([
+          ultraSimpleCache.invalidate(`gigs:${sampleGig.userId}`),
+          ultraSimpleCache.invalidate(`dashboard:${sampleGig.userId}`)
+        ]);
+      }
+      
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error deleting multi-day gigs:', error);
+      throw error;
+    }
+  }
+
+  // Dashboard data methods
+  async getLightweightDashboardData(userId: number): Promise<any> {
+    try {
+      const cacheKey = `dashboard-light:${userId}`;
+      const cached = await ultraSimpleCache.get(cacheKey);
+      if (cached) return cached;
+
+      // Simple lightweight data - just basic stats
+      const gigCount = await db.select({ count: count() }).from(gigs).where(eq(gigs.userId, userId));
+      const totalEarnings = await db.select({ total: sql<number>`COALESCE(SUM(CAST(actual_pay as DECIMAL)), 0)` })
+        .from(gigs)
+        .where(and(eq(gigs.userId, userId), eq(gigs.status, 'completed')));
+
+      const lightData = {
+        totalGigs: gigCount[0]?.count || 0,
+        totalEarnings: totalEarnings[0]?.total || 0,
+        timestamp: new Date().toISOString()
+      };
+
+      await ultraSimpleCache.set(cacheKey, lightData, 300); // 5 minutes
+      return lightData;
+    } catch (error) {
+      console.error('Error fetching lightweight dashboard data:', error);
+      return { totalGigs: 0, totalEarnings: 0, timestamp: new Date().toISOString() };
+    }
+  }
+
+  async getDashboardData(userId: number): Promise<any> {
+    try {
+      const cacheKey = `dashboard:${userId}`;
+      const cached = await ultraSimpleCache.get(cacheKey);
+      if (cached) return cached;
+
+      // Full dashboard data
+      const userGigs = await this.getGigsByUser(userId);
+      const monthlyGoal = await this.getMonthlyGoal(userId, new Date().getMonth() + 1, new Date().getFullYear());
+      const yearlyGoal = await this.getYearlyGoal(userId, new Date().getFullYear());
+
+      const dashboardData = {
+        gigs: userGigs,
+        monthlyGoal,
+        yearlyGoal,
+        timestamp: new Date().toISOString()
+      };
+
+      await ultraSimpleCache.set(cacheKey, dashboardData, 300); // 5 minutes
+      return dashboardData;
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      return { gigs: [], monthlyGoal: null, yearlyGoal: null, timestamp: new Date().toISOString() };
+    }
+  }
+
+  // Goals by period methods
+  async getMonthlyGoalsByUser(userId: number, date: string): Promise<MonthlyGoal[]> {
+    try {
+      const dateObj = new Date(date);
+      const month = dateObj.getMonth() + 1;
+      const year = dateObj.getFullYear();
+      
+      return await db.select().from(monthlyGoals)
+        .where(and(
+          eq(monthlyGoals.userId, userId),
+          eq(monthlyGoals.month, month),
+          eq(monthlyGoals.year, year)
+        ));
+    } catch (error) {
+      console.error('Error fetching monthly goals:', error);
+      return [];
+    }
+  }
+
+  async getYearlyGoalsByUser(userId: number, date: string): Promise<YearlyGoal[]> {
+    try {
+      const dateObj = new Date(date);
+      const year = dateObj.getFullYear();
+      
+      return await db.select().from(yearlyGoals)
+        .where(and(
+          eq(yearlyGoals.userId, userId),
+          eq(yearlyGoals.year, year)
+        ));
+    } catch (error) {
+      console.error('Error fetching yearly goals:', error);
+      return [];
+    }
+  }
+
+  async getGoal(id: number): Promise<Goal | undefined> {
+    const [goal] = await db.select().from(goals).where(eq(goals.id, id));
+    return goal || undefined;
+  }
+
+  async getGoalsByUser(userId: number): Promise<Goal[]> {
+    return await db.select().from(goals)
+      .where(eq(goals.userId, userId))
+      .orderBy(goals.category, goals.name);
+  }
+
+  async createGoal(insertGoal: InsertGoal): Promise<Goal> {
+    const [goal] = await db
+      .insert(goals)
+      .values(insertGoal)
+      .returning();
+    return goal;
+  }
+
+  async updateGoal(id: number, updateData: Partial<InsertGoal>): Promise<Goal | undefined> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    const [goal] = await db
+      .update(goals)
+      .set(updateData)
+      .where(eq(goals.id, id))
+      .returning();
+    return goal || undefined;
+  }
+
+  async deleteGoal(id: number): Promise<boolean> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    const result = await db.delete(goals).where(eq(goals.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getAllocation(id: number): Promise<Allocation | undefined> {
+    const [allocation] = await db.select().from(allocations).where(eq(allocations.id, id));
+    return allocation || undefined;
+  }
+
+  async getAllocationsByUser(userId: number): Promise<Allocation[]> {
+    try {
+      return await db.select().from(allocations)
+        .where(eq(allocations.userId, userId))
+        .orderBy(desc(allocations.createdAt));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getAllocationsByGig(gigId: number): Promise<Allocation[]> {
+    return await db.select().from(allocations)
+      .where(eq(allocations.gigId, gigId))
+      .orderBy(desc(allocations.createdAt));
+  }
+
+  async getAllocationsByGoal(goalId: number): Promise<Allocation[]> {
+    return await db.select().from(allocations)
+      .where(eq(allocations.goalId, goalId))
+      .orderBy(desc(allocations.createdAt));
+  }
+
+  async createAllocation(insertAllocation: InsertAllocation): Promise<Allocation> {
+    const [allocation] = await db
+      .insert(allocations)
+      .values(insertAllocation)
+      .returning();
+    return allocation;
+  }
+
+  async updateAllocation(id: number, updateData: Partial<InsertAllocation>): Promise<Allocation | undefined> {
+    const [allocation] = await db
+      .update(allocations)
+      .set(updateData)
+      .where(eq(allocations.id, id))
+      .returning();
+    return allocation || undefined;
+  }
+
+  async deleteAllocation(id: number): Promise<boolean> {
+    const result = await db.delete(allocations).where(eq(allocations.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Period Goals
+  async getMonthlyGoal(userId: number, month: number, year: number): Promise<MonthlyGoal | undefined> {
+    // Check cache first (10 minute TTL for goal data)
+    const cacheKey = `goal:monthly:${userId}:${month}:${year}`;
+    const cached = await ultraSimpleCache.get(cacheKey);
+    if (cached) return cached;
+
+    const [goal] = await db.select().from(monthlyGoals)
+      .where(and(eq(monthlyGoals.userId, userId), eq(monthlyGoals.month, month), eq(monthlyGoals.year, year)));
+    
+    if (goal) {
+      await ultraSimpleCache.set(cacheKey, goal, 600); // 10 minutes
+    }
+    return goal || undefined;
+  }
+
+  async setMonthlyGoal(userId: number, month: number, year: number, goalAmount: string): Promise<MonthlyGoal> {
+    const existing = await this.getMonthlyGoal(userId, month, year);
+    
+    if (existing) {
+      const [updated] = await db.update(monthlyGoals)
+        .set({ goalAmount, updatedAt: new Date() })
+        .where(eq(monthlyGoals.id, existing.id))
+        .returning();
+      
+      // Invalidate dashboard cache since goals affect dashboard display
+      if (updated) {
+        await ultraSimpleCache.invalidate(`dashboard:${updated.userId}`);
+        await ultraSimpleCache.invalidate(`goals:${updated.userId}`);
+      }
+      
+      return updated;
+    } else {
+      const [created] = await db.insert(monthlyGoals)
+        .values({ userId, month, year, goalAmount })
+        .returning();
+      return created;
+    }
+  }
+
+  async getWeeklyGoal(userId: number, weekStartDate: string): Promise<WeeklyGoal | undefined> {
+    const [goal] = await db.select().from(weeklyGoals)
+      .where(and(eq(weeklyGoals.userId, userId), eq(weeklyGoals.weekStartDate, weekStartDate)));
+    return goal || undefined;
+  }
+
+  async setWeeklyGoal(userId: number, weekStartDate: string, goalAmount: string): Promise<WeeklyGoal> {
+    const existing = await this.getWeeklyGoal(userId, weekStartDate);
+    
+    if (existing) {
+      const [updated] = await db.update(weeklyGoals)
+        .set({ goalAmount, updatedAt: new Date() })
+        .where(eq(weeklyGoals.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(weeklyGoals)
+        .values({ userId, weekStartDate, goalAmount })
+        .returning();
+      return created;
+    }
+  }
+
+  async getYearlyGoal(userId: number, year: number): Promise<YearlyGoal | undefined> {
+    // Check cache first (10 minute TTL for goal data)
+    const cacheKey = `goal:yearly:${userId}:${year}`;
+    const cached = await ultraSimpleCache.get(cacheKey);
+    if (cached) return cached;
+
+    const [goal] = await db.select().from(yearlyGoals)
+      .where(and(eq(yearlyGoals.userId, userId), eq(yearlyGoals.year, year)));
+    
+    if (goal) {
+      await ultraSimpleCache.set(cacheKey, goal, 600); // 10 minutes
+    }
+    return goal || undefined;
+  }
+
+  async setYearlyGoal(userId: number, year: number, goalAmount: string): Promise<YearlyGoal> {
+    const existing = await this.getYearlyGoal(userId, year);
+    
+    if (existing) {
+      const [updated] = await db.update(yearlyGoals)
+        .set({ goalAmount, updatedAt: new Date() })
+        .where(eq(yearlyGoals.id, existing.id))
+        .returning();
+      
+      // Invalidate dashboard cache since goals affect dashboard display
+      if (updated) {
+        await ultraSimpleCache.invalidate(`dashboard:${updated.userId}`);
+        await ultraSimpleCache.invalidate(`goals:${updated.userId}`);
+      }
+      
+      return updated;
+    } else {
+      const [created] = await db.insert(yearlyGoals)
+        .values({ userId, year, goalAmount })
+        .returning();
+      return created;
+    }
+  }
+
+  // Invoice operations
+  async getInvoice(id: number): Promise<Invoice | undefined> {
+    const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+    return invoice || undefined;
+  }
+
+  async getInvoicesByUser(userId: number): Promise<Invoice[]> {
+    return await db.select().from(invoices).where(eq(invoices.userId, userId)).orderBy(desc(invoices.createdAt));
+  }
+
+  async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
+    const [invoice] = await db
+      .insert(invoices)
+      .values(insertInvoice)
+      .returning();
+    return invoice;
+  }
+
+  async updateInvoice(id: number, updateData: Partial<InsertInvoice>): Promise<Invoice | undefined> {
+    const [updated] = await db
+      .update(invoices)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(invoices.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteInvoice(id: number): Promise<boolean> {
+    const result = await db.delete(invoices).where(eq(invoices.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Expense operations
+  async getExpense(id: number): Promise<Expense | undefined> {
+    const [expense] = await db.select().from(expenses).where(eq(expenses.id, id));
+    return expense || undefined;
+  }
+
+  async getExpensesByUser(userId: number, limit: number = 10000, offset: number = 0): Promise<{ expenses: Expense[], total: number }> {
+    // Get total count first
+    const [totalResult] = await db.select({ count: count() }).from(expenses).where(eq(expenses.userId, userId));
+    const total = totalResult.count;
+
+    const userExpenses = await db.select().from(expenses)
+      .where(eq(expenses.userId, userId))
+      .orderBy(desc(expenses.date))
+      .limit(limit)
+      .offset(offset);
+    
+    return { expenses: userExpenses, total };
+  }
+
+  async getExpensesByDateRange(userId: number, startDate: string, endDate: string): Promise<Expense[]> {
+    return await db.select().from(expenses)
+      .where(and(
+        eq(expenses.userId, userId),
+        gte(expenses.date, startDate),
+        lte(expenses.date, endDate)
+      ))
+      .orderBy(desc(expenses.date));
+  }
+
+  async createExpense(insertExpense: InsertExpense): Promise<Expense> {
+    try {
+      console.log('💾 Database insert - expense data:', insertExpense);
+      const [expense] = await db
+        .insert(expenses)
+        .values(insertExpense)
+        .returning();
+      
+      // Invalidate user-specific caches since expenses affect dashboard calculations
+      if (expense) {
+        await Promise.all([
+          ultraSimpleCache.invalidate(`dashboard:${expense.userId}`),
+          ultraSimpleCache.invalidate(`expenses:${expense.userId}`)
+        ]);
+      }
+      
+      return expense;
+    } catch (error) {
+      console.error('💥 Database error creating expense:', error);
+      throw error;
+    }
+  }
+
+  async updateExpense(id: number, updateData: Partial<InsertExpense>): Promise<Expense | undefined> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    const [expense] = await db
+      .update(expenses)
+      .set(updateData)
+      .where(eq(expenses.id, id))
+      .returning();
+    
+    // Invalidate user-specific caches since expenses affect dashboard calculations
+    if (expense) {
+      await Promise.all([
+        ultraSimpleCache.invalidate(`dashboard:${expense.userId}`),
+        ultraSimpleCache.invalidate(`expenses:${expense.userId}`)
+      ]);
+    }
+    
+    return expense || undefined;
+  }
+
+  async deleteExpense(id: number): Promise<boolean> {
+    // SECURITY: This method should only be called after ownership verification in routes
+    // Get expense info before deletion for cache invalidation
+    const [expense] = await db.select().from(expenses).where(eq(expenses.id, id));
+    
+    const result = await db.delete(expenses).where(eq(expenses.id, id));
+    
+    // Invalidate user-specific caches since expenses affect dashboard calculations
+    if (expense && result.rowCount !== null && result.rowCount > 0) {
+      await Promise.all([
+        ultraSimpleCache.invalidate(`expenses:${expense.userId}`),
+        ultraSimpleCache.invalidate(`dashboard:${expense.userId}`)
+      ]);
+    }
+    
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Budget operations
+  async getBudget(id: number): Promise<Budget | undefined> {
+    const [budget] = await db.select().from(budgets).where(eq(budgets.id, id));
+    return budget || undefined;
+  }
+
+  async getBudgetsByUser(userId: number): Promise<Budget[]> {
+    return await db.select().from(budgets)
+      .where(eq(budgets.userId, userId))
+      .orderBy(budgets.year, budgets.month);
+  }
+
+  async getBudgetsByMonth(userId: number, month: number, year: number): Promise<Budget[]> {
+    return await db.select().from(budgets)
+      .where(and(
+        eq(budgets.userId, userId),
+        eq(budgets.month, month),
+        eq(budgets.year, year)
+      ));
+  }
+
+  async createBudget(insertBudget: InsertBudget): Promise<Budget> {
+    const [budget] = await db
+      .insert(budgets)
+      .values(insertBudget)
+      .returning();
+    return budget;
+  }
+
+  async updateBudget(id: number, updateData: Partial<InsertBudget>): Promise<Budget | undefined> {
+    const [budget] = await db
+      .update(budgets)
+      .set(updateData)
+      .where(eq(budgets.id, id))
+      .returning();
+    return budget || undefined;
+  }
+
+  async deleteBudget(id: number): Promise<boolean> {
+    const result = await db.delete(budgets).where(eq(budgets.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Expense Category operations
+  async getExpenseCategoriesByUser(userId: number): Promise<ExpenseCategory[]> {
+    return await db.select().from(expenseCategories)
+      .where(eq(expenseCategories.userId, userId))
+      .orderBy(expenseCategories.name);
+  }
+
+  async createExpenseCategory(insertCategory: InsertExpenseCategory): Promise<ExpenseCategory> {
+    const [category] = await db
+      .insert(expenseCategories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async updateExpenseCategory(id: number, updateData: Partial<InsertExpenseCategory>): Promise<ExpenseCategory | undefined> {
+    const [category] = await db
+      .update(expenseCategories)
+      .set(updateData)
+      .where(eq(expenseCategories.id, id))
+      .returning();
+    return category || undefined;
+  }
+
+  async deleteExpenseCategory(id: number): Promise<boolean> {
+    const result = await db.delete(expenseCategories).where(eq(expenseCategories.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Admin monitoring methods implementation
+  async getUserCount(): Promise<number> {
+    const result = await db.select({ count: count() }).from(users);
+    return result[0]?.count || 0;
+  }
+
+  async getRecentActivity(): Promise<{
+    activeUsers24h: number;
+    gigsCreated24h: number;
+    expensesAdded24h: number;
+    reportsGenerated24h: number;
+  }> {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    try {
+      // Count users active in last 24h (users with recent gigs/expenses)
+      const activeUsersResult = await db
+        .selectDistinct({ userId: gigs.userId })
+        .from(gigs)
+        .where(gte(gigs.createdAt, yesterday));
+      
+      const activeExpenseUsers = await db
+        .selectDistinct({ userId: expenses.userId })
+        .from(expenses)
+        .where(gte(expenses.createdAt, yesterday));
+      
+      const activeUserIds = new Set([
+        ...activeUsersResult.map(u => u.userId),
+        ...activeExpenseUsers.map(u => u.userId)
+      ]);
+
+      // Count gigs created in last 24h
+      const gigsResult = await db
+        .select({ count: count() })
+        .from(gigs)
+        .where(gte(gigs.createdAt, yesterday));
+
+      // Count expenses added in last 24h
+      const expensesResult = await db
+        .select({ count: count() })
+        .from(expenses)
+        .where(gte(expenses.createdAt, yesterday));
+
+      return {
+        activeUsers24h: activeUserIds.size,
+        gigsCreated24h: gigsResult[0]?.count || 0,
+        expensesAdded24h: expensesResult[0]?.count || 0,
+        reportsGenerated24h: 0 // Would track this with audit logs in production
+      };
+    } catch (error) {
+      return {
+        activeUsers24h: 0,
+        gigsCreated24h: 0,
+        expensesAdded24h: 0,
+        reportsGenerated24h: 0
+      };
+    }
+  }
+
+  async getActiveUsers24h(): Promise<Array<{
+    id: number;
+    name: string | null;
+    email: string;
+    lastActivity: Date;
+    activityType: string;
+  }>> {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    try {
+      // Get users who created gigs in last 24h with their latest activity
+      const gigActivities = await db
+        .select({
+          userId: gigs.userId,
+          lastActivity: sql<Date>`MAX(${gigs.createdAt})`,
+          activityCount: count()
+        })
+        .from(gigs)
+        .where(gte(gigs.createdAt, yesterday))
+        .groupBy(gigs.userId);
+      
+      // Get users who created expenses in last 24h with their latest activity
+      const expenseActivities = await db
+        .select({
+          userId: expenses.userId,
+          lastActivity: sql<Date>`MAX(${expenses.createdAt})`,
+          activityCount: count()
+        })
+        .from(expenses)
+        .where(gte(expenses.createdAt, yesterday))
+        .groupBy(expenses.userId);
+      
+      // Combine and deduplicate user activities
+      const userActivityMap = new Map();
+      
+      gigActivities.forEach(activity => {
+        const existing = userActivityMap.get(activity.userId);
+        if (!existing || new Date(activity.lastActivity) > new Date(existing.lastActivity)) {
+          userActivityMap.set(activity.userId, {
+            ...activity,
+            activityType: `created ${activity.activityCount} gig${activity.activityCount > 1 ? 's' : ''}`
+          });
+        }
+      });
+      
+      expenseActivities.forEach(activity => {
+        const existing = userActivityMap.get(activity.userId);
+        if (!existing || new Date(activity.lastActivity) > new Date(existing.lastActivity)) {
+          userActivityMap.set(activity.userId, {
+            ...activity,
+            activityType: `added ${activity.activityCount} expense${activity.activityCount > 1 ? 's' : ''}`
+          });
+        }
+      });
+      
+      // Get user details for active users
+      const activeUserIds = Array.from(userActivityMap.keys());
+      if (activeUserIds.length === 0) return [];
+      
+      const activeUsers = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email
+        })
+        .from(users)
+        .where(inArray(users.id, activeUserIds));
+      
+      // Combine user info with activity info and sort by most recent activity
+      return activeUsers.map(user => {
+        const activity = userActivityMap.get(user.id);
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          lastActivity: activity.lastActivity,
+          activityType: activity.activityType
+        };
+      }).sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime());
+      
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getSystemStats(): Promise<{
+    errorRate: number;
+    avgResponseTime: number;
+    dbConnections: number;
+  }> {
+    // In production, these would come from monitoring services
+    return {
+      errorRate: 0, // Would track from error logs
+      avgResponseTime: 150, // Would track from request metrics
+      dbConnections: 1 // Current database connections
+    };
+  }
+
+  async getUserGigCount(userId: number): Promise<number> {
+    const result = await db
+      .select({ 
+        date: gigs.date,
+        eventName: gigs.eventName,
+        clientName: gigs.clientName,
+        gigType: gigs.gigType
+      })
+      .from(gigs)
+      .where(eq(gigs.userId, userId));
+    
+    // Group multi-day gigs to get accurate count
+    const groupedGigs = this.groupMultiDayGigs(result);
+    return groupedGigs.length;
+  }
+
+  async getUserExpenseCount(userId: number): Promise<number> {
+    const result = await db
+      .select({ count: count() })
+      .from(expenses)
+      .where(eq(expenses.userId, userId));
+    return result[0]?.count || 0;
+  }
+
+  async getUserTotalEarnings(userId: number): Promise<number> {
+    const result = await db
+      .select({ 
+        actualPay: gigs.actualPay,
+        expectedPay: gigs.expectedPay,
+        date: gigs.date,
+        eventName: gigs.eventName,
+        clientName: gigs.clientName,
+        gigType: gigs.gigType
+      })
+      .from(gigs)
+      .where(eq(gigs.userId, userId));
+    
+    // Group multi-day gigs to prevent double-counting
+    const groupedGigs = this.groupMultiDayGigs(result);
+    
+    let total = 0;
+    groupedGigs.forEach(gig => {
+      // Use actual pay if available, otherwise expected pay
+      const earning = gig.actualPay || gig.expectedPay || 0;
+      total += parseFloat(earning.toString());
+    });
+    
+    return total;
+  }
+
+  private groupMultiDayGigs(gigs: any[]): any[] {
+    if (gigs.length === 0) return [];
+    
+    // Sort by event name, client, gig type, and date
+    const sorted = [...gigs].sort((a, b) => {
+      const aKey = `${a.eventName}-${a.clientName}-${a.gigType}`;
+      const bKey = `${b.eventName}-${b.clientName}-${b.gigType}`;
+      if (aKey !== bKey) return aKey.localeCompare(bKey);
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
+
+    const grouped = [];
+    let currentGroup = [sorted[0]];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const current = sorted[i];
+      const previous = sorted[i - 1];
+
+      // Check if this gig belongs to the same multi-day event
+      const sameEvent = current.eventName === previous.eventName &&
+                       current.clientName === previous.clientName &&
+                       current.gigType === previous.gigType;
+
+      if (sameEvent) {
+        const currentDate = new Date(current.date);
+        const previousDate = new Date(previous.date);
+        const daysDiff = Math.abs(currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
+
+        // If dates are consecutive (within 7 days), it's part of the same event
+        if (daysDiff <= 7) {
+          currentGroup.push(current);
+          continue;
+        }
+      }
+
+      // Start a new group - use the first entry (original amounts)
+      grouped.push(currentGroup[0]);
+      currentGroup = [current];
+    }
+
+    // Don't forget the last group
+    grouped.push(currentGroup[0]);
+
+    return grouped;
+  }
+
+  async getGigCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(gigs);
+    return result[0]?.count || 0;
+  }
+
+  async getExpenseCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(expenses);
+    return result[0]?.count || 0;
+  }
+
+  // Emergency BA feature implementations
+  async getEmergencyGig(id: number): Promise<EmergencyGig | undefined> {
+    const [gig] = await db.select().from(emergencyGigs).where(eq(emergencyGigs.id, id));
+    return gig || undefined;
+  }
+
+  async getActiveEmergencyGigs(city?: string): Promise<EmergencyGig[]> {
+    if (city) {
+      return await db
+        .select()
+        .from(emergencyGigs)
+        .where(and(eq(emergencyGigs.status, 'active'), eq(emergencyGigs.city, city)))
+        .orderBy(desc(emergencyGigs.createdAt));
+    } else {
+      return await db
+        .select()
+        .from(emergencyGigs)
+        .where(eq(emergencyGigs.status, 'active'))
+        .orderBy(desc(emergencyGigs.createdAt));
+    }
+  }
+
+  async createEmergencyGig(gig: InsertEmergencyGig): Promise<EmergencyGig> {
+    const [newGig] = await db
+      .insert(emergencyGigs)
+      .values(gig)
+      .returning();
+    return newGig;
+  }
+
+  async updateEmergencyGig(id: number, gig: Partial<InsertEmergencyGig>): Promise<EmergencyGig | undefined> {
+    const [updatedGig] = await db
+      .update(emergencyGigs)
+      .set(gig)
+      .where(eq(emergencyGigs.id, id))
+      .returning();
+    return updatedGig || undefined;
+  }
+
+  async markEmergencyGigFilled(id: number): Promise<EmergencyGig | undefined> {
+    const [updatedGig] = await db
+      .update(emergencyGigs)
+      .set({ status: 'filled', filledAt: new Date() })
+      .where(eq(emergencyGigs.id, id))
+      .returning();
+    return updatedGig || undefined;
+  }
+
+  async createBAApplication(application: InsertBAApplication): Promise<BAApplication> {
+    const [newApplication] = await db
+      .insert(baApplications)
+      .values(application)
+      .returning();
+    return newApplication;
+  }
+
+  async getBAApplicationsForGig(gigId: number): Promise<BAApplication[]> {
+    return await db.select().from(baApplications).where(eq(baApplications.emergencyGigId, gigId));
+  }
+
+  async getBAsForEmergencyGig(gigId: number): Promise<User[]> {
+    const applications = await db
+      .select({
+        user: users
+      })
+      .from(baApplications)
+      .innerJoin(users, eq(baApplications.baUserId, users.id))
+      .where(eq(baApplications.emergencyGigId, gigId));
+    
+    return applications.map(app => app.user);
+  }
+
+  async getBAsInCity(city: string): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.emergencyNotifications, true),
+          sql`${users.preferredCities} @> ARRAY[${city}]::text[]`
+        )
+      );
+  }
+
+  // Agency authentication methods
+  async getAgency(id: number): Promise<Agency | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(agencies)
+        .where(eq(agencies.id, id))
+        .limit(1);
+      
+      return result[0];
+    } catch (error) {
+      console.error("❌ Failed to get agency:", error);
+      throw error;
+    }
+  }
+
+  async getAgencyByEmail(email: string): Promise<Agency | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(agencies)
+        .where(eq(agencies.email, email))
+        .limit(1);
+      
+      return result[0];
+    } catch (error) {
+      console.error("❌ Failed to get agency by email:", error);
+      throw error;
+    }
+  }
+
+  async createAgency(agency: InsertAgency): Promise<Agency> {
+    try {
+      // Hash the password
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(agency.passwordHash, saltRounds);
+
+      const result = await db
+        .insert(agencies)
+        .values({
+          ...agency,
+          passwordHash,
+        })
+        .returning();
+
+      return result[0];
+    } catch (error) {
+      console.error("❌ Failed to create agency:", error);
+      throw error;
+    }
+  }
+
+  async validateAgencyPassword(email: string, password: string): Promise<Agency | null> {
+    try {
+      const agency = await this.getAgencyByEmail(email);
+      if (!agency) {
+        return null;
+      }
+
+      const isValid = await bcrypt.compare(password, agency.passwordHash);
+      if (!isValid) {
+        return null;
+      }
+
+      return agency;
+    } catch (error) {
+      console.error("❌ Failed to validate agency password:", error);
+      throw error;
+    }
+  }
+}
+
+export const storage = new DatabaseStorage();

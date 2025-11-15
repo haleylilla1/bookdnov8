@@ -1,0 +1,90 @@
+BOOKD - APP STORE SCREENSHOT GUIDE
+===========================================
+
+REQUIRED SCREENSHOT SIZES:
+1. 6.7" (iPhone 15 Pro Max): 1290 x 2796 pixels
+2. 6.5" (iPhone 14 Plus): 1284 x 2778 pixels  
+3. 5.5" (iPhone 8 Plus): 1242 x 2208 pixels
+
+SCREENS TO CAPTURE (at least 3 per size):
+1. Dashboard - showing income summary and quick stats
+2. Calendar View - with gigs displayed on calendar
+3. Gig Details - showing a gig card or "Got Paid" workflow
+4. Expense Form - add expense screen
+5. Reports/Summary - financial overview
+
+HOW TO CAPTURE:
+
+METHOD 1: iOS Simulator (Best Quality)
+---------------------------------------
+1. Open your app in Xcode
+2. Run on these simulators:
+   - iPhone 15 Pro Max (6.7")
+   - iPhone 14 Plus (6.5")
+   - iPhone 8 Plus (5.5")
+3. Navigate to each screen
+4. Press: Cmd + S (or File > Save Screen)
+5. Screenshots save to Desktop
+
+METHOD 2: Real iPhone + Mac
+----------------------------
+1. Connect iPhone to Mac
+2. Open QuickTime Player
+3. File > New Movie Recording
+4. Click arrow next to record button, select your iPhone
+5. Navigate through app
+6. Take screenshots: Cmd + Shift + 4, then spacebar, click window
+
+METHOD 3: Browser (Quick Alternative)
+--------------------------------------
+1. Open app in Chrome/Safari
+2. Open DevTools (F12)
+3. Toggle device toolbar (Cmd + Shift + M)
+4. Set dimensions:
+   - 430 x 932 (iPhone 15 Pro Max)
+   - 428 x 926 (iPhone 14 Plus)
+   - 414 x 736 (iPhone 8 Plus)
+5. Take screenshot (right-click > Capture screenshot)
+
+WHAT TO SHOW IN SCREENSHOTS:
+-----------------------------
+Screenshot 1: Dashboard
+- Monthly income total
+- Gigs completed this month
+- Expenses tracked
+- Clean, professional look
+
+Screenshot 2: Calendar View
+- Calendar with gigs on specific dates
+- Color-coded dots for gig status
+- Shows upcoming and completed gigs
+
+Screenshot 3: Gig Tracking
+- Either a gig card or "Got Paid" dialog
+- Shows income, expenses, mileage tracking
+- Tax calculation visible
+
+Screenshot 4: Expense Management
+- Add expense form
+- Shows categories, amounts
+- Clean mobile interface
+
+Screenshot 5 (Optional): Reports
+- Financial summary
+- Export functionality
+- Deduction tracking
+
+TIPS:
+- Use real data (not "test" or "demo" text)
+- Fill in realistic gig names, amounts
+- Show the app in action
+- No status bar needed (App Store Connect can add)
+- Use portrait orientation only
+
+Save all screenshots in: app-store-screenshots/
+Name format: 
+- dashboard-67inch.png
+- calendar-67inch.png
+- gotpaid-67inch.png
+- expense-67inch.png
+(repeat for 65inch and 55inch)

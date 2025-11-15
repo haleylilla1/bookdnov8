@@ -1,0 +1,112 @@
+==============================================
+BOOKD - APP STORE METADATA
+==============================================
+
+APP NAME:
+Bookd - Gig Worker Tracker
+
+SUBTITLE (30 characters max):
+Track gigs, expenses, and taxes
+
+PROMOTIONAL TEXT (170 characters max):
+The simplest way for gig workers to track income, expenses, and mileage. Know exactly what you earned and what you can deduct come tax time.
+
+DESCRIPTION (4000 characters max):
+Take control of your gig work finances with Bookd - the essential companion app built specifically for gig workers, freelancers, and independent contractors.
+
+EFFORTLESS INCOME TRACKING
+Log every gig with detailed client and event information. Track what you're owed versus what you've been paid. See your earnings at a glance with our intuitive calendar view and comprehensive dashboard.
+
+SMART EXPENSE MANAGEMENT
+Record business expenses instantly with our mobile-optimized forms. Link expenses to specific gigs for better organization. Track everything from parking fees to supplies, all categorized for easy tax preparation.
+
+AUTOMATIC MILEAGE CALCULATION
+Let Bookd do the math for you. Enter your starting and ending addresses, and we'll calculate your deductible mileage using current IRS rates. Perfect for drivers, delivery workers, and mobile service providers.
+
+TAX-SMART FROM DAY ONE
+• Calculate your estimated tax liability in real-time
+• Track business deductions throughout the year
+• Export all your data to Excel for your accountant
+• See your actual take-home pay after taxes and expenses
+
+CALENDAR-BASED GIG MANAGEMENT
+• Visual calendar shows all your scheduled gigs
+• Color-coded status indicators (upcoming, completed, paid)
+• Multi-day gig support for extended events
+• Quick "Got Paid" workflow for marking gigs complete
+
+COMPREHENSIVE REPORTING
+• Monthly and yearly income summaries
+• Expense breakdowns by category
+• Mileage deduction calculations
+• Business vs. reimbursed expense tracking
+
+BUILT FOR GIG WORKERS
+Whether you're a rideshare driver, event staff, freelance photographer, delivery driver, or independent contractor - Bookd helps you stay organized and tax-ready all year long.
+
+NO SURPRISES AT TAX TIME
+Stop scrambling for receipts and mileage logs when April arrives. With Bookd, everything you need for tax preparation is organized and ready to export.
+
+SIMPLE & SECURE
+• Clean, mobile-first interface
+• Secure authentication
+• Your data, your control
+• Export anytime
+
+Start tracking smarter today with Bookd - because knowing your numbers is the first step to growing your business.
+
+---
+
+KEYWORDS (100 characters max):
+gig worker,income tracker,expense,tax,freelance,contractor,mileage,deduction,self employed,1099
+
+SUPPORT URL:
+mailto:haley.bookd@gmail.com
+
+PRIVACY POLICY URL:
+https://workspace.haleylilla.repl.co/privacy-policy
+
+CATEGORY:
+Primary: Finance
+Secondary: Business
+
+AGE RATING:
+4+ (No objectionable content)
+
+WHAT'S NEW IN VERSION 1.0:
+Welcome to Bookd! 
+
+This is our initial release with everything you need to track your gig work finances:
+
+• Calendar-based gig tracking
+• Income and expense management
+• Automatic mileage calculation
+• Tax-smart deduction tracking
+• Excel export for tax preparation
+• Clean, mobile-optimized interface
+
+We're excited to help you take control of your gig work finances!
+
+==============================================
+REVIEW NOTES FOR APPLE
+==============================================
+
+DEMO ACCOUNT:
+Email: demo@bookd.app
+Password: [You need to create this]
+
+IMPORTANT NOTES:
+1. Location permission is only used for mileage calculation (not constant tracking)
+2. App does not use camera or photo library
+3. No in-app purchases in v1.0 (will enable via live updates post-approval)
+4. All data is stored securely with proper encryption
+5. Users can export and delete their data at any time
+
+APP FEATURES TO TEST:
+1. Create a new gig (e.g., "Wedding Photography", $500, today's date)
+2. Add an expense (e.g., "Gas", $40, "Transportation")
+3. Mark the gig as "Got Paid" and see the tax calculation
+4. View the dashboard to see income summary
+5. Export data to Excel
+
+==============================================

@@ -1,0 +1,130 @@
+import { useState, useEffect } from "react";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import CalendarView from "@/components/calendar-view";
+import SimpleGigForm from "@/components/simple-gig-form";
+import AddExpenseForm from "@/components/add-expense-form";
+import Dashboard from "@/components/dashboard";
+import Profile from "@/components/profile";
+import BottomNavigation from "@/components/bottom-navigation";
+import AppHeader from "@/components/app-header";
+import DesktopSidebar from "@/components/desktop-sidebar";
+import LegalFooter from "@/components/legal-footer";
+import { OnboardingFlow } from "@/components/onboarding-flow";
+import EmergencyFeed from "@/components/emergency-feed";
+import { useAuth } from "@/lib/replit-auth";
+import { Button } from "@/components/ui/button";
+import { Plus, Bell, Briefcase, Receipt } from "lucide-react";
+
+export type Screen = "calendar" | "dashboard" | "rescue-roster" | "profile" | "gig-form" | "expense-form" | "settings";
+
+export default function Home() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>("calendar");
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // Fetch current user data to check onboarding status
+  const { data: userData } = useQuery({
+    queryKey: ["/api/user"],
+    enabled: !!user
+  });
+
+  // Check if user needs onboarding
+  useEffect(() => {
+    if (userData && typeof userData === 'object' && 'onboardingCompleted' in userData && !userData.onboardingCompleted) {
+      setShowOnboarding(true);
+    }
+  }, [userData]);
+
+  const handleUserChange = () => {
+    // Refresh all data when user changes
+    queryClient.invalidateQueries();
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+  };
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case "calendar":
+        return <CalendarView />;
+      case "dashboard":
+        return <Dashboard />;
+      // Hidden feature - Emergency BA opportunities (Rescue Roster)
+      // case "rescue-roster":
+      //   return <EmergencyFeed />;
+      case "profile":
+        return <Profile />;
+      case "gig-form":
+        return <SimpleGigForm onClose={() => setCurrentScreen("calendar")} />;
+      case "expense-form":
+        return <AddExpenseForm onClose={() => setCurrentScreen("calendar")} />;
+      case "settings":
+        return <Profile />; // Use Profile component for settings for now
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Onboarding Flow */}
+      <OnboardingFlow 
+        isOpen={showOnboarding}
+        onComplete={handleOnboardingComplete}
+        onClose={() => setShowOnboarding(false)}
+      />
+
+      {/* Desktop Sidebar */}
+      <DesktopSidebar currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
+
+      {/* Main Content Area */}
+      <div className="lg:ml-64">
+        {/* App Header - Hidden on desktop */}
+        <div className="lg:hidden">
+          <AppHeader currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
+        </div>
+
+        {/* Main Content */}
+        <main className="screen-content main-content-area">
+          {renderScreen()}
+        </main>
+
+        {/* Floating Action Buttons - Hidden on desktop (buttons are in sidebar) */}
+        {(currentScreen === "calendar" || currentScreen === "dashboard") && (
+          <div className="fixed bottom-28 right-4 flex flex-col gap-3 lg:hidden">
+            <Button
+              onClick={() => setCurrentScreen("expense-form")}
+              className="px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all duration-200 bg-[#c258d1] hover:bg-green-700 text-white font-medium"
+            >
+              <Receipt className="w-4 h-4 mr-2" />
+              Add Expense
+            </Button>
+            <Button
+              onClick={() => setCurrentScreen("gig-form")}
+              className="px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all duration-200 bg-primary hover:bg-primary/90 text-white font-medium"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Gig
+            </Button>
+          </div>
+        )}
+
+        {/* Legal Footer - Hidden on desktop (links in sidebar) */}
+        <div className="lg:hidden">
+          <LegalFooter className="border-t border-gray-200 bg-white" />
+        </div>
+
+        {/* Bottom Navigation - Hidden on desktop */}
+        <div className="lg:hidden">
+          <BottomNavigation 
+            currentScreen={currentScreen} 
+            onScreenChange={setCurrentScreen} 
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,50 @@
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /home/runner/workspace/node_modules/@capacitor/core/dist/index.js is dynamically imported by /home/runner/workspace/client/src/components/dashboard.tsx but also statically imported by /home/runner/workspace/client/src/components/subscription-modal.tsx, /home/runner/workspace/client/src/lib/revenuecat.ts, /home/runner/workspace/node_modules/@capacitor/browser/dist/esm/index.js, /home/runner/workspace/node_modules/@capacitor/browser/dist/esm/web.js, /home/runner/workspace/node_modules/@revenuecat/purchases-capacitor/dist/esm/index.js, /home/runner/workspace/node_modules/@revenuecat/purchases-capacitor/dist/esm/web.js, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /home/runner/workspace/client/src/lib/ios-fixes.ts is dynamically imported by /home/runner/workspace/client/src/components/got-paid-dialog.tsx, /home/runner/workspace/client/src/components/got-paid-dialog.tsx but also statically imported by /home/runner/workspace/client/src/components/ui/dialog.tsx, /home/runner/workspace/client/src/main.tsx, dynamic import will not move module into another chunk.
+
+../dist/public/index.html                                0.93 kB │ gzip:   0.49 kB
+../dist/public/assets/bookd-logo-BZjQ5Ngi.png           52.74 kB
+../dist/public/assets/index-7v9Wm-zX.css                82.94 kB │ gzip:  14.46 kB
+../dist/public/assets/index-U2rxoWCP.js                  0.34 kB │ gzip:   0.24 kB
+../dist/public/assets/web-D1zg0Aae.js                    0.38 kB │ gzip:   0.25 kB
+../dist/public/assets/mobile-optimization-DPf7XaR8.js    0.60 kB │ gzip:   0.39 kB
+../dist/public/assets/distance-Be8gu5fj.js               1.75 kB │ gzip:   0.78 kB
+../dist/public/assets/web-CmL9iskC.js                    9.67 kB │ gzip:   1.95 kB
+../dist/public/assets/auth-form-DcNt_igk.js             16.35 kB │ gzip:   4.36 kB
+../dist/public/assets/index-DG4-Dqsr.js                882.74 kB │ gzip: 260.05 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.54s
+
+  dist/index.js  244.9kb
+
+⚡ Done in 1058ms
+~/workspace$ npx cap sync ios
+⠙ Copying web assets from public to ios/App/App/public
+✔ Copying web assets from public to ios/App/App/public in 11.28ms
+✔ Creating capacitor.config.json in ios/App/App in 1.26ms
+✔ copy ios in 179.19ms
+✔ Updating iOS plugins in 21.93ms
+⠙ update ios [warn] Skipping pod install because CocoaPods is not installed
+[warn] Unable to find "xcodebuild". Skipping xcodebuild clean step...
+✔ Updating iOS native dependencies with pod install in 18.92ms
+[info] Found 8 Capacitor plugins for ios:
+       @capacitor/app@7.0.2
+       @capacitor/browser@7.0.2
+       @capacitor/filesystem@7.1.4
+       @capacitor/haptics@7.0.2
+       @capacitor/keyboard@7.0.2
+       @capacitor/share@7.0.2
+       @capacitor/status-bar@7.0.2
+       @revenuecat/purchases-capacitor@11.2.3
+✔ update ios in 142.29ms
+[info] Sync finished in 0.586s
+
+Thank you for helping improve Capacitor by sharing anonymous usage data! 💖
+Information about the data we collect is available on our website: https://capacitorjs.com/docs/next/cli/telemetry
+You can disable telemetry at any time by using the npx
