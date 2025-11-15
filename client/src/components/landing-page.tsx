@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import AuthTestPanel from "@/components/auth-test-panel";
+// import AuthTestPanel from "@/components/auth-test-panel";
 
 export default function LandingPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -374,11 +374,11 @@ export default function LandingPage() {
         </div>
 
         {/* Development Test Panel */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* {process.env.NODE_ENV === 'development' && (
           <div className="mt-16">
             <AuthTestPanel />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

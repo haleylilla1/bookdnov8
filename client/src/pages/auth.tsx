@@ -21,7 +21,6 @@ export default function AuthPage() {
   // Prevent zoom on mobile input focus
   const inputProps = {
     style: { fontSize: '16px' }, // Prevents iOS zoom
-    autoComplete: "off",
     autoCorrect: "off",
     autoCapitalize: "off",
     spellCheck: false,
@@ -255,6 +254,7 @@ export default function AuthPage() {
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     onFocus={handleInputFocus}
                     disabled={loading}
+                    autoComplete="name"
                     {...inputProps}
                     style={inputStyle}
                   />
