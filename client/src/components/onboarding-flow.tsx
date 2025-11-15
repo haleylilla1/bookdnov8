@@ -213,7 +213,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto pb-8">
+      <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto pb-8">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {currentStepData.icon}
@@ -221,7 +221,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 pb-4">
+        <div className="space-y-6 pb-80">
           <Progress value={progress} className="w-full" />
           
           <div className="min-h-[150px] space-y-4">
