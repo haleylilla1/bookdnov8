@@ -27,6 +27,13 @@ export default function AuthPage() {
     spellCheck: false,
   };
 
+  // Handle input focus to scroll into view when keyboard appears
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -215,8 +222,8 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 overflow-y-auto">
+      <div className="w-full max-w-md mx-auto space-y-6 py-8 px-4">
         {/* Branding */}
         <div className="text-center flex flex-col items-center">
           <img src={logoImage} alt="bookd" className="h-12 mb-3 bg-white rounded-lg px-4 py-2 object-contain" />
@@ -246,6 +253,7 @@ export default function AuthPage() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
+                    onFocus={handleInputFocus}
                     disabled={loading}
                     {...inputProps}
                     style={inputStyle}
@@ -260,6 +268,7 @@ export default function AuthPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
+                  onFocus={handleInputFocus}
                   disabled={loading}
                   autoComplete="email"
                   {...inputProps}
@@ -275,6 +284,7 @@ export default function AuthPage() {
                     placeholder={isLogin ? "Enter your password" : "Create a password"}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
+                    onFocus={handleInputFocus}
                     disabled={loading}
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     {...inputProps}
@@ -309,6 +319,7 @@ export default function AuthPage() {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    onFocus={handleInputFocus}
                     disabled={loading}
                     autoComplete="new-password"
                     {...inputProps}

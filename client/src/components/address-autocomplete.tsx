@@ -114,10 +114,14 @@ export function AddressAutocomplete({
   };
 
   // Handle input focus
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     if (suggestions.length > 0) {
       setShowSuggestions(true);
     }
+    // Scroll input into view when keyboard appears on mobile
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
   };
 
   // Cleanup timeout on unmount
