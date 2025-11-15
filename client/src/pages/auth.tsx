@@ -175,8 +175,7 @@ export default function AuthPage() {
         console.log("🔍 Error object:", JSON.stringify(error));
         
         toast({
-          title: isLogin ? "Login Failed" : "Registration Failed",
-          description: errorMessage,
+          title: errorMessage,
           variant: "destructive",
         });
       }
@@ -185,8 +184,7 @@ export default function AuthPage() {
       
       // Network error - could be CORS, network connectivity, or server down
       toast({
-        title: isLogin ? "Connection Error" : "Registration Error",
-        description: "Unable to connect to server. Please check your internet connection and try again.",
+        title: "Unable to connect to server. Please check your internet connection and try again.",
         variant: "destructive",
       });
     } finally {
