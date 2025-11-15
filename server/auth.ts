@@ -450,7 +450,9 @@ export function setupAuthRoutes(app: Express): void {
       // Input validation
       if (!email || !password || !name) {
         console.log('❌ Missing fields:', { hasEmail: !!email, hasPassword: !!password, hasName: !!name });
-        return res.status(400).json({ error: 'Email, password, and name are required' });
+        return res.status(400).json({ 
+          error: 'Please fill in all fields: email, password, and full name are required to create your account.' 
+        });
       }
 
       const sanitizedEmail = sanitizeEmail(email);
@@ -461,11 +463,15 @@ export function setupAuthRoutes(app: Express): void {
       }
 
       if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        return res.status(400).json({ 
+          error: 'Your password is too short. Please create a password with at least 6 characters.' 
+        });
       }
 
       if (sanitizedName.length < 2) {
-        return res.status(400).json({ error: 'Name must be at least 2 characters' });
+        return res.status(400).json({ 
+          error: 'Please enter your full name (at least 2 characters).' 
+        });
       }
 
       // Check if user already exists
@@ -476,7 +482,9 @@ export function setupAuthRoutes(app: Express): void {
         .limit(1);
 
       if (existingUser) {
-        return res.status(400).json({ error: 'An account with this email already exists' });
+        return res.status(400).json({ 
+          error: 'You already have an account with this email. Please sign in instead or use "Forgot Password" if you need to reset your password.' 
+        });
       }
 
       console.log('✅ Creating user:', sanitizedEmail);
@@ -522,7 +530,9 @@ export function setupAuthRoutes(app: Express): void {
       
       // Handle duplicate email constraint violation  
       if ((error as Error).message?.includes('duplicate') || (error as Error).message?.includes('unique')) {
-        return res.status(400).json({ error: 'An account with this email already exists' });
+        return res.status(400).json({ 
+          error: 'You already have an account with this email. Please sign in instead or use "Forgot Password" if you need to reset your password.' 
+        });
       }
       
       res.status(500).json({ error: 'Registration failed. Please try again.' });
@@ -555,7 +565,9 @@ export function setupAuthRoutes(app: Express): void {
       
       if (!user) {
         console.log('❌ Invalid credentials for:', sanitizedEmail);
-        return res.status(401).json({ error: 'Invalid email or password' });
+        return res.status(401).json({ 
+          error: 'Incorrect email or password. Please check your credentials and try again, or use "Forgot Password" to reset.' 
+        });
       }
 
       console.log('✅ User validated, ID:', user.id);
