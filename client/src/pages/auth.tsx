@@ -173,7 +173,9 @@ export default function AuthPage() {
         const errorMessage = error.error || error.message || "An unexpected error occurred";
         console.log("🔍 Final error message to display:", errorMessage);
         console.log("🔍 Error object:", JSON.stringify(error));
+        console.log("🔍 CODE VERSION: v2.0 - Nov 15 2025 23:49 - Full error in title");
         
+        // Show full error message in title for visibility
         toast({
           title: errorMessage,
           variant: "destructive",
