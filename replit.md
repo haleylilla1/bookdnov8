@@ -3,7 +3,18 @@
 ## Overview
 Bookd is a mobile-first gig worker companion app focused on financial tracking and calendar-based gig management. It aims to provide a reliable, scalable, and user-friendly solution for gig workers, transitioning from a prototype to a production-ready application. Key capabilities include gig and client management, financial tracking, and tax-smart workflows. The app is being prepared for iOS App Store launch using Capacitor for native functionality and RevenueCat for subscription monetization at **$5/month or $50/year with 7-day free trial**.
 
-## Recent Changes (November 09, 2025)
+## Recent Changes (December 01, 2025)
+### iOS Keyboard Improvements
+- **Done Button Toolbar**: Added global "Done" button that appears above the iOS keyboard for all text inputs throughout the app
+- **Auto-Scroll to Input**: When tapping on any input field, the screen automatically scrolls so the input is visible above the keyboard
+- **Keyboard Height Detection**: Uses visualViewport API when available, with 320px fallback for WebViews and external keyboards
+- **Files Changed**: 
+  - `client/src/components/keyboard-toolbar.tsx` - New component with Done button and auto-scroll logic
+  - `client/src/lib/ios-fixes.ts` - Consolidated zoom prevention, removed duplicate scroll handlers
+  - `client/src/index.css` - Added keyboard toolbar styles, removed position:fixed from keyboard-open class
+  - `client/src/App.tsx` - Integrated KeyboardToolbar globally
+
+## Previous Changes (November 09, 2025)
 ### iOS App Store Submission Complete
 - **iOS Build Complete**: Successfully built iOS app in Xcode 16 with iOS 18 SDK and uploaded to App Store Connect for review
 - **Certificate & Provisioning**: Resolved all signing issues - manually created Distribution Certificate (Apple Distribution: Haley Lilla LX8FDT7R2G) and App Store provisioning profile
