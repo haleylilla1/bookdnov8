@@ -3,7 +3,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/lib/replit-auth';
-import { KeyboardToolbar } from '@/components/keyboard-toolbar';
 import HomePage from '@/pages/home';
 import ProfilePage from '@/pages/profile';
 import BAProfilePage from '@/pages/ba-profile';
@@ -92,7 +91,6 @@ function App() {
       <OfflineBanner />
       <AppRouter />
       <Toaster />
-      <KeyboardToolbar />
     </QueryClientProvider>
   );
 }

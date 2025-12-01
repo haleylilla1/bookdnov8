@@ -39,16 +39,76 @@ export class IOSMobileFixes {
       lastTouchEnd = now;
     }, { passive: false });
 
-    // Add event listeners for focus events to ensure zoom prevention
-    // Note: Auto-scroll is handled by KeyboardToolbar component to avoid duplicate scrolling
+    // Add event listeners for focus events to ensure zoom prevention and auto-scroll
     document.addEventListener('focusin', (e) => {
       const target = e.target as HTMLElement;
       if (target.matches('input, textarea, select')) {
         target.style.fontSize = '16px';
         target.style.webkitTextSizeAdjust = '100%';
         (target.style as any).textSizeAdjust = '100%';
+        
+        // Auto-scroll input into view after keyboard opens
+        this.scrollInputIntoView(target);
       }
     });
+  }
+
+  // Helper to find scrollable parent container
+  private static findScrollableParent(element: HTMLElement): HTMLElement | null {
+    let parent = element.parentElement;
+    while (parent && parent !== document.body) {
+      const style = window.getComputedStyle(parent);
+      const overflowY = style.overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') {
+        return parent;
+      }
+      if (parent.classList.contains('overflow-y-auto') || 
+          parent.classList.contains('overflow-auto') ||
+          parent.hasAttribute('data-radix-scroll-area-viewport') ||
+          parent.hasAttribute('data-radix-dialog-content')) {
+        return parent;
+      }
+      parent = parent.parentElement;
+    }
+    return null;
+  }
+
+  // Auto-scroll focused input into view above keyboard
+  private static scrollInputIntoView(element: HTMLElement): void {
+    // Wait for keyboard to fully open
+    setTimeout(() => {
+      const viewport = window.visualViewport;
+      const windowHeight = window.innerHeight;
+      
+      // Estimate keyboard height (320px fallback for WebViews/external keyboards)
+      let keyboardHeight = 320;
+      if (viewport && viewport.height < windowHeight * 0.85) {
+        keyboardHeight = windowHeight - viewport.height;
+      }
+      
+      const rect = element.getBoundingClientRect();
+      const safeAreaBottom = keyboardHeight + 20;
+      const visibleAreaHeight = windowHeight - safeAreaBottom;
+      
+      // Check if input is hidden by keyboard
+      if (rect.bottom > visibleAreaHeight || rect.top < 80) {
+        const targetY = Math.min(visibleAreaHeight * 0.4, 150);
+        const scrollAmount = rect.top - targetY;
+        
+        const scrollableParent = this.findScrollableParent(element);
+        if (scrollableParent) {
+          scrollableParent.scrollBy({ 
+            top: scrollAmount, 
+            behavior: 'smooth' 
+          });
+        } else {
+          window.scrollBy({ 
+            top: scrollAmount, 
+            behavior: 'smooth' 
+          });
+        }
+      }
+    }, 350);
   }
 
   private static preventInputZoom(): void {

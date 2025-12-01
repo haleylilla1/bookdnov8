@@ -5,14 +5,12 @@ Bookd is a mobile-first gig worker companion app focused on financial tracking a
 
 ## Recent Changes (December 01, 2025)
 ### iOS Keyboard Improvements
-- **Done Button Toolbar**: Added global "Done" button that appears above the iOS keyboard for all text inputs throughout the app
 - **Auto-Scroll to Input**: When tapping on any input field, the screen automatically scrolls so the input is visible above the keyboard
+- **Native Done Button**: Using iOS keyboard's native blue "Done" button (next to period) via `enterKeyHint="done"` attribute - no custom toolbar needed
 - **Keyboard Height Detection**: Uses visualViewport API when available, with 320px fallback for WebViews and external keyboards
 - **Files Changed**: 
-  - `client/src/components/keyboard-toolbar.tsx` - New component with Done button and auto-scroll logic
-  - `client/src/lib/ios-fixes.ts` - Consolidated zoom prevention, removed duplicate scroll handlers
-  - `client/src/index.css` - Added keyboard toolbar styles, removed position:fixed from keyboard-open class
-  - `client/src/App.tsx` - Integrated KeyboardToolbar globally
+  - `client/src/lib/ios-fixes.ts` - Added auto-scroll logic with keyboard height estimation
+  - `client/src/index.css` - Removed position:fixed from keyboard-open class to allow scrolling
 
 ## Previous Changes (November 09, 2025)
 ### iOS App Store Submission Complete
