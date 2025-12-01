@@ -251,6 +251,36 @@
       position: relative;
     }
 
+    /* iOS Keyboard Toolbar - Done button above keyboard */
+    .keyboard-toolbar {
+      position: fixed !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 44px !important;
+      background-color: #d1d5db !important;
+      border-top: 1px solid #9ca3af !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      z-index: 99999 !important;
+      -webkit-transform: translateZ(0) !important;
+      transform: translateZ(0) !important;
+      -webkit-backface-visibility: hidden !important;
+      backface-visibility: hidden !important;
+    }
+
+    /* When keyboard is open, add padding to prevent content being hidden */
+    body.keyboard-open {
+      padding-bottom: var(--keyboard-height, 0px);
+    }
+
+    /* Ensure inputs scroll into view when focused */
+    body.keyboard-open input:focus,
+    body.keyboard-open textarea:focus,
+    body.keyboard-open select:focus {
+      scroll-margin-bottom: calc(var(--keyboard-height, 0px) + 60px);
+    }
+
     /* Fixed bottom navigation on mobile */
     .mobile-fixed-bottom {
       position: sticky;
@@ -317,11 +347,9 @@
       text-size-adjust: 100% !important;
     }
     
-    /* Prevent body scroll when iOS keyboard opens */
+    /* Allow scrolling when keyboard opens - removed position:fixed to enable scroll-to-input */
     body.keyboard-open {
-      position: fixed;
-      width: 100%;
-      overflow: hidden;
+      /* Intentionally allowing scroll so inputs can scroll into view above keyboard */
     }
     
     /* Override any library styles that might cause zoom */

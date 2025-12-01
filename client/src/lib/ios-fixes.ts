@@ -40,6 +40,7 @@ export class IOSMobileFixes {
     }, { passive: false });
 
     // Add event listeners for focus events to ensure zoom prevention
+    // Note: Auto-scroll is handled by KeyboardToolbar component to avoid duplicate scrolling
     document.addEventListener('focusin', (e) => {
       const target = e.target as HTMLElement;
       if (target.matches('input, textarea, select')) {
