@@ -342,9 +342,9 @@ export default function AuthForm() {
                    resetRequestMutation.isPending || resetPasswordMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Branding */}
+    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 pt-8">
+      <div className="w-full max-w-md mx-auto space-y-4">
+        {/* Compact Branding */}
         <div className="text-center flex flex-col items-center">
           <img src={logoImage} alt="bookd" className="h-16 mb-3 object-contain" />
         </div>
@@ -602,23 +602,11 @@ export default function AuthForm() {
           </CardContent>
         </Card>
 
-        {/* Agency Portal Button */}
-        {/* Temporarily hidden - Agency Portal not yet ready for public launch */}
-        {/* <div className="text-center">
-          <Button
-            variant="outline"
-            onClick={() => {
-              console.log('Agency portal button clicked - navigating to /agency');
-              setLocation('/agency');
-            }}
-            className="w-full border-orange-300 text-orange-700 hover:bg-orange-50 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-950"
-            disabled={isLoading}
-          >
-            <Building className="w-4 h-4 mr-2" />
-            Agency Portal
-          </Button>
-          <p className="text-xs text-gray-500 mt-2">For agencies dealing with last-minute call outs, use our roster of emergency BA's. COMING SOON.</p>
-        </div> */}
+        {/* Version indicator to verify deployment */}
+        <p className="text-center text-xs text-gray-400 mt-4">v1.3.0</p>
+        
+        {/* Spacer for iOS keyboard scrolling */}
+        <div className="h-[50vh]" aria-hidden="true" />
       </div>
     </div>
   );
