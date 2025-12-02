@@ -258,10 +258,7 @@ export class IOSMobileFixes {
   }
 
   private static fixViewport(): void {
-    // Prevent bounce scrolling on body
-    document.body.style.overscrollBehavior = 'none';
-    
-    // Fix safe area handling
+    // Fix safe area handling (removed overscrollBehavior to allow keyboard scrolling)
     const root = document.documentElement;
     root.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top, 0px)');
     root.style.setProperty('--safe-area-inset-bottom', 'env(safe-area-inset-bottom, 0px)');

@@ -188,7 +188,6 @@
     }
 
     body {
-      overscroll-behavior-y: none;
       -webkit-overflow-scrolling: touch;
       position: relative;
       min-height: 100vh;
