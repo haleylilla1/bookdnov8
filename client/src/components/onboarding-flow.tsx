@@ -44,7 +44,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
       icon: <User className="w-8 h-8 text-blue-500" />,
       field: "welcome",
       placeholder: "",
-      description: "The purpose of Bookd is to help you know exactly what's coming in, what's going out, and what's yours to keep.\n\nBuilt by freelancers for freelancers. Let's get started!",
+      description: "Know exactly what's coming in, what's going out, and what's yours to keep.",
       isWelcome: true
     },
     {
