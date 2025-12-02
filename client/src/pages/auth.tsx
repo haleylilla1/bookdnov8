@@ -26,13 +26,6 @@ export default function AuthPage() {
     spellCheck: false,
   };
 
-  // Handle input focus to scroll into view when keyboard appears
-  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    setTimeout(() => {
-      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
-  };
-
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -253,7 +246,7 @@ export default function AuthPage() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    onFocus={handleInputFocus}
+                    
                     disabled={loading}
                     autoComplete="name"
                     {...inputProps}
@@ -269,7 +262,7 @@ export default function AuthPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  onFocus={handleInputFocus}
+                  
                   disabled={loading}
                   autoComplete="email"
                   {...inputProps}
@@ -285,7 +278,7 @@ export default function AuthPage() {
                     placeholder={isLogin ? "Enter your password" : "Create a password"}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    onFocus={handleInputFocus}
+                    
                     disabled={loading}
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     {...inputProps}
@@ -320,7 +313,7 @@ export default function AuthPage() {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    onFocus={handleInputFocus}
+                    
                     disabled={loading}
                     autoComplete="new-password"
                     {...inputProps}
