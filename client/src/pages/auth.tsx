@@ -215,8 +215,8 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 overflow-y-auto">
-      <div className="w-full max-w-md mx-auto space-y-6 py-8 px-4">
+    <div className="min-h-[100svh] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 overflow-y-auto">
+      <div className="w-full max-w-md mx-auto space-y-6 py-8 px-4 pb-[50vh]">
         {/* Branding */}
         <div className="text-center flex flex-col items-center">
           <img src={logoImage} alt="bookd" className="h-12 mb-3 bg-white rounded-lg px-4 py-2 object-contain" />
