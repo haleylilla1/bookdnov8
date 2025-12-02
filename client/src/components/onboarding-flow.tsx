@@ -223,10 +223,10 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto pb-8">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        <DialogHeader className="pr-8">
+          <DialogTitle className="flex items-center gap-2 text-left">
             {currentStepData.icon}
-            {currentStepData.title}
+            <span className="flex-1">{currentStepData.title}</span>
           </DialogTitle>
         </DialogHeader>
         
