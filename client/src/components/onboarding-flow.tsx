@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { User, MapPin, Briefcase, Users, ArrowRight, ArrowLeft, CheckCircle, Eye } from "lucide-react";
+import { User, MapPin, Briefcase, Users, ArrowRight, ArrowLeft, CheckCircle, Eye, Percent } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ interface SetupData {
   homeAddress: string;
   gigTypes: string;
   clientName: string;
+  defaultTaxPercentage: string;
 }
 
 export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowProps) {
@@ -29,7 +30,8 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     name: "",
     homeAddress: "",
     gigTypes: "",
-    clientName: ""
+    clientName: "",
+    defaultTaxPercentage: ""
   });
 
   const { toast } = useToast();
@@ -72,6 +74,14 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
       field: "clientName",
       placeholder: "Enter a client name",
       description: "This helps us set up your client tracking. You can add more later by going to your Profile."
+    },
+    {
+      title: "How much do you want to set aside for taxes?",
+      icon: <Percent className="w-8 h-8 text-red-500" />,
+      field: "defaultTaxPercentage",
+      placeholder: "",
+      description: "Choose what percentage of your gig income to save for taxes. A safe bet is 30% - you can always change this later in your Profile.",
+      isTaxStep: true
     }
   ];
 
@@ -247,6 +257,48 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
                           onChange={(value) => updateSetupData("homeAddress", value)}
                           className="text-base"
                         />
+                      ) : (currentStepData as any).isTaxStep ? (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-3 gap-3">
+                            {[
+                              { value: "20", label: "20%", sublabel: "Lower taxes" },
+                              { value: "25", label: "25%", sublabel: "Moderate" },
+                              { value: "30", label: "30%", sublabel: "Safe bet", recommended: true }
+                            ].map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => updateSetupData("defaultTaxPercentage", option.value)}
+                                className={`p-4 rounded-lg border-2 transition-all ${
+                                  setupData.defaultTaxPercentage === option.value
+                                    ? "border-blue-500 bg-blue-50"
+                                    : "border-gray-200 hover:border-gray-300"
+                                } ${option.recommended ? "ring-2 ring-blue-200" : ""}`}
+                              >
+                                <div className="text-xl font-bold">{option.label}</div>
+                                <div className="text-xs text-gray-500">{option.sublabel}</div>
+                                {option.recommended && (
+                                  <div className="text-xs text-blue-600 font-medium mt-1">Recommended</div>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-gray-500 mb-2">Or enter a custom percentage:</p>
+                            <div className="flex items-center justify-center gap-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                max="50"
+                                value={setupData.defaultTaxPercentage}
+                                onChange={(e) => updateSetupData("defaultTaxPercentage", e.target.value)}
+                                placeholder="e.g., 28"
+                                className="w-24 text-center text-lg"
+                              />
+                              <span className="text-lg font-medium">%</span>
+                            </div>
+                          </div>
+                        </div>
                       ) : (
                         <>
                           <Label htmlFor={(currentStepData as any).field}>

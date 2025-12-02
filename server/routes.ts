@@ -445,10 +445,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/setup', requireAuth, async (req: any, res: Response) => {
     try {
       const userId = getUserId(req);
-      const { name, homeAddress, gigTypes, clientName } = req.body;
+      const { name, homeAddress, gigTypes, clientName, defaultTaxPercentage } = req.body;
       
       // Validate required fields
-      if (!name || !homeAddress || !gigTypes || !clientName) {
+      if (!name || !homeAddress || !gigTypes || !clientName || !defaultTaxPercentage) {
         return res.status(400).json({ error: 'All setup fields are required' });
       }
 
@@ -477,6 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: name.trim(),
         homeAddress: homeAddress.trim(),
         onboardingCompleted: true,
+        defaultTaxPercentage: parseInt(defaultTaxPercentage, 10),
         customGigTypes: updatedGigTypes,  // Save to customGigTypes field
         workPreferences: {
           ...workPreferences,
@@ -504,6 +505,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: updateData.name,
           homeAddress: updateData.homeAddress,
           onboardingCompleted: true,
+          defaultTaxPercentage: updateData.defaultTaxPercentage,
           customGigTypes: updateData.customGigTypes,
           workPreferences: updateData.workPreferences
         }
