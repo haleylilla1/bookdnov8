@@ -203,9 +203,9 @@ export default function AuthPage() {
 
   const inputStyle = {
     width: '100%',
-    height: '48px',
+    height: '44px',
     fontSize: '16px',
-    padding: '12px 16px',
+    padding: '10px 14px',
     border: '2px solid #d1d5db',
     borderRadius: '6px',
     backgroundColor: '#ffffff',
@@ -216,37 +216,29 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="w-full max-w-md mx-auto space-y-6 py-8 px-4">
-        {/* Branding */}
+      <div className="w-full max-w-md mx-auto space-y-4 py-4 px-4">
+        {/* Compact Branding */}
         <div className="text-center flex flex-col items-center">
-          <img src={logoImage} alt="bookd" className="h-12 mb-3 bg-white rounded-lg px-4 py-2 object-contain" />
-          <p className="text-gray-600 dark:text-gray-300 text-lg">Work different.</p>
+          <img src={logoImage} alt="bookd" className="h-10 bg-white rounded-lg px-3 py-1 object-contain" />
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">
+          <CardHeader className="py-4 pb-2">
+            <CardTitle className="text-xl text-center">
               {isLogin ? "Welcome Back" : "Create Account"}
             </CardTitle>
-            <CardDescription className="text-center">
-              {isLogin 
-                ? "Sign in to your Bookd account" 
-                : "Start tracking your gigs with Bookd"
-              }
-            </CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="space-y-3 pt-2">
+            <form onSubmit={handleSubmit} className="space-y-3">
               {!isLogin && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Full Name</label>
+                  <label className="block text-sm font-medium mb-1">Full Name</label>
                   <input
                     type="text"
-                    placeholder="Enter your full name"
+                    placeholder="Your full name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    
                     disabled={loading}
                     autoComplete="name"
                     {...inputProps}
@@ -256,13 +248,12 @@ export default function AuthPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
+                <label className="block text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="your@email.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  
                   disabled={loading}
                   autoComplete="email"
                   {...inputProps}
@@ -271,14 +262,13 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Password</label>
+                <label className="block text-sm font-medium mb-1">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder={isLogin ? "Enter your password" : "Create a password"}
+                    placeholder="Min 6 characters"
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    
                     disabled={loading}
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     {...inputProps}
@@ -298,22 +288,16 @@ export default function AuthPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                {!isLogin && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    Password must be at least 6 characters long
-                  </p>
-                )}
               </div>
 
               {!isLogin && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Confirm Password</label>
+                  <label className="block text-sm font-medium mb-1">Confirm Password</label>
                   <input
                     type="password"
-                    placeholder="Confirm your password"
+                    placeholder="Re-enter password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    
                     disabled={loading}
                     autoComplete="new-password"
                     {...inputProps}
@@ -382,8 +366,11 @@ export default function AuthPage() {
           </CardContent>
         </Card>
         
-        {/* Spacer for iOS keyboard scrolling - creates room to scroll inputs into view */}
-        <div className="h-[60vh]" aria-hidden="true" />
+        {/* Version indicator to verify deployment */}
+        <p className="text-center text-xs text-gray-400 mt-4">v1.3.0</p>
+        
+        {/* Spacer for iOS keyboard scrolling */}
+        <div className="h-[50vh]" aria-hidden="true" />
       </div>
     </div>
   );
