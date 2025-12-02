@@ -222,14 +222,16 @@ export default function Profile() {
             <p className="text-gray-600">Manage your account settings</p>
           </div>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={() => setShowOnboardingDemo(true)}
-          className="px-4 py-2 h-auto flex items-center gap-2 pl-[38px] pr-[38px] text-sm"
-        >
-          <Play className="w-4 h-4" />
-          Demo Onboarding
-        </Button>
+        {user?.email === 'haleylilla@gmail.com' && (
+          <Button 
+            variant="outline" 
+            onClick={() => setShowOnboardingDemo(true)}
+            className="px-4 py-2 h-auto flex items-center gap-2 pl-[38px] pr-[38px] text-sm"
+          >
+            <Play className="w-4 h-4" />
+            Demo Onboarding
+          </Button>
+        )}
       </div>
 
       {/* Basic Information */}
