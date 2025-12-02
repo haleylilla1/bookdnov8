@@ -606,7 +606,7 @@ export default function AuthForm() {
         <p className="text-center text-xs text-gray-400 mt-4">v1.3.0</p>
         
         {/* Spacer for iOS keyboard scrolling */}
-        <div className="h-[50vh]" aria-hidden="true" />
+        <div className="h-[200px]" aria-hidden="true" />
       </div>
     </div>
   );
