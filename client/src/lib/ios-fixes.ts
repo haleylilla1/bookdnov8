@@ -53,6 +53,9 @@ export class IOSMobileFixes {
     });
   }
 
+  // Track active scroll operation to cancel on field switch
+  private static activeScrollController: AbortController | null = null;
+
   // Helper to find scrollable parent container
   private static findScrollableParent(element: HTMLElement): HTMLElement | null {
     let parent = element.parentElement;
@@ -73,42 +76,99 @@ export class IOSMobileFixes {
     return null;
   }
 
-  // Auto-scroll focused input into view above keyboard
+  // Auto-scroll focused input into view above keyboard with polling
   private static scrollInputIntoView(element: HTMLElement): void {
-    // Wait for keyboard to fully open
-    setTimeout(() => {
+    // Cancel any previous scroll operation
+    if (this.activeScrollController) {
+      this.activeScrollController.abort();
+    }
+    
+    const controller = new AbortController();
+    this.activeScrollController = controller;
+    
+    // Cancel scroll if element loses focus
+    const handleFocusOut = () => {
+      controller.abort();
+      element.removeEventListener('blur', handleFocusOut);
+    };
+    element.addEventListener('blur', handleFocusOut);
+    
+    let lastViewportHeight = window.visualViewport?.height || window.innerHeight;
+    let stableCount = 0;
+    let scrollAttempts = 0;
+    const maxAttempts = 30; // ~1 second at 33ms intervals
+    const startTime = Date.now();
+    
+    const attemptScroll = () => {
+      if (controller.signal.aborted) return;
+      
+      // Stop after 1 second or max attempts
+      if (Date.now() - startTime > 1000 || scrollAttempts >= maxAttempts) {
+        element.removeEventListener('blur', handleFocusOut);
+        return;
+      }
+      
+      scrollAttempts++;
+      
       const viewport = window.visualViewport;
       const windowHeight = window.innerHeight;
+      const currentViewportHeight = viewport?.height || windowHeight;
       
-      // Estimate keyboard height (320px fallback for WebViews/external keyboards)
-      let keyboardHeight = 320;
+      // Check if viewport is stable (keyboard finished animating)
+      if (Math.abs(currentViewportHeight - lastViewportHeight) < 5) {
+        stableCount++;
+      } else {
+        stableCount = 0;
+        lastViewportHeight = currentViewportHeight;
+      }
+      
+      // Estimate keyboard height
+      let keyboardHeight = 320; // Fallback for external keyboards
       if (viewport && viewport.height < windowHeight * 0.85) {
         keyboardHeight = windowHeight - viewport.height;
       }
       
       const rect = element.getBoundingClientRect();
-      const safeAreaBottom = keyboardHeight + 20;
+      const safeAreaBottom = keyboardHeight + 40; // Extra padding
       const visibleAreaHeight = windowHeight - safeAreaBottom;
       
-      // Check if input is hidden by keyboard
-      if (rect.bottom > visibleAreaHeight || rect.top < 80) {
-        const targetY = Math.min(visibleAreaHeight * 0.4, 150);
+      // Check if input is hidden by keyboard or too close to top
+      const needsScroll = rect.bottom > visibleAreaHeight || rect.top < 60;
+      
+      if (needsScroll) {
+        // Target position: input at ~30% from top of visible area
+        const targetY = Math.min(visibleAreaHeight * 0.3, 120);
         const scrollAmount = rect.top - targetY;
         
-        const scrollableParent = this.findScrollableParent(element);
-        if (scrollableParent) {
-          scrollableParent.scrollBy({ 
-            top: scrollAmount, 
-            behavior: 'smooth' 
-          });
-        } else {
-          window.scrollBy({ 
-            top: scrollAmount, 
-            behavior: 'smooth' 
-          });
+        if (Math.abs(scrollAmount) > 10) {
+          const scrollableParent = this.findScrollableParent(element);
+          const scrollTarget = scrollableParent || window;
+          
+          // Use instant scroll during keyboard animation, smooth when stable
+          const behavior = stableCount > 3 ? 'smooth' : 'instant';
+          
+          if (scrollableParent) {
+            scrollableParent.scrollBy({ top: scrollAmount, behavior });
+          } else {
+            window.scrollBy({ top: scrollAmount, behavior });
+          }
         }
       }
-    }, 350);
+      
+      // Continue polling if viewport not yet stable
+      if (stableCount < 5) {
+        requestAnimationFrame(attemptScroll);
+      } else {
+        element.removeEventListener('blur', handleFocusOut);
+      }
+    };
+    
+    // Start polling after brief initial delay for keyboard to start opening
+    setTimeout(() => {
+      if (!controller.signal.aborted) {
+        attemptScroll();
+      }
+    }, 100);
   }
 
   private static preventInputZoom(): void {
