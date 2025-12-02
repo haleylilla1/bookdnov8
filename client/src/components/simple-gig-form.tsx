@@ -717,6 +717,9 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                 </FormItem>
               )}
             />
+            
+            {/* Spacer for iOS keyboard scrolling */}
+            <div className="h-[200px]" aria-hidden="true" />
               </div>
             </div>
             

@@ -62,15 +62,31 @@ export class IOSMobileFixes {
     while (parent && parent !== document.body) {
       const style = window.getComputedStyle(parent);
       const overflowY = style.overflowY;
+      
+      // Check computed style
       if (overflowY === 'auto' || overflowY === 'scroll') {
         return parent;
       }
-      if (parent.classList.contains('overflow-y-auto') || 
-          parent.classList.contains('overflow-auto') ||
+      
+      // Check for common scrollable class patterns
+      const classList = parent.className || '';
+      if (classList.includes('overflow-y-auto') || 
+          classList.includes('overflow-auto') ||
+          classList.includes('overflow-y-scroll') ||
+          classList.includes('scrollable') ||
           parent.hasAttribute('data-radix-scroll-area-viewport') ||
           parent.hasAttribute('data-radix-dialog-content')) {
         return parent;
       }
+      
+      // Check if element has scrollHeight > clientHeight (actual scrollable content)
+      if (parent.scrollHeight > parent.clientHeight + 10) {
+        const pOverflow = style.overflowY;
+        if (pOverflow !== 'visible' && pOverflow !== 'hidden') {
+          return parent;
+        }
+      }
+      
       parent = parent.parentElement;
     }
     return null;

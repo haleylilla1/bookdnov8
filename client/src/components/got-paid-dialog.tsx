@@ -828,6 +828,9 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
             </Card>
           </div>
         )}
+        
+        {/* Spacer for iOS keyboard scrolling */}
+        <div className="h-[200px]" aria-hidden="true" />
         </div>
 
         {/* Navigation */}
