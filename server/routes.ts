@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { requireAuth } from "./auth";
 import { db } from "./db";
 import { users, gigs, waitlistSignups } from "@shared/schema";
-import { count, desc } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import RevenueCatService from './revenuecat';
 import RevenueCatWebhookHandler from './revenuecat-webhooks';
 import { 
@@ -343,7 +343,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.get('/api/user', requireAuth, async (req: any, res: Response) => {
     try {
-      const user = await storage.getUser(getUserId(req));
+      const userId = getUserId(req);
+      const user = await storage.getUser(userId);
+      
+      // Update last login timestamp on each app access
+      db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, userId)).catch(() => {});
+      
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch user' });
