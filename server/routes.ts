@@ -1062,10 +1062,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
       
       // Add location bias if coordinates provided (prefers nearby results)
-      if (lat && lng) {
-        url += `&location=${lat},${lng}&radius=80000`; // 80km (~50 miles) radius bias
-        console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
-      }
+      // Default to Southern California (Huntington Beach area) if no coordinates
+      const biasLat = lat || '33.66';
+      const biasLng = lng || '-117.99';
+      url += `&location=${biasLat},${biasLng}&radius=80000`; // 80km (~50 miles) radius bias
+      console.log(`[GOOGLE_MAPS] Using location bias: ${biasLat},${biasLng}`);
 
       const response = await fetch(url);
 
