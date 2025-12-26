@@ -1046,11 +1046,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .max(200, 'Input must be less than 200 characters')
         .transform(sanitizeText),
       lat: z.string().optional(),
-      lng: z.string().optional()
+      lng: z.string().optional(),
+      nearCity: z.string().optional()
     })),
     async (req: any, res: Response) => {
     try {
-      const { input, lat, lng } = req.query;
+      const { input, lat, lng, nearCity } = req.query;
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
@@ -1058,15 +1059,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ suggestions: [] });
       }
 
+      // If nearCity is provided, append it to the search for better local results
+      let searchInput = input;
+      if (nearCity && !input.toLowerCase().includes(nearCity.toLowerCase())) {
+        searchInput = `${input} near ${nearCity}`;
+        console.log(`[GOOGLE_MAPS] Enhanced search: "${searchInput}"`);
+      }
+
       // Build URL with optional location bias for better local results
-      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(searchInput)}&key=${apiKey}`;
       
       // Add location bias if coordinates provided (prefers nearby results)
       if (lat && lng) {
         url += `&location=${lat},${lng}&radius=50000`; // 50km (~30 miles) radius bias
         console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
-      } else {
-        console.log(`[GOOGLE_MAPS] No location bias - lat/lng not provided`);
       }
 
       const response = await fetch(url);
@@ -1157,9 +1163,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res: Response) => {
     try {
       const { address } = req.query;
+      console.log(`[GOOGLE_MAPS] Geocoding address: "${address}"`);
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
+        console.error(`[GOOGLE_MAPS] No API key for geocoding`);
         return res.status(400).json({ error: 'Maps API not configured' });
       }
 
@@ -1168,16 +1176,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       if (!response.ok) {
+        console.error(`[GOOGLE_MAPS] Geocode HTTP error: ${response.status}`);
         return res.status(500).json({ error: 'Geocoding failed' });
       }
 
       const data = await response.json();
+      console.log(`[GOOGLE_MAPS] Geocode API status: ${data.status}`);
 
       if (data.status === 'OK' && data.results?.[0]) {
         const location = data.results[0].geometry.location;
         console.log(`[GOOGLE_MAPS] Geocoded "${address}" to (${location.lat}, ${location.lng})`);
         res.json({ lat: location.lat, lng: location.lng });
       } else {
+        console.error(`[GOOGLE_MAPS] Geocode failed: ${data.status} - ${data.error_message || 'no error message'}`);
         res.status(400).json({ error: 'Could not geocode address' });
       }
     } catch (error) {

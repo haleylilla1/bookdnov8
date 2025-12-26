@@ -24,6 +24,7 @@ interface AddressAutocompleteProps {
   className?: string;
   biasLat?: number;
   biasLng?: number;
+  nearCity?: string;
 }
 
 export function AddressAutocomplete({ 
@@ -33,7 +34,8 @@ export function AddressAutocomplete({
   onChange, 
   className,
   biasLat,
-  biasLng
+  biasLng,
+  nearCity
 }: AddressAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +64,9 @@ export function AddressAutocomplete({
       let url = `/api/address-autocomplete?input=${encodeURIComponent(query)}`;
       if (biasLat && biasLng) {
         url += `&lat=${biasLat}&lng=${biasLng}`;
+      }
+      if (nearCity) {
+        url += `&nearCity=${encodeURIComponent(nearCity)}`;
       }
       
       const response = await fetch(url, {

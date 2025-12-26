@@ -37,6 +37,35 @@ export interface GotPaidData {
   taxPercentage: number;
 }
 
+// Extract city and state from an address string (e.g., "313 16th St Huntington Beach CA 92648" -> "Huntington Beach, CA")
+function extractCityFromAddress(address: string): string | undefined {
+  if (!address) return undefined;
+  
+  // Common US state abbreviations
+  const statePattern = /\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i;
+  const match = address.match(statePattern);
+  
+  if (match) {
+    const state = match[1].toUpperCase();
+    const beforeState = address.substring(0, match.index).trim();
+    // Get the last 1-3 words before the state (likely the city name)
+    const words = beforeState.split(/\s+/);
+    // Take last 2-3 words that look like a city name (not numbers)
+    const cityWords = [];
+    for (let i = words.length - 1; i >= 0 && cityWords.length < 3; i--) {
+      if (!/^\d+$/.test(words[i])) {
+        cityWords.unshift(words[i]);
+      } else {
+        break;
+      }
+    }
+    if (cityWords.length > 0) {
+      return `${cityWords.join(' ')}, ${state}`;
+    }
+  }
+  return undefined;
+}
+
 export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidDialogProps) {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +78,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
   const [resolvedEndAddress, setResolvedEndAddress] = useState("");
   const [startLat, setStartLat] = useState<number | undefined>();
   const [startLng, setStartLng] = useState<number | undefined>();
+  const [startCity, setStartCity] = useState<string | undefined>();
   const [isRoundTrip, setIsRoundTrip] = useState(false);
   const [isPerDay, setIsPerDay] = useState(false);
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
@@ -112,25 +142,12 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
     if (user?.homeAddress) {
       setStartingAddress(user.homeAddress);
       setResolvedStartAddress(user.homeAddress);
-      // Auto-geocode the home address for location biasing
-      console.log(`[GotPaid] Geocoding home address: "${user.homeAddress}"`);
-      fetch(`/api/geocode?address=${encodeURIComponent(user.homeAddress)}`, { credentials: 'include' })
-        .then(res => {
-          console.log(`[GotPaid] Geocode response status: ${res.status}`);
-          return res.ok ? res.json() : null;
-        })
-        .then(data => {
-          if (data?.lat && data?.lng) {
-            setStartLat(data.lat);
-            setStartLng(data.lng);
-            console.log(`[GotPaid] Geocoded home address to (${data.lat}, ${data.lng})`);
-          } else {
-            console.log(`[GotPaid] Geocode returned no coordinates:`, data);
-          }
-        })
-        .catch(err => {
-          console.error(`[GotPaid] Geocode error:`, err);
-        });
+      // Extract city for location biasing (simpler and more reliable than geocoding)
+      const city = extractCityFromAddress(user.homeAddress);
+      if (city) {
+        setStartCity(city);
+        console.log(`[GotPaid] Extracted city from home address: "${city}"`);
+      }
     }
     if (gig.gigAddress) {
       setEndingAddress(gig.gigAddress);
@@ -345,6 +362,9 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                         setResolvedStartAddress(resolved || display);
                         setStartLat(lat);
                         setStartLng(lng);
+                        // Extract city from the selected address for location biasing
+                        const city = extractCityFromAddress(resolved || display);
+                        if (city) setStartCity(city);
                       }}
                       placeholder="Enter starting address or place name"
                     />
@@ -361,6 +381,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                       placeholder="Enter gig location or venue name"
                       biasLat={startLat}
                       biasLng={startLng}
+                      nearCity={startCity}
                     />
                   </div>
                 </div>
