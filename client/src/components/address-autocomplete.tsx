@@ -20,7 +20,7 @@ interface AddressAutocompleteProps {
   label: string;
   placeholder: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, formattedAddress?: string) => void;
   className?: string;
 }
 
@@ -94,12 +94,32 @@ export function AddressAutocomplete({
     }, 100);
   };
 
-  // Handle suggestion selection
-  const handleSuggestionSelect = (suggestion: AddressSuggestion) => {
+  // Handle suggestion selection - resolve place ID to formatted address
+  const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
+    // Show the friendly display name immediately
     setInputValue(suggestion.description);
-    onChange(suggestion.description);
     setShowSuggestions(false);
     setSuggestions([]);
+    
+    // Try to resolve the place ID to get the formatted address for mileage calculation
+    try {
+      const response = await fetch(`/api/place-details?placeId=${encodeURIComponent(suggestion.placeId)}`, {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Pass both display value and resolved address
+        onChange(suggestion.description, data.formattedAddress);
+        console.log(`[AddressAutocomplete] Resolved "${suggestion.description}" to "${data.formattedAddress}"`);
+      } else {
+        // Fallback to using the description as the address
+        onChange(suggestion.description);
+      }
+    } catch (error) {
+      // Fallback to using the description
+      onChange(suggestion.description);
+    }
     
     // Focus back to input
     inputRef.current?.focus();

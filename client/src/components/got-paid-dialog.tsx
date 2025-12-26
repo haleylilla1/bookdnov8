@@ -45,6 +45,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
   // Mileage calculation state
   const [startingAddress, setStartingAddress] = useState("");
   const [endingAddress, setEndingAddress] = useState("");
+  const [resolvedStartAddress, setResolvedStartAddress] = useState("");
+  const [resolvedEndAddress, setResolvedEndAddress] = useState("");
   const [isRoundTrip, setIsRoundTrip] = useState(false);
   const [isPerDay, setIsPerDay] = useState(false);
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
@@ -121,9 +123,10 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
     setMileageError(null);
 
     try {
+      // Use resolved addresses for accurate mileage (falls back to display address)
       const response = await apiRequest('POST', '/api/calculate-distance', {
-        startAddress: startingAddress,
-        endAddress: endingAddress,
+        startAddress: resolvedStartAddress || startingAddress,
+        endAddress: resolvedEndAddress || endingAddress,
         roundTrip: isRoundTrip
       });
 
@@ -205,6 +208,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
       setStep(1);
       setStartingAddress("");
       setEndingAddress("");
+      setResolvedStartAddress("");
+      setResolvedEndAddress("");
       setIsRoundTrip(false);
       setIsPerDay(false);
       setMileageError(null);
@@ -313,8 +318,11 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                     <AddressAutocomplete
                       label=""
                       value={startingAddress}
-                      onChange={setStartingAddress}
-                      placeholder="Enter starting address"
+                      onChange={(display, resolved) => {
+                        setStartingAddress(display);
+                        setResolvedStartAddress(resolved || display);
+                      }}
+                      placeholder="Enter starting address or place name"
                     />
                   </div>
                   <div>
@@ -322,8 +330,11 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                     <AddressAutocomplete
                       label=""
                       value={endingAddress}
-                      onChange={setEndingAddress}
-                      placeholder="Enter gig location"
+                      onChange={(display, resolved) => {
+                        setEndingAddress(display);
+                        setResolvedEndAddress(resolved || display);
+                      }}
+                      placeholder="Enter gig location or venue name"
                     />
                   </div>
                 </div>

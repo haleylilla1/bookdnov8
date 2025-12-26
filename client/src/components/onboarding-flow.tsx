@@ -253,7 +253,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
                           label={currentStepData.title}
                           placeholder={(currentStepData as any).placeholder}
                           value={setupData.homeAddress}
-                          onChange={(value) => updateSetupData("homeAddress", value)}
+                          onChange={(display, resolved) => updateSetupData("homeAddress", resolved || display)}
                           className="text-base"
                         />
                       ) : (currentStepData as any).field === "defaultTaxPercentage" ? (

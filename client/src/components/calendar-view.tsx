@@ -1201,6 +1201,8 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
     mileage: gig.mileage || 0,
     startingAddress: (user as any)?.homeAddress || "",
     endingAddress: "",
+    resolvedStartAddress: "",
+    resolvedEndAddress: "",
     stops: [] as string[],
     includeRoundtrip: true,
     calculatedMileage: "",
@@ -1242,9 +1244,10 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
       
       const { calculateDistance } = await import('../lib/distance');
       
+      // Use resolved addresses for accurate mileage (falls back to display address)
       const result = await calculateDistance(
-        formData.startingAddress.trim(),
-        formData.endingAddress.trim(),
+        (formData.resolvedStartAddress || formData.startingAddress).trim(),
+        (formData.resolvedEndAddress || formData.endingAddress).trim(),
         formData.stops.filter(stop => stop?.trim()),
         formData.includeRoundtrip
       );
@@ -1481,13 +1484,21 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
             label="Starting Address"
             placeholder="Your home or starting location..."
             value={formData.startingAddress}
-            onChange={(value) => setFormData({ ...formData, startingAddress: value })}
+            onChange={(display, resolved) => setFormData({ 
+              ...formData, 
+              startingAddress: display,
+              resolvedStartAddress: resolved || display
+            })}
           />
           <AddressAutocomplete
             label="Ending Address" 
             placeholder="Event venue or destination..."
             value={formData.endingAddress}
-            onChange={(value) => setFormData({ ...formData, endingAddress: value })}
+            onChange={(display, resolved) => setFormData({ 
+              ...formData, 
+              endingAddress: display,
+              resolvedEndAddress: resolved || display
+            })}
           />
         </div>
 
