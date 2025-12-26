@@ -1044,11 +1044,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       input: z.string()
         .min(2, 'Input must be at least 2 characters')
         .max(200, 'Input must be less than 200 characters')
-        .transform(sanitizeText)
+        .transform(sanitizeText),
+      lat: z.string().optional(),
+      lng: z.string().optional()
     })),
     async (req: any, res: Response) => {
     try {
-      const { input } = req.query;
+      const { input, lat, lng } = req.query;
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
@@ -1056,10 +1058,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ suggestions: [] });
       }
 
-      // Allow both addresses AND establishments (places like "LA Convention Center")
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`
-      );
+      // Build URL with optional location bias for better local results
+      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+      
+      // Add location bias if coordinates provided (prefers nearby results)
+      if (lat && lng) {
+        url += `&location=${lat},${lng}&radius=80000`; // 80km (~50 miles) radius bias
+        console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
+      }
+
+      const response = await fetch(url);
 
       if (!response.ok) {
         console.error(`[GOOGLE_MAPS] Places API HTTP error: ${response.status} ${response.statusText}`);

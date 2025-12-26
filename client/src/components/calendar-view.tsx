@@ -1203,6 +1203,8 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
     endingAddress: "",
     resolvedStartAddress: "",
     resolvedEndAddress: "",
+    startLat: undefined as number | undefined,
+    startLng: undefined as number | undefined,
     stops: [] as string[],
     includeRoundtrip: true,
     calculatedMileage: "",
@@ -1484,10 +1486,12 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
             label="Starting Address"
             placeholder="Your home or starting location..."
             value={formData.startingAddress}
-            onChange={(display, resolved) => setFormData({ 
+            onChange={(display, resolved, lat, lng) => setFormData({ 
               ...formData, 
               startingAddress: display,
-              resolvedStartAddress: resolved || display
+              resolvedStartAddress: resolved || display,
+              startLat: lat,
+              startLng: lng
             })}
           />
           <AddressAutocomplete
@@ -1499,6 +1503,8 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
               endingAddress: display,
               resolvedEndAddress: resolved || display
             })}
+            biasLat={formData.startLat}
+            biasLng={formData.startLng}
           />
         </div>
 

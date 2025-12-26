@@ -20,8 +20,10 @@ interface AddressAutocompleteProps {
   label: string;
   placeholder: string;
   value: string;
-  onChange: (value: string, formattedAddress?: string) => void;
+  onChange: (value: string, formattedAddress?: string, lat?: number, lng?: number) => void;
   className?: string;
+  biasLat?: number;
+  biasLng?: number;
 }
 
 export function AddressAutocomplete({ 
@@ -29,7 +31,9 @@ export function AddressAutocomplete({
   placeholder, 
   value, 
   onChange, 
-  className 
+  className,
+  biasLat,
+  biasLng
 }: AddressAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +58,13 @@ export function AddressAutocomplete({
     setIsLoading(true);
     
     try {
-      const response = await fetch(`/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
+      // Build URL with optional location bias for nearby results
+      let url = `/api/address-autocomplete?input=${encodeURIComponent(query)}`;
+      if (biasLat && biasLng) {
+        url += `&lat=${biasLat}&lng=${biasLng}`;
+      }
+      
+      const response = await fetch(url, {
         credentials: 'include'
       });
       
@@ -109,9 +119,9 @@ export function AddressAutocomplete({
       
       if (response.ok) {
         const data = await response.json();
-        // Pass both display value and resolved address
-        onChange(suggestion.description, data.formattedAddress);
-        console.log(`[AddressAutocomplete] Resolved "${suggestion.description}" to "${data.formattedAddress}"`);
+        // Pass display value, resolved address, and coordinates
+        onChange(suggestion.description, data.formattedAddress, data.lat, data.lng);
+        console.log(`[AddressAutocomplete] Resolved "${suggestion.description}" to "${data.formattedAddress}" at (${data.lat}, ${data.lng})`);
       } else {
         // Fallback to using the description as the address
         onChange(suggestion.description);

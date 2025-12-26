@@ -47,6 +47,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
   const [endingAddress, setEndingAddress] = useState("");
   const [resolvedStartAddress, setResolvedStartAddress] = useState("");
   const [resolvedEndAddress, setResolvedEndAddress] = useState("");
+  const [startLat, setStartLat] = useState<number | undefined>();
+  const [startLng, setStartLng] = useState<number | undefined>();
   const [isRoundTrip, setIsRoundTrip] = useState(false);
   const [isPerDay, setIsPerDay] = useState(false);
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
@@ -318,9 +320,11 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                     <AddressAutocomplete
                       label=""
                       value={startingAddress}
-                      onChange={(display, resolved) => {
+                      onChange={(display, resolved, lat, lng) => {
                         setStartingAddress(display);
                         setResolvedStartAddress(resolved || display);
+                        setStartLat(lat);
+                        setStartLng(lng);
                       }}
                       placeholder="Enter starting address or place name"
                     />
@@ -335,6 +339,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                         setResolvedEndAddress(resolved || display);
                       }}
                       placeholder="Enter gig location or venue name"
+                      biasLat={startLat}
+                      biasLng={startLng}
                     />
                   </div>
                 </div>
