@@ -1056,8 +1056,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ suggestions: [] });
       }
 
+      // Allow both addresses AND establishments (places like "LA Convention Center")
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}&types=address`
+        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`
       );
 
       if (!response.ok) {
@@ -1090,6 +1091,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`[GOOGLE_MAPS] Address autocomplete error:`, error);
       res.json({ suggestions: [] });
+    }
+  });
+
+  // Resolve Place ID to formatted address (for mileage calculation with place names)
+  app.get('/api/place-details', requireAuth,
+    validateQueryParams(z.object({
+      placeId: z.string().min(1, 'Place ID is required').max(500)
+    })),
+    async (req: any, res: Response) => {
+    try {
+      const { placeId } = req.query;
+
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        console.error(`[GOOGLE_MAPS] No API key configured for Place Details API`);
+        return res.status(400).json({ error: 'Maps API not configured' });
+      }
+
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=formatted_address,name,geometry&key=${apiKey}`
+      );
+
+      if (!response.ok) {
+        console.error(`[GOOGLE_MAPS] Place Details API HTTP error: ${response.status}`);
+        return res.status(500).json({ error: 'Failed to fetch place details' });
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'OK' && data.result) {
+        const result = {
+          formattedAddress: data.result.formatted_address,
+          name: data.result.name,
+          lat: data.result.geometry?.location?.lat,
+          lng: data.result.geometry?.location?.lng
+        };
+        console.log(`[GOOGLE_MAPS] Resolved place "${result.name}" to address: ${result.formattedAddress}`);
+        res.json(result);
+      } else {
+        console.error(`[GOOGLE_MAPS] Place Details error: ${data.status}`);
+        res.status(400).json({ error: 'Could not resolve place' });
+      }
+    } catch (error) {
+      console.error(`[GOOGLE_MAPS] Place details error:`, error);
+      res.status(500).json({ error: 'Failed to fetch place details' });
     }
   });
 
