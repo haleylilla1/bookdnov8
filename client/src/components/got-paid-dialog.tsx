@@ -111,6 +111,17 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
     }
     if (user?.homeAddress) {
       setStartingAddress(user.homeAddress);
+      // Auto-geocode the home address for location biasing
+      fetch(`/api/geocode?address=${encodeURIComponent(user.homeAddress)}`, { credentials: 'include' })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.lat && data?.lng) {
+            setStartLat(data.lat);
+            setStartLng(data.lng);
+            console.log(`[GotPaid] Geocoded home address to (${data.lat}, ${data.lng})`);
+          }
+        })
+        .catch(() => {});
     }
     if (gig.gigAddress) {
       setEndingAddress(gig.gigAddress);

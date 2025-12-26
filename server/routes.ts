@@ -1147,6 +1147,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Geocode an address to get coordinates (for location biasing)
+  app.get('/api/geocode', requireAuth,
+    validateQueryParams(z.object({
+      address: z.string().min(3, 'Address is required').max(500)
+    })),
+    async (req: any, res: Response) => {
+    try {
+      const { address } = req.query;
+
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ error: 'Maps API not configured' });
+      }
+
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
+      );
+
+      if (!response.ok) {
+        return res.status(500).json({ error: 'Geocoding failed' });
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'OK' && data.results?.[0]) {
+        const location = data.results[0].geometry.location;
+        console.log(`[GOOGLE_MAPS] Geocoded "${address}" to (${location.lat}, ${location.lng})`);
+        res.json({ lat: location.lat, lng: location.lng });
+      } else {
+        res.status(400).json({ error: 'Could not geocode address' });
+      }
+    } catch (error) {
+      console.error(`[GOOGLE_MAPS] Geocode error:`, error);
+      res.status(500).json({ error: 'Geocoding failed' });
+    }
+  });
+
   // Distance calculation endpoint - simplified from over-engineered mileage service
   app.post('/api/calculate-distance', requireAuth,
     validateRequestBody(z.object({

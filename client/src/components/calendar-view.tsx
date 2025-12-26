@@ -1216,6 +1216,21 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
 
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
 
+  // Auto-geocode the starting address for location biasing
+  useEffect(() => {
+    if (formData.startingAddress && !formData.startLat) {
+      fetch(`/api/geocode?address=${encodeURIComponent(formData.startingAddress)}`, { credentials: 'include' })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.lat && data?.lng) {
+            setFormData(prev => ({ ...prev, startLat: data.lat, startLng: data.lng }));
+            console.log(`[CalendarView] Geocoded start address to (${data.lat}, ${data.lng})`);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [formData.startingAddress]);
+
   const handleCalculateMileage = async () => {
     // Enhanced mobile validation
     if (!formData.startingAddress?.trim() || !formData.endingAddress?.trim()) {
