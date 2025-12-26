@@ -50,12 +50,16 @@ function extractCityFromAddress(address: string): string | undefined {
     const beforeState = address.substring(0, match.index).trim();
     // Get the last 1-3 words before the state (likely the city name)
     const words = beforeState.split(/\s+/);
-    // Take last 2-3 words that look like a city name (not numbers)
+    // Skip common street suffixes and take city name words
+    const streetSuffixes = ['st', 'street', 'ave', 'avenue', 'blvd', 'boulevard', 'dr', 'drive', 'rd', 'road', 'ln', 'lane', 'ct', 'court', 'way', 'pl', 'place', 'cir', 'circle'];
     const cityWords = [];
     for (let i = words.length - 1; i >= 0 && cityWords.length < 3; i--) {
-      if (!/^\d+$/.test(words[i])) {
+      const word = words[i].toLowerCase().replace(/[.,]/g, '');
+      // Skip numbers and street suffixes
+      if (!/^\d+$/.test(words[i]) && !streetSuffixes.includes(word)) {
         cityWords.unshift(words[i]);
-      } else {
+      } else if (cityWords.length > 0) {
+        // Stop if we hit a number or street suffix after finding city words
         break;
       }
     }
