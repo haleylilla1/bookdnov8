@@ -19,6 +19,7 @@ import { AmountField, MerchantField, BusinessPurposeField, CategoryField, DateFi
 import { useToast } from "@/hooks/use-toast";
 import type { Gig, User, Expense } from "@shared/schema";
 import { BUSINESS_EXPENSE_CATEGORIES } from "@shared/schema";
+import { Capacitor } from "@capacitor/core";
 
 type TimePeriod = "monthly" | "quarterly" | "annual";
 
@@ -589,63 +590,68 @@ export default function Dashboard() {
       const data = await response.json();
       console.log('Report data received, filename:', data.filename);
       
-      // Check if running on native iOS/Android
-      const { Capacitor } = await import('@capacitor/core');
+      // Check if running on native iOS/Android using static import
       const isNative = Capacitor.isNativePlatform();
       const platform = Capacitor.getPlatform();
       console.log('Platform check - isNative:', isNative, 'platform:', platform);
       
       if (isNative) {
-        console.log('Using native iOS share sheet for report');
-        // Save HTML file to device storage and share it
-        const { Filesystem, Directory } = await import('@capacitor/filesystem');
-        const { Share } = await import('@capacitor/share');
-        
-        console.log('Writing HTML file to cache directory...');
-        // Convert HTML to base64 for iOS file system
-        const base64Data = btoa(unescape(encodeURIComponent(data.html)));
-        
-        // Write the HTML file to cache directory for sharing
-        const writeResult = await Filesystem.writeFile({
-          path: data.filename,
-          data: base64Data,
-          directory: Directory.Cache
-        });
-        
-        console.log('Opening native share sheet with file:', writeResult.uri);
-        // Open native share sheet - user can preview, save, email, or print to PDF
-        await Share.share({
-          title: 'Bookd Income Report',
-          text: 'Your income report is ready',
-          url: writeResult.uri,
-          dialogTitle: 'Share or Save Report'
-        });
-        
-        toast({
-          title: "Report Ready",
-          description: "Use the share options to save, email, or print to PDF.",
-          duration: 5000,
-        });
-      } else {
-        console.log('Using web blob download path');
-        // Web browser: use blob download
-        const blob = new Blob([data.html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = data.filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast({
-          title: `${selectedPeriod === 'monthly' ? 'Monthly' : 
-                 selectedPeriod === 'quarterly' ? 'Quarterly' : 'Annual'} Income Report`,
-          description: "Your report has been downloaded.",
-          duration: 4000,
-        });
+        try {
+          console.log('Using native iOS share sheet for report');
+          // Dynamically import native-only modules only on native platforms
+          const { Filesystem, Directory } = await import('@capacitor/filesystem');
+          const { Share } = await import('@capacitor/share');
+          
+          console.log('Writing HTML file to cache directory...');
+          // Convert HTML to base64 for iOS file system
+          const base64Data = btoa(unescape(encodeURIComponent(data.html)));
+          
+          // Write the HTML file to cache directory for sharing
+          const writeResult = await Filesystem.writeFile({
+            path: data.filename,
+            data: base64Data,
+            directory: Directory.Cache
+          });
+          
+          console.log('Opening native share sheet with file:', writeResult.uri);
+          // Open native share sheet - user can preview, save, email, or print to PDF
+          await Share.share({
+            title: 'Bookd Income Report',
+            text: 'Your income report is ready',
+            url: writeResult.uri,
+            dialogTitle: 'Share or Save Report'
+          });
+          
+          toast({
+            title: "Report Ready",
+            description: "Use the share options to save, email, or print to PDF.",
+            duration: 5000,
+          });
+          return; // Exit after native handling
+        } catch (nativeError) {
+          console.warn('Native share failed, falling back to web download:', nativeError);
+          // Fall through to web download if native fails
+        }
       }
+      
+      // Web browser: use blob download (also fallback for failed native)
+      console.log('Using web blob download path');
+      const blob = new Blob([data.html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: `${selectedPeriod === 'monthly' ? 'Monthly' : 
+               selectedPeriod === 'quarterly' ? 'Quarterly' : 'Annual'} Income Report`,
+        description: "Your report has been downloaded.",
+        duration: 4000,
+      });
       
     } catch (error) {
       console.error('Generate report error:', error);
