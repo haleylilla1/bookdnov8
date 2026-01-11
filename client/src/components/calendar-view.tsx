@@ -1542,7 +1542,7 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
           className="w-full"
         >
           <Calculator className="w-4 h-4 mr-2" />
-          {isCalculatingMileage ? "Calculating..." : "Calculate Mileage"}
+          {isCalculatingMileage ? "Calculating..." : "Click to Calculate Mileage"}
         </Button>
 
         {formData.calculatedMileage && (

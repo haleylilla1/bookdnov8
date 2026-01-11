@@ -466,7 +466,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   ) : (
                     <>
                       <Calculator className="w-4 h-4 mr-2" />
-                      Calculate Mileage
+                      Click to Calculate Mileage
                     </>
                   )}
                 </Button>
