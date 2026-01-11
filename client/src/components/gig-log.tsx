@@ -360,7 +360,6 @@ export default function GigLog() {
               );
             });
           }}
-          isLoading={gotPaidMutation.isPending}
         />
       )}
     </div>
