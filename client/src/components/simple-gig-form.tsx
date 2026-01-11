@@ -669,17 +669,24 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                     name="isRoundTrip"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex items-center gap-3">
+                        <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
+                          field.value 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-blue-300'
+                        }`}
+                        onClick={() => field.onChange(!field.value)}>
                           <input
                             type="checkbox"
                             id="isRoundTrip"
                             checked={field.value || false}
                             onChange={(e) => field.onChange(e.target.checked)}
-                            className="w-5 h-5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
                           />
-                          <label htmlFor="isRoundTrip" className="text-sm font-medium cursor-pointer">
-                            Round trip (doubles the distance)
-                          </label>
+                          <div className="flex-1">
+                            <label htmlFor="isRoundTrip" className="text-sm font-medium cursor-pointer text-gray-900">
+                              Round trip (doubles the distance)
+                            </label>
+                          </div>
                         </div>
                       </FormItem>
                     )}
@@ -691,17 +698,24 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                       name="isRoundTripEachDay"
                       render={({ field }) => (
                         <FormItem>
-                          <div className="flex items-center gap-3 ml-8">
+                          <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ml-4 ${
+                            field.value 
+                              ? 'border-blue-500 bg-blue-50' 
+                              : 'border-gray-200 hover:border-blue-300'
+                          }`}
+                          onClick={() => field.onChange(!field.value)}>
                             <input
                               type="checkbox"
                               id="isRoundTripEachDay"
                               checked={field.value || false}
                               onChange={(e) => field.onChange(e.target.checked)}
-                              className="w-5 h-5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                              className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
                             />
-                            <label htmlFor="isRoundTripEachDay" className="text-sm font-medium cursor-pointer">
-                              Round trip each day ({multiDayInfo.dayCount} trips total)
-                            </label>
+                            <div className="flex-1">
+                              <label htmlFor="isRoundTripEachDay" className="text-sm font-medium cursor-pointer text-gray-900">
+                                Round trip each day ({multiDayInfo.dayCount} trips total)
+                              </label>
+                            </div>
                           </div>
                         </FormItem>
                       )}
