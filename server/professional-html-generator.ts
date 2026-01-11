@@ -158,7 +158,8 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
     <title>Professional Freelancer Report - ${data.period}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #000; background: white; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #000; background: white; }
+        table { font-family: 'Courier New', Courier, monospace; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .page { background: white; margin: 20px 0; padding: 30px; }
         
@@ -233,7 +234,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">INCOME SUMMARY</h2>
             
             <div style="margin: 40px 0;">
-                <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
+                <table style="width: 100%; border-collapse: collapse; ">
                     <thead>
                         <tr>
                             <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Date</th>
@@ -294,7 +295,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             
             ${data.gigs.some(g => parseFloat(String(g.mileage || 0)) > 0) ? `
             <div style="margin: 40px 0;">
-                <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
+                <table style="width: 100%; border-collapse: collapse; ">
                     <thead>
                         <tr>
                             <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Date</th>
@@ -401,7 +402,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                             <div style="margin-bottom: 30px;">
                                 <h3 style="font-size: 14px; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #000; font-weight: bold;">${category}</h3>
                                 <div style="overflow-x: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 10px;">
+                                    <table style="width: 100%; border-collapse: collapse;  font-size: 10px;">
                                         <thead>
                                             <tr>
                                                 <th style="text-align: left; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Date</th>
@@ -468,7 +469,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         return sortedCategories.length > 0 ? `
                             <div style="margin-top: 40px; border-top: 2px solid #000; padding-top: 20px;">
                                 <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: bold;">SUMMARY BY CATEGORY</h3>
-                                <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
+                                <table style="width: 100%; border-collapse: collapse; ">
                                     <thead>
                                         <tr>
                                             <th style="text-align: left; padding: 8px 4px; border-bottom: 2px solid #000; font-size: 12px; line-height: 1.3;">Category</th>
@@ -656,6 +657,7 @@ function generateFallbackReport(options: ReportOptions, error: any): string {
         <title>Report Generation Issue</title>
         <style>
             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; background: #f8f9fa; }
+            table { font-family: 'Courier New', Courier, monospace; }
             .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .header { text-align: center; margin-bottom: 30px; }
             .error { color: #dc3545; margin: 20px 0; }
