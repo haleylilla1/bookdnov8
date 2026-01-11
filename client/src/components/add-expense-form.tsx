@@ -160,7 +160,11 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
                           checked={field.value || false}
                           onChange={(e) => {
                             field.onChange(e.target.checked);
-                            if (!e.target.checked) {
+                            if (e.target.checked) {
+                              // Auto-fill with the expense amount
+                              const currentAmount = form.getValues("amount");
+                              form.setValue("reimbursedAmount", currentAmount || "");
+                            } else {
                               form.setValue("reimbursedAmount", "");
                             }
                           }}
