@@ -32,9 +32,10 @@ interface ReportData {
   period: string;
   totalIncome: number; // Taxable income (excludes reimbursements)
   totalReceived?: number; // Gross income (optional for backward compatibility)
-  totalReimbursements?: number; // Total reimbursements from expense table (matches category summary)
+  grossExpenses?: number; // Total expenses before reimbursements
+  totalReimbursements?: number; // Total reimbursements from expense table
   businessDeductions?: number; // Unreimbursed expenses (optional for backward compatibility)
-  totalExpenses: number;
+  totalExpenses: number; // Net expenses (after reimbursements)
   totalMileage: number;
   mileageValue: number;
   netIncome: number;
@@ -283,13 +284,6 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         </div>
                     </div>
                     
-                    ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
-                    <div style="margin-top: 15px; padding: 10px; border-top: 1px solid #000;">
-                        <p style="font-size: 12px; margin: 0;">
-                            <strong>Note:</strong> You received $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)} in reimbursements that are NOT taxable income.
-                        </p>
-                    </div>
-                    ` : ''}
                 </div>
             </div>
         </div>
@@ -520,25 +514,28 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             <div style="margin: 30px 0; padding: 20px; border: 1px solid #000;">
                 <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">INCOME</h3>
                 <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
-                    <p style="margin: 8px 0;"><strong>Gross Income (Total Received):</strong> $${(data.totalReceived || data.totalIncome).toFixed(2)}</p>
-                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Includes all payments + reimbursements</p>
-                    <p style="margin: 8px 0;"><strong>Taxable Income:</strong> $${data.totalIncome.toFixed(2)}</p>
-                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Excludes reimbursements (use for tax filing)</p>
-                    ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
-                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">
-                        ↳ Reimbursements (not taxable): $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)}
-                    </p>
-                    ` : ''}
+                    <p style="margin: 8px 0;"><strong>Total Income Received:</strong> $${(data.totalReceived || data.totalIncome).toFixed(2)}</p>
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ All payments received from gigs</p>
                 </div>
             </div>
             
-            <!-- Deductions Section -->
+            <!-- Business Expenses Section -->
             <div style="margin: 30px 0; padding: 20px; border: 1px solid #000;">
-                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">BUSINESS DEDUCTIONS</h3>
+                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">BUSINESS EXPENSES</h3>
                 <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
-                    <p style="margin: 8px 0;"><strong>Business Expenses:</strong> $${data.totalExpenses.toFixed(2)}</p>
-                    <p style="margin: 8px 0;"><strong>Mileage:</strong> ${Math.round(data.totalMileage)} miles</p>
-                    <p style="margin: 8px 0;"><strong>Mileage Value (@ $0.70/mile):</strong> $${data.mileageValue.toFixed(2)}</p>
+                    <p style="margin: 8px 0;"><strong>Total Expenses:</strong> $${(data.grossExpenses || 0).toFixed(2)}</p>
+                    <p style="margin: 8px 0;"><strong>Reimbursements Received:</strong> -$${(data.totalReimbursements || 0).toFixed(2)}</p>
+                    <p style="margin: 8px 0; border-top: 1px solid #000; padding-top: 8px;"><strong>Net Out of Pocket:</strong> $${data.totalExpenses.toFixed(2)}</p>
+                </div>
+            </div>
+            
+            <!-- Mileage Section -->
+            <div style="margin: 30px 0; padding: 20px; border: 1px solid #000;">
+                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">MILEAGE DEDUCTION</h3>
+                <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
+                    <p style="margin: 8px 0;"><strong>Total Miles:</strong> ${Math.round(data.totalMileage)} miles</p>
+                    <p style="margin: 8px 0;"><strong>IRS Rate:</strong> $0.70/mile</p>
+                    <p style="margin: 8px 0; border-top: 1px solid #000; padding-top: 8px;"><strong>Mileage Deduction Value:</strong> $${data.mileageValue.toFixed(2)}</p>
                 </div>
             </div>
             
@@ -835,19 +832,17 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
     }
   });
 
-  // Calculate total expenses from allExpenses only (NET out-of-pocket after reimbursements)
-  // This ensures Summary Totals matches the Category Summary exactly
-  const totalExpenses = allExpenses.reduce((sum, expense) => {
-    const amount = parseFloat(expense.amount || '0');
-    const reimbursed = parseFloat(expense.reimbursedAmount || '0');
-    return sum + (amount - reimbursed); // Net out-of-pocket
+  // Calculate expense totals from allExpenses (unified source for all expense tracking)
+  const grossExpenses = allExpenses.reduce((sum, expense) => {
+    return sum + parseFloat(expense.amount || '0');
   }, 0);
-
-  // Calculate total reimbursements from allExpenses (same source as category summary)
-  // This ensures the income section and category summary show the same reimbursement total
+  
   const totalReimbursements = allExpenses.reduce((sum, expense) => {
     return sum + parseFloat(expense.reimbursedAmount || '0');
   }, 0);
+  
+  // Net expenses = gross - reimbursements (what you actually paid out of pocket)
+  const totalExpenses = grossExpenses - totalReimbursements;
 
   const totalMileage = completedGigs.reduce((sum, gig) => {
     return sum + (parseInt(String(gig.mileage || 0)) || 0);
@@ -933,9 +928,10 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
     period: periodStr,
     totalIncome, // Now represents taxable income
     totalReceived, // Gross income (new field)
-    totalReimbursements, // Total reimbursements from expense table (matches category summary)
+    grossExpenses, // Total expenses before reimbursements
+    totalReimbursements, // Total reimbursements from expense table
     businessDeductions, // Unreimbursed expenses (new field)
-    totalExpenses,
+    totalExpenses, // Net expenses (after reimbursements)
     totalMileage,
     mileageValue,
     netIncome,
