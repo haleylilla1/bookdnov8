@@ -1282,7 +1282,17 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
         console.warn('Distance calculation partial success:', warningMessage);
       }
       
-      const roundedDistance = Math.ceil(result.distanceMiles);
+      let roundedDistance = Math.ceil(result.distanceMiles);
+      
+      // Multiply by number of days if "round trip each day" is selected for multi-day gigs
+      let dayCount = 1;
+      if (gig.isMultiDay && formData.roundTripEachDay && gig.startDate && gig.endDate) {
+        const start = new Date(gig.startDate + 'T00:00:00');
+        const end = new Date(gig.endDate + 'T00:00:00');
+        dayCount = Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        roundedDistance = roundedDistance * dayCount;
+      }
+      
       setFormData(prev => ({ 
         ...prev, 
         calculatedMileage: roundedDistance.toString(),
@@ -1290,9 +1300,10 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
       }));
       
       if (result.status === 'success') {
+        const dayText = dayCount > 1 ? ` × ${dayCount} days` : '';
         toast({
           title: "Mileage Calculated",
-          description: `${roundedDistance} miles total${formData.includeRoundtrip ? ' including round trip' : ''}${result.fromCache ? ' (from cache)' : ''}.`,
+          description: `${roundedDistance} miles total${formData.includeRoundtrip ? ' (round trip)' : ''}${dayText}${result.fromCache ? ' (from cache)' : ''}.`,
         });
       } else {
         toast({
