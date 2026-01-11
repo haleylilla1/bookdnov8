@@ -1206,7 +1206,8 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
     startLat: undefined as number | undefined,
     startLng: undefined as number | undefined,
     stops: [] as string[],
-    includeRoundtrip: true,
+    includeRoundtrip: gig.isRoundTrip ?? true,
+    roundTripEachDay: gig.isRoundTripEachDay ?? false,
     calculatedMileage: "",
     parkingExpense: gig.parkingExpense || "",
     parkingDescription: gig.parkingDescription || "",
@@ -1523,23 +1524,51 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
           />
         </div>
 
-        <div 
-          className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
-            formData.includeRoundtrip 
-              ? 'border-blue-500 bg-blue-50' 
-              : 'border-gray-200 hover:border-blue-300'
-          }`}
-          onClick={() => setFormData({ ...formData, includeRoundtrip: !formData.includeRoundtrip })}
-        >
-          <input
-            type="checkbox"
-            checked={formData.includeRoundtrip}
-            onChange={(e) => setFormData({ ...formData, includeRoundtrip: e.target.checked })}
-            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
-          />
-          <label className="text-sm font-medium cursor-pointer text-gray-900">
-            Round trip (doubles the distance)
-          </label>
+        <div className="space-y-2">
+          <div 
+            className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
+              formData.includeRoundtrip 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-200 hover:border-blue-300'
+            }`}
+            onClick={() => setFormData({ ...formData, includeRoundtrip: !formData.includeRoundtrip })}
+          >
+            <input
+              type="checkbox"
+              checked={formData.includeRoundtrip}
+              onChange={(e) => setFormData({ ...formData, includeRoundtrip: e.target.checked })}
+              className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+            />
+            <label className="text-sm font-medium cursor-pointer text-gray-900">
+              Round trip (doubles the distance)
+            </label>
+          </div>
+
+          {gig.isMultiDay && formData.includeRoundtrip && (
+            <div 
+              className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ml-4 ${
+                formData.roundTripEachDay 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-300'
+              }`}
+              onClick={() => setFormData({ ...formData, roundTripEachDay: !formData.roundTripEachDay })}
+            >
+              <input
+                type="checkbox"
+                checked={formData.roundTripEachDay}
+                onChange={(e) => setFormData({ ...formData, roundTripEachDay: e.target.checked })}
+                className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+              />
+              <label className="text-sm font-medium cursor-pointer text-gray-900">
+                Round trip each day ({(() => {
+                  if (!gig.startDate || !gig.endDate) return 1;
+                  const start = new Date(gig.startDate + 'T00:00:00');
+                  const end = new Date(gig.endDate + 'T00:00:00');
+                  return Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                })()} trips total)
+              </label>
+            </div>
+          )}
         </div>
 
         <Button
