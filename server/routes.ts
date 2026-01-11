@@ -725,6 +725,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startingAddress
       } = req.body;
 
+      console.log(`📍 Got Paid: gigAddress="${gigAddress}", startingAddress="${startingAddress}", mileage=${mileage}`);
+
       // Calculate total other expenses and reimbursed amounts
       const totalOtherSpent = Array.isArray(otherExpenses) 
         ? otherExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0)
