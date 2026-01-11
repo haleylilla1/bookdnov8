@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, ArrowLeft } from "lucide-react";
+import { Briefcase, ArrowLeft, DollarSign } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { type Gig } from "@shared/schema";
 import { addExpenseSchema, type ExpenseFormData, getTodayISO } from "@/lib/form-schemas";
 import { AmountField, MerchantField, BusinessPurposeField, CategoryField, DateField } from "@/components/ui/form-field-wrapper";
 import { useFormErrorHandler } from "@/hooks/use-form-error-handler";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 // Utility function to parse dates consistently across timezones
 const parseGigDate = (dateString: string): Date => {
@@ -51,8 +52,12 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
       merchant: "",
       businessPurpose: "",
       gigId: linkedGigId,
+      isReimbursed: false,
+      reimbursedAmount: "",
     },
   });
+
+  const isReimbursed = form.watch("isReimbursed");
 
   const createExpenseMutation = useMutation({
     mutationFn: async (data: ExpenseFormData) => {
@@ -65,7 +70,8 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
         category: data.category,
         date: data.date,
         notes: data.businessPurpose || '',
-        gigId: data.gigId
+        gigId: data.gigId,
+        reimbursedAmount: data.isReimbursed && data.reimbursedAmount ? data.reimbursedAmount : "0"
       };
       
       console.log("🔍 Sending expense data:", apiData);
@@ -140,6 +146,57 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
                 <MerchantField control={form.control} />
                 <BusinessPurposeField control={form.control} />
                 <CategoryField control={form.control} />
+
+                {/* Reimbursement Section */}
+                <FormField
+                  control={form.control}
+                  name="isReimbursed"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          id="isReimbursed"
+                          checked={field.value || false}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                            if (!e.target.checked) {
+                              form.setValue("reimbursedAmount", "");
+                            }
+                          }}
+                          className="w-5 h-5 rounded border-2 border-gray-400 text-green-600 focus:ring-2 focus:ring-green-500 cursor-pointer"
+                        />
+                        <label htmlFor="isReimbursed" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          Was this reimbursed?
+                        </label>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {isReimbursed && (
+                  <FormField
+                    control={form.control}
+                    name="reimbursedAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          Reimbursement amount
+                        </FormLabel>
+                        <FormControl>
+                          <CurrencyInput
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            placeholder="0.00"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {/* Gig Linking (Optional) */}
                 {!linkedGigId && (

@@ -19,6 +19,8 @@ export const baseExpenseSchema = z.object({
   businessPurpose: requiredString("Business purpose is required"),
   category: requiredString("Category is required"),
   gigId: z.number().optional(),
+  isReimbursed: z.boolean().optional(),
+  reimbursedAmount: optionalString(),
 });
 
 export const addExpenseSchema = baseExpenseSchema;
