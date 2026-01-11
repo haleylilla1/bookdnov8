@@ -159,7 +159,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #000; background: white; }
-        table { font-family: 'Courier New', Courier, monospace; }
+        table { font-family: Arial, sans-serif; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .page { background: white; margin: 20px 0; padding: 30px; }
         
@@ -657,7 +657,7 @@ function generateFallbackReport(options: ReportOptions, error: any): string {
         <title>Report Generation Issue</title>
         <style>
             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; background: #f8f9fa; }
-            table { font-family: 'Courier New', Courier, monospace; }
+            table { font-family: Arial, sans-serif; }
             .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .header { text-align: center; margin-bottom: 30px; }
             .error { color: #dc3545; margin: 20px 0; }
