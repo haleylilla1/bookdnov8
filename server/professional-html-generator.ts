@@ -761,11 +761,7 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
       date: gig.date,
       amount: parseFloat(gig.parkingExpense || '0').toString(),
       merchant: `Parking - ${gig.eventName || 'Gig'}`,
-      businessPurpose: `Parking expense for ${gig.eventName || 'gig'} with ${gig.clientName || 'client'}${
-        gig.parkingDescription ? ` (${gig.parkingDescription})` : ''
-      }${
-        (gig as any).parkingReimbursed ? ' - REIMBURSED' : ''
-      }`,
+      businessPurpose: `Parking for ${gig.eventName || 'gig'}`,
       category: 'Work Travel',
       gigId: gig.id,
       reimbursedAmount: (gig as any).parkingReimbursed ? parseFloat(gig.parkingExpense || '0').toString() : '0',
@@ -773,8 +769,25 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
       updatedAt: new Date()
     }));
   
-  // Combine standalone expenses with parking expenses from gigs
-  const allExpenses = [...expenses, ...parkingExpenses];
+  // Add "other expenses" from gigs as "Gig Supplies" category
+  const otherGigExpenses = groupedGigs
+    .filter(gig => parseFloat(gig.otherExpenses || '0') > 0)
+    .map((gig, index) => ({
+      id: parseInt(`${gig.id}${index}999`), // Create unique numeric ID
+      userId: gig.userId,
+      date: gig.date,
+      amount: parseFloat(gig.otherExpenses || '0').toString(),
+      merchant: `${gig.eventName || 'Gig'} - Other`,
+      businessPurpose: `Other expenses for ${gig.eventName || 'gig'}`,
+      category: 'Gig Supplies',
+      gigId: gig.id,
+      reimbursedAmount: (gig as any).otherExpensesReimbursed ? parseFloat(gig.otherExpenses || '0').toString() : '0',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
+  
+  // Combine standalone expenses with gig expenses (parking + other)
+  const allExpenses = [...expenses, ...parkingExpenses, ...otherGigExpenses];
   
   // Filter completed gigs for income calculations (match dashboard logic exactly)
   const completedGigs = groupedGigs.filter(g => g.status === 'completed');
@@ -805,21 +818,13 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
     }
   });
 
-  // Calculate gig-related expenses (legacy parking/other expenses)
-  const gigExpenses = completedGigs.reduce((sum, gig) => {
-    const parking = parseFloat(gig.parkingExpense || '0');
-    const other = parseFloat(gig.otherExpenses || '0');
-    return sum + parking + other;
-  }, 0);
-
-  // Add standalone business expenses by category (NET out-of-pocket after reimbursements)
-  const standaloneExpenses = allExpenses.reduce((sum, expense) => {
+  // Calculate total expenses from allExpenses only (NET out-of-pocket after reimbursements)
+  // This ensures Summary Totals matches the Category Summary exactly
+  const totalExpenses = allExpenses.reduce((sum, expense) => {
     const amount = parseFloat(expense.amount || '0');
     const reimbursed = parseFloat(expense.reimbursedAmount || '0');
     return sum + (amount - reimbursed); // Net out-of-pocket
   }, 0);
-
-  const totalExpenses = gigExpenses + standaloneExpenses;
 
   const totalMileage = completedGigs.reduce((sum, gig) => {
     return sum + (parseInt(String(gig.mileage || 0)) || 0);
