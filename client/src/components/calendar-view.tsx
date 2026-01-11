@@ -1523,14 +1523,23 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div 
+          className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
+            formData.includeRoundtrip 
+              ? 'border-blue-500 bg-blue-50' 
+              : 'border-gray-200 hover:border-blue-300'
+          }`}
+          onClick={() => setFormData({ ...formData, includeRoundtrip: !formData.includeRoundtrip })}
+        >
           <input
             type="checkbox"
             checked={formData.includeRoundtrip}
             onChange={(e) => setFormData({ ...formData, includeRoundtrip: e.target.checked })}
-            className="rounded"
+            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
           />
-          <span className="text-xs">Include round trip</span>
+          <label className="text-sm font-medium cursor-pointer text-gray-900">
+            Round trip (doubles the distance)
+          </label>
         </div>
 
         <Button
