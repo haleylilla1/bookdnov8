@@ -565,13 +565,13 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
 
         <!-- Tax Due Dates Page -->
         <div class="page">
-            <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">2025 ESTIMATED TAX PAYMENT DUE DATES</h2>
+            <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">${safeOptions.year} ESTIMATED TAX PAYMENT DUE DATES</h2>
             
             <div style="margin: 40px 0; font-size: 16px; line-height: 2;">
-                <p><strong>1st Quarter (Jan 1 - Mar 31): April 15, 2025</strong></p>
-                <p><strong>2nd Quarter (Apr 1 - May 31): June 16, 2025</strong></p>
-                <p><strong>3rd Quarter (June 1 - Aug 31): September 15, 2025</strong></p>
-                <p><strong>4th Quarter (Sept 1 - Dec 31): January 15, 2026</strong></p>
+                <p><strong>1st Quarter (Jan 1 - Mar 31): April 15, ${safeOptions.year}</strong></p>
+                <p><strong>2nd Quarter (Apr 1 - May 31): June 15, ${safeOptions.year}</strong></p>
+                <p><strong>3rd Quarter (Jun 1 - Aug 31): September 15, ${safeOptions.year}</strong></p>
+                <p><strong>4th Quarter (Sep 1 - Dec 31): January 15, ${safeOptions.year + 1}</strong></p>
             </div>
             
             <div style="margin: 40px 0; padding: 20px; border: 2px solid #000;">

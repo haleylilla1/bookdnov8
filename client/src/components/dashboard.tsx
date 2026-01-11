@@ -898,11 +898,13 @@ export default function Dashboard() {
             <div className="text-xs text-gray-500 mb-1">
               {(() => {
                 const quarter = getCurrentQuarter(currentDate);
+                const year = currentDate.getFullYear();
+                const nextYear = year + 1;
                 const quarterRanges = {
-                  1: "Jan 1 - Mar 31 (Due Apr 15)",
-                  2: "Apr 1 - May 31 (Due Jun 15)", 
-                  3: "Jun 1 - Aug 31 (Due Sep 15)",
-                  4: "Sep 1 - Dec 31 (Due Jan 15)"
+                  1: `Jan 1 - Mar 31 (Due Apr 15, ${year})`,
+                  2: `Apr 1 - May 31 (Due Jun 15, ${year})`, 
+                  3: `Jun 1 - Aug 31 (Due Sep 15, ${year})`,
+                  4: `Sep 1 - Dec 31 (Due Jan 15, ${nextYear})`
                 };
                 return quarterRanges[quarter as keyof typeof quarterRanges];
               })()}
