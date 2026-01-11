@@ -85,8 +85,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
   const [startLat, setStartLat] = useState<number | undefined>();
   const [startLng, setStartLng] = useState<number | undefined>();
   const [startCity, setStartCity] = useState<string | undefined>();
-  const [isRoundTrip, setIsRoundTrip] = useState(false);
-  const [isPerDay, setIsPerDay] = useState(false);
+  const [isRoundTrip, setIsRoundTrip] = useState(gig.isRoundTrip ?? false);
+  const [isPerDay, setIsPerDay] = useState(gig.isRoundTripEachDay ?? false);
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
   const [mileageError, setMileageError] = useState<string | null>(null);
   
@@ -251,14 +251,14 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
       
       await onSave(dataToSave);
       
-      // Reset dialog state
+      // Reset dialog state - preserve gig's round trip settings
       setStep(1);
       setStartingAddress("");
       setEndingAddress("");
       setResolvedStartAddress("");
       setResolvedEndAddress("");
-      setIsRoundTrip(false);
-      setIsPerDay(false);
+      setIsRoundTrip(gig.isRoundTrip ?? false);
+      setIsPerDay(gig.isRoundTripEachDay ?? false);
       setMileageError(null);
       
       // Close dialog with proper cleanup
