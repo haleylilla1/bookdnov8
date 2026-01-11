@@ -35,6 +35,8 @@ export interface GotPaidData {
   otherReimbursed: number;
   paymentMethod?: string;
   taxPercentage: number;
+  gigAddress?: string;
+  startingAddress?: string;
 }
 
 // Extract city and state from an address string (e.g., "313 16th St Huntington Beach CA 92648" -> "Huntington Beach, CA")
@@ -243,6 +245,8 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
         otherReimbursed: parseNumber(formData.otherReimbursed),
         paymentMethod: formData.paymentMethod,
         taxPercentage: parseNumber(formData.taxPercentage),
+        gigAddress: endingAddress || undefined,
+        startingAddress: startingAddress || undefined,
       };
       
       await onSave(dataToSave);

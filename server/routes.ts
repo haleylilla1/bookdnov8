@@ -699,7 +699,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       paymentMethod: z.string().transform(sanitizeText).optional(),
       taxPercentage: z.union([z.string(), z.number()])
         .transform(val => sanitizeNumber(val, 25))
-        .refine(val => val >= 0 && val <= 100, 'Tax percentage must be between 0 and 100')
+        .refine(val => val >= 0 && val <= 100, 'Tax percentage must be between 0 and 100'),
+      gigAddress: z.string().optional(),
+      startingAddress: z.string().optional()
     })),
     async (req: any, res) => {
     try {
@@ -713,7 +715,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         otherReimbursed,
         mileage,
         paymentMethod,
-        taxPercentage
+        taxPercentage,
+        gigAddress,
+        startingAddress
       } = req.body;
 
       // Calculate total other expenses and reimbursed amounts
@@ -788,7 +792,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parkingExpense: parkingSpent.toString(),
         otherExpenses: totalOtherSpent.toString(),
         parkingReimbursed: parkingReimbursed > 0,
-        otherExpensesReimbursed: actualOtherReimbursed > 0
+        otherExpensesReimbursed: actualOtherReimbursed > 0,
+        // Save addresses for mileage reports
+        gigAddress: gigAddress || null
       };
 
       // If multiple related gigs found, update all of them
