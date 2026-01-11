@@ -108,21 +108,21 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
         const gigTaxes = gigIncome * (gigTaxRate / 100);
         
         return `
-          <tr style="background-color: ${index % 2 === 0 ? '#fff' : '#f8f9fa'};">
-              <td style="padding: 12px; border-bottom: 1px solid #ddd;">${escapeHtml(gig.eventName || 'Unnamed Event')}</td>
-              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">$${gigIncome.toFixed(2)}</td>
-              <td style="padding: 12px; text-align: center; border-bottom: 1px solid #ddd;">${gigTaxRate}%</td>
-              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd; font-weight: bold; color: #d63384;">$${gigTaxes.toFixed(2)}</td>
+          <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #000;">${escapeHtml(gig.eventName || 'Unnamed Event')}</td>
+              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000;">$${gigIncome.toFixed(2)}</td>
+              <td style="padding: 12px; text-align: center; border-bottom: 1px solid #000;">${gigTaxRate}%</td>
+              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000; font-weight: bold;">$${gigTaxes.toFixed(2)}</td>
           </tr>
         `;
       } catch (error) {
         console.warn('⚠️ Error processing gig for tax table:', error);
         return `
-          <tr style="background-color: ${index % 2 === 0 ? '#fff' : '#f8f9fa'};">
-              <td style="padding: 12px; border-bottom: 1px solid #ddd;">Processing Error</td>
-              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">$0.00</td>
-              <td style="padding: 12px; text-align: center; border-bottom: 1px solid #ddd;">0%</td>
-              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd; font-weight: bold; color: #d63384;">$0.00</td>
+          <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #000;">Processing Error</td>
+              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000;">$0.00</td>
+              <td style="padding: 12px; text-align: center; border-bottom: 1px solid #000;">0%</td>
+              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000; font-weight: bold;">$0.00</td>
           </tr>
         `;
       }
@@ -156,31 +156,21 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
     <title>Professional Freelancer Report - ${data.period}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; background: #f8f9fa; }
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #000; background: white; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .page { background: white; margin: 20px 0; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .page { background: white; margin: 20px 0; padding: 30px; }
         
         /* Header Styles */
-        .header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { font-size: 28px; color: #2c3e50; margin-bottom: 10px; }
-        .header h2 { font-size: 18px; color: #7f8c8d; margin-bottom: 5px; }
-        
-        /* Info Boxes */
-        .info-box { border: 2px solid #3498db; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        .info-box h3 { color: #2c3e50; margin-bottom: 15px; font-size: 16px; }
-        .info-box p { margin-bottom: 8px; }
-        
-        .summary-box { border: 2px solid #27ae60; background: #f8fff8; }
-        .tax-box { border: 2px solid #e74c3c; background: #fff8f8; }
-        .expense-box { border: 2px solid #f39c12; background: #fff9f0; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #000; margin-bottom: 10px; }
+        .header h2 { font-size: 18px; color: #000; margin-bottom: 5px; }
         
         /* Tables */
         .table-container { overflow-x: auto; margin: 20px 0; }
         table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #f8f9fa; font-weight: bold; color: #2c3e50; }
-        tr:nth-child(even) { background: #f8f9fa; }
-        .total-row { background: #e8f4f8 !important; font-weight: bold; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #000; }
+        th { background: white; font-weight: bold; color: #000; border-bottom: 2px solid #000; }
+        .total-row { font-weight: bold; border-top: 2px solid #000; }
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -196,14 +186,14 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
         /* Print Styles */
         @media print {
             body { background: white; }
-            .page { box-shadow: none; margin: 0; page-break-after: always; }
+            .page { margin: 0; page-break-after: always; }
             .page:last-child { page-break-after: auto; }
         }
         
-        .section-title { color: #2c3e50; font-size: 20px; margin: 30px 0 15px 0; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
-        .highlight { color: #27ae60; font-weight: bold; }
-        .tax-highlight { color: #e74c3c; font-weight: bold; }
-        .note { font-style: italic; color: #7f8c8d; font-size: 14px; margin-top: 15px; }
+        .section-title { color: #000; font-size: 20px; margin: 30px 0 15px 0; border-bottom: 1px solid #000; padding-bottom: 5px; }
+        .highlight { font-weight: bold; }
+        .tax-highlight { font-weight: bold; }
+        .note { font-style: italic; color: #000; font-size: 14px; margin-top: 15px; }
         
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
@@ -244,10 +234,10 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                 <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
                     <thead>
                         <tr>
-                            <th style="text-align: left; padding: 10px 0; border-bottom: 1px solid #333;">Date</th>
-                            <th style="text-align: left; padding: 10px 0; border-bottom: 1px solid #333;">Source</th>
-                            <th style="text-align: left; padding: 10px 0; border-bottom: 1px solid #333;">Type</th>
-                            <th style="text-align: right; padding: 10px 0; border-bottom: 1px solid #333;">Amount</th>
+                            <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Date</th>
+                            <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Source</th>
+                            <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Type</th>
+                            <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #000;">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -271,34 +261,30 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                     </tbody>
                 </table>
                 
-                <div style="margin-top: 40px; padding: 30px; background-color: #f0f8ff; border: 3px solid #2c3e50; border-radius: 8px;">
-                    <div style="text-align: center; margin-bottom: 25px;">
-                        <p style="font-size: 16px; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Income Breakdown</p>
-                    </div>
-                    
-                    <div style="background: white; padding: 20px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #3498db;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="margin-top: 40px; padding: 20px; border: 1px solid #000;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #000;">
                             <div>
-                                <p style="font-size: 14px; color: #666; margin-bottom: 5px;">GROSS INCOME (Total Received)</p>
-                                <p style="font-size: 11px; color: #999; font-style: italic;">Includes all payments + reimbursements</p>
+                                <p style="font-size: 14px; margin-bottom: 3px;"><strong>GROSS INCOME</strong> (Total Received)</p>
+                                <p style="font-size: 11px; font-style: italic;">Includes all payments + reimbursements</p>
                             </div>
-                            <p style="font-size: 22px; font-weight: bold; color: #2c3e50;">$${(data.totalReceived || data.totalIncome).toFixed(2)}</p>
+                            <p style="font-size: 20px; font-weight: bold;">$${(data.totalReceived || data.totalIncome).toFixed(2)}</p>
                         </div>
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 4px; border-left: 4px solid #27ae60;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <div>
-                                <p style="font-size: 14px; color: #666; margin-bottom: 5px;">TAXABLE INCOME</p>
-                                <p style="font-size: 11px; color: #999; font-style: italic;">Excludes reimbursements (use for tax filing)</p>
+                                <p style="font-size: 14px; margin-bottom: 3px;"><strong>TAXABLE INCOME</strong></p>
+                                <p style="font-size: 11px; font-style: italic;">Excludes reimbursements (use for tax filing)</p>
                             </div>
-                            <p style="font-size: 22px; font-weight: bold; color: #27ae60;">$${data.totalIncome.toFixed(2)}</p>
+                            <p style="font-size: 20px; font-weight: bold;">$${data.totalIncome.toFixed(2)}</p>
                         </div>
                     </div>
                     
                     ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
-                    <div style="margin-top: 15px; padding: 12px; background-color: #fff9e6; border-left: 3px solid #f39c12; border-radius: 4px;">
-                        <p style="font-size: 12px; color: #856404; margin: 0;">
+                    <div style="margin-top: 15px; padding: 10px; border-top: 1px solid #000;">
+                        <p style="font-size: 12px; margin: 0;">
                             <strong>Note:</strong> You received $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)} in reimbursements that are NOT taxable income.
                         </p>
                     </div>
@@ -316,10 +302,10 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                 <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
                     <thead>
                         <tr>
-                            <th style="text-align: left; padding: 10px 0; border-bottom: 1px solid #333;">Date</th>
-                            <th style="text-align: left; padding: 10px 0; border-bottom: 1px solid #333;">Purpose</th>
-                            <th style="text-align: right; padding: 10px 0; border-bottom: 1px solid #333;">Miles</th>
-                            <th style="text-align: right; padding: 10px 0; border-bottom: 1px solid #333;">Value</th>
+                            <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Date</th>
+                            <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #000;">Purpose</th>
+                            <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #000;">Miles</th>
+                            <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #000;">Value</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -362,28 +348,28 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             <div style="margin: 20px 0;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #333; font-weight: bold;">Gig</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #333; font-weight: bold;">Income</th>
-                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #333; font-weight: bold;">Tax Rate</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #333; font-weight: bold;">Tax Estimate</th>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #000; font-weight: bold;">Gig</th>
+                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #000; font-weight: bold;">Income</th>
+                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #000; font-weight: bold;">Tax Rate</th>
+                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #000; font-weight: bold;">Tax Estimate</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${taxEstimatesRows}
                         
                         <!-- Total Row -->
-                        <tr style="background-color: #e8f4f8; font-weight: bold; border-top: 2px solid #333;">
-                            <td style="padding: 15px; border-bottom: 2px solid #333;">TOTAL</td>
-                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #333;">$${data.totalIncome.toFixed(2)}</td>
-                            <td style="padding: 15px; text-align: center; border-bottom: 2px solid #333;">-</td>
-                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #333; color: #d63384;">$${data.estimatedTaxes.toFixed(2)}</td>
+                        <tr style="font-weight: bold; border-top: 2px solid #000;">
+                            <td style="padding: 15px; border-bottom: 2px solid #000;">TOTAL</td>
+                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #000;">$${data.totalIncome.toFixed(2)}</td>
+                            <td style="padding: 15px; text-align: center; border-bottom: 2px solid #000;">-</td>
+                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #000; font-weight: bold;">$${data.estimatedTaxes.toFixed(2)}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
-            <div style="margin: 30px 0; padding: 20px; background-color: #f0f8ff; border-left: 4px solid #4a90e2;">
+            <div style="margin: 30px 0; padding: 15px; border: 1px solid #000;">
                 <p style="font-size: 14px; margin: 0; line-height: 1.5;">
                     <strong>Calculation Method:</strong> For each gig, taxes are calculated using the gig's individual tax rate applied to gross income. 
                     Income includes actual pay and tips. Each gig uses its individual tax rate setting. These are taxes on gross income before business expense deductions.
@@ -412,22 +398,15 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         
                         return sortedCategories.map(category => `
                             <div style="margin-bottom: 30px;">
-                                <h3 style="font-size: 14px; margin-bottom: 10px; color: #2c3e50; background: #f8f9fa; padding: 8px; border-left: 4px solid #3498db;">${category}</h3>
+                                <h3 style="font-size: 14px; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #000; font-weight: bold;">${category}</h3>
                                 <div style="overflow-x: auto;">
                                     <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 10px;">
                                         <thead>
                                             <tr>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 1px solid #ddd; font-size: 9px; white-space: nowrap;">Date</th>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 1px solid #ddd; font-size: 9px; max-width: 60px;">Merchant</th>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 1px solid #ddd; font-size: 9px; max-width: 80px;">Purpose</th>
-                                                <th style="text-align: right; padding: 4px 2px; border-bottom: 1px solid #ddd; font-size: 9px; white-space: nowrap;">Amount</th>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" style="padding: 3px 0; font-size: 8px; color: #666; border-bottom: 1px solid #eee;">
-                                                    <span style="color: #0066cc;">■</span> Expense &nbsp;
-                                                    <span style="color: #22c55e;">■</span> Reimb &nbsp;
-                                                    <span style="color: #f59e0b;">■</span> Net
-                                                </td>
+                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; white-space: nowrap;">Date</th>
+                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; max-width: 60px;">Merchant</th>
+                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; max-width: 80px;">Purpose</th>
+                                                <th style="text-align: right; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; white-space: nowrap;">Amount</th>
                                             </tr>
                                         </thead>
                                     <tbody>
@@ -441,22 +420,22 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                                                 
                                                 // Add the expense line item
                                                 transparencyItems.push(`
-                                                    <tr style="background-color: #f8f9ff;">
-                                                        <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap;">${new Date(expense.date).toLocaleDateString()}</td>
-                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 60px; word-wrap: break-word; overflow-wrap: break-word;">${expense.merchant}</td>
-                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 80px; word-wrap: break-word; overflow-wrap: break-word;">${expense.businessPurpose}</td>
-                                                        <td style="padding: 4px 2px; text-align: right; font-size: 9px; color: #0066cc; white-space: nowrap;">$${expenseAmount.toFixed(2)}</td>
+                                                    <tr>
+                                                        <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">${new Date(expense.date).toLocaleDateString()}</td>
+                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 60px; word-wrap: break-word; overflow-wrap: break-word; border-bottom: 1px solid #000;">${expense.merchant}</td>
+                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 80px; word-wrap: break-word; overflow-wrap: break-word; border-bottom: 1px solid #000;">${expense.businessPurpose}</td>
+                                                        <td style="padding: 4px 2px; text-align: right; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">$${expenseAmount.toFixed(2)}</td>
                                                     </tr>
                                                 `);
                                                 
                                                 // Add reimbursement line item if there was any reimbursement
                                                 if (reimbursedAmount > 0) {
                                                     transparencyItems.push(`
-                                                        <tr style="background-color: #f0f8f0;">
-                                                            <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap;">${new Date(expense.date).toLocaleDateString()}</td>
-                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 60px; word-wrap: break-word;">${expense.merchant} (Reimb)</td>
-                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 80px; word-wrap: break-word;">Reimb: ${expense.businessPurpose}</td>
-                                                            <td style="padding: 4px 2px; text-align: right; font-size: 9px; color: #22c55e; white-space: nowrap;">-$${reimbursedAmount.toFixed(2)}</td>
+                                                        <tr>
+                                                            <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">${new Date(expense.date).toLocaleDateString()}</td>
+                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 60px; word-wrap: break-word; border-bottom: 1px solid #000;">${expense.merchant} (Reimb)</td>
+                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 80px; word-wrap: break-word; border-bottom: 1px solid #000;">Reimb: ${expense.businessPurpose}</td>
+                                                            <td style="padding: 4px 2px; text-align: right; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">-$${reimbursedAmount.toFixed(2)}</td>
                                                         </tr>
                                                     `);
                                                 }
@@ -465,11 +444,11 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                                                 if (reimbursedAmount > 0) {
                                                     const netAmount = expenseAmount - reimbursedAmount;
                                                     transparencyItems.push(`
-                                                        <tr style="background-color: #fffbf0; border-bottom: 2px solid #ddd;">
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold; color: #666;"></td>
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold; color: #666;">Net</td>
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold; color: #666;"></td>
-                                                            <td style="padding: 4px 2px; text-align: right; font-size: 8px; font-weight: bold; color: #f59e0b; white-space: nowrap;">$${netAmount.toFixed(2)}</td>
+                                                        <tr style="border-bottom: 2px solid #000;">
+                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;"></td>
+                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;">Net</td>
+                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;"></td>
+                                                            <td style="padding: 4px 2px; text-align: right; font-size: 8px; font-weight: bold; white-space: nowrap;">$${netAmount.toFixed(2)}</td>
                                                         </tr>
                                                     `);
                                                 }
@@ -506,39 +485,38 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         const sortedCategories = Object.entries(categoryTotals).sort(([,a], [,b]) => b.net - a.net);
                         
                         return sortedCategories.length > 0 ? `
-                            <div style="margin-top: 40px; border-top: 2px solid #3498db; padding-top: 20px;">
-                                <h3 style="font-size: 18px; margin-bottom: 20px; color: #2c3e50;">Summary by Category (With Reimbursement Transparency)</h3>
+                            <div style="margin-top: 40px; border-top: 2px solid #000; padding-top: 20px;">
+                                <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: bold;">SUMMARY BY CATEGORY</h3>
                                 <table style="width: 100%; border-collapse: collapse; font-family: monospace;">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: left; padding: 8px 4px; border-bottom: 1px solid #333; font-size: 12px; line-height: 1.3;">Category</th>
-                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 1px solid #333; font-size: 12px; color: #0066cc; line-height: 1.3;">Gross<br>Expenses</th>
-                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 1px solid #333; font-size: 12px; color: #22c55e; line-height: 1.3;">Reimburse-<br>ments</th>
-                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 1px solid #333; font-size: 12px; color: #f59e0b; line-height: 1.3;">Net<br>Out-of-Pocket</th>
+                                            <th style="text-align: left; padding: 8px 4px; border-bottom: 2px solid #000; font-size: 12px; line-height: 1.3;">Category</th>
+                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 2px solid #000; font-size: 12px; line-height: 1.3;">Gross Expenses</th>
+                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 2px solid #000; font-size: 12px; line-height: 1.3;">Reimbursements</th>
+                                            <th style="text-align: right; padding: 8px 4px; border-bottom: 2px solid #000; font-size: 12px; line-height: 1.3;">Net Out-of-Pocket</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         ${sortedCategories.map(([category, totals]) => `
                                             <tr>
-                                                <td style="padding: 6px 4px; font-size: 11px; line-height: 1.3;">${category}</td>
-                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; color: #0066cc;">$${totals.gross.toFixed(2)}</td>
-                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; color: #22c55e;">${totals.reimbursed > 0 ? '-$' + totals.reimbursed.toFixed(2) : '$0.00'}</td>
-                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; font-weight: bold; color: #f59e0b;">$${totals.net.toFixed(2)}</td>
+                                                <td style="padding: 6px 4px; font-size: 11px; line-height: 1.3; border-bottom: 1px solid #000;">${category}</td>
+                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; border-bottom: 1px solid #000;">$${totals.gross.toFixed(2)}</td>
+                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; border-bottom: 1px solid #000;">${totals.reimbursed > 0 ? '-$' + totals.reimbursed.toFixed(2) : '$0.00'}</td>
+                                                <td style="padding: 6px 4px; text-align: right; font-size: 11px; font-weight: bold; border-bottom: 1px solid #000;">$${totals.net.toFixed(2)}</td>
                                             </tr>
                                         `).join('')}
-                                        <tr style="border-top: 2px solid #333; font-weight: bold; background-color: #f8f9fa;">
+                                        <tr style="border-top: 2px solid #000; font-weight: bold;">
                                             <td style="padding: 8px 4px; font-size: 12px;">TOTALS</td>
-                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px; color: #0066cc;">$${Object.values(categoryTotals).reduce((sum, val) => sum + val.gross, 0).toFixed(2)}</td>
-                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px; color: #22c55e;">-$${Object.values(categoryTotals).reduce((sum, val) => sum + val.reimbursed, 0).toFixed(2)}</td>
-                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px; color: #f59e0b;">$${Object.values(categoryTotals).reduce((sum, val) => sum + val.net, 0).toFixed(2)}</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px;">$${Object.values(categoryTotals).reduce((sum, val) => sum + val.gross, 0).toFixed(2)}</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px;">-$${Object.values(categoryTotals).reduce((sum, val) => sum + val.reimbursed, 0).toFixed(2)}</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 12px;">$${Object.values(categoryTotals).reduce((sum, val) => sum + val.net, 0).toFixed(2)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                                 
-                                <div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #4a90e2; font-size: 14px;">
-                                    <strong>Transparency Note:</strong> This report shows full transparency for reimbursements. 
-                                    Gross expenses are your total business costs, reimbursements reduce your taxable income, 
-                                    and net out-of-pocket represents your actual business expense for tax deduction purposes.
+                                <div style="margin-top: 20px; padding: 15px; border: 1px solid #000; font-size: 14px;">
+                                    <strong>Note:</strong> Gross expenses are your total business costs. Reimbursements reduce your taxable income. 
+                                    Net out-of-pocket represents your actual business expense for tax deduction purposes.
                                 </div>
                             </div>
                         ` : '';
@@ -547,20 +525,20 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             ` : ''}
         </div>
 
-        <!-- Summary Totals Page - Matching Exact Format -->
+        <!-- Summary Totals Page -->
         <div class="page">
             <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">SUMMARY TOTALS</h2>
             
             <!-- Income Section -->
-            <div style="margin: 30px 0; padding: 20px; background-color: #f0f8ff; border-radius: 8px;">
-                <h3 style="font-size: 18px; margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">Income</h3>
+            <div style="margin: 30px 0; padding: 20px; border: 1px solid #000;">
+                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">INCOME</h3>
                 <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
                     <p style="margin: 8px 0;"><strong>Gross Income (Total Received):</strong> $${(data.totalReceived || data.totalIncome).toFixed(2)}</p>
-                    <p style="margin: 8px 0; color: #666; font-size: 14px; margin-left: 20px;">↳ Includes all payments + reimbursements</p>
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Includes all payments + reimbursements</p>
                     <p style="margin: 8px 0;"><strong>Taxable Income:</strong> $${data.totalIncome.toFixed(2)}</p>
-                    <p style="margin: 8px 0; color: #666; font-size: 14px; margin-left: 20px;">↳ Excludes reimbursements (use for tax filing)</p>
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Excludes reimbursements (use for tax filing)</p>
                     ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
-                    <p style="margin: 8px 0; color: #f39c12; font-size: 14px; margin-left: 20px;">
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">
                         ↳ Reimbursements (not taxable): $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)}
                     </p>
                     ` : ''}
@@ -568,8 +546,8 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             </div>
             
             <!-- Deductions Section -->
-            <div style="margin: 30px 0; padding: 20px; background-color: #fff9f0; border-radius: 8px;">
-                <h3 style="font-size: 18px; margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #f39c12; padding-bottom: 8px;">Business Deductions</h3>
+            <div style="margin: 30px 0; padding: 20px; border: 1px solid #000;">
+                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">BUSINESS DEDUCTIONS</h3>
                 <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
                     <p style="margin: 8px 0;"><strong>Business Expenses:</strong> $${data.totalExpenses.toFixed(2)}</p>
                     <p style="margin: 8px 0;"><strong>Mileage:</strong> ${Math.round(data.totalMileage)} miles</p>
@@ -578,12 +556,12 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             </div>
             
             <!-- Tax Estimate Section -->
-            <div style="margin: 30px 0; padding: 25px; background-color: #fff8f8; border: 2px solid #e74c3c; border-radius: 8px;">
-                <h3 style="font-size: 18px; margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #e74c3c; padding-bottom: 8px;">Tax Estimate</h3>
+            <div style="margin: 30px 0; padding: 20px; border: 2px solid #000;">
+                <h3 style="font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px; font-weight: bold;">TAX ESTIMATE</h3>
                 <div style="margin-left: 15px; font-size: 16px; line-height: 1.8;">
-                    <p style="margin: 8px 0;"><strong>Estimated Taxes (on taxable income):</strong> <span style="color: #e74c3c; font-size: 20px;">$${data.estimatedTaxes.toFixed(2)}</span></p>
-                    <p style="margin: 8px 0; color: #666; font-size: 14px; margin-left: 20px;">↳ Calculated on gross taxable income before deductions</p>
-                    <p style="margin: 8px 0; color: #666; font-size: 14px; margin-left: 20px;">↳ Business deductions reduce taxable income when filing</p>
+                    <p style="margin: 8px 0;"><strong>Estimated Taxes (on taxable income):</strong> <span style="font-size: 20px; font-weight: bold;">$${data.estimatedTaxes.toFixed(2)}</span></p>
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Calculated on gross taxable income before deductions</p>
+                    <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Business deductions reduce taxable income when filing</p>
                 </div>
             </div>
         </div>
@@ -599,22 +577,22 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                 <p><strong>4th Quarter (Sept 1 - Dec 31): January 15, 2026</strong></p>
             </div>
             
-            <div style="margin: 40px 0; padding: 20px; border: 2px solid #f59e0b; background-color: #fffbeb; border-radius: 8px;">
-                <h3 style="font-size: 16px; margin-bottom: 12px; color: #92400e;">⚠️ IMPORTANT TAX DISCLAIMER</h3>
-                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0; color: #78350f;">
+            <div style="margin: 40px 0; padding: 20px; border: 2px solid #000;">
+                <h3 style="font-size: 16px; margin-bottom: 12px; font-weight: bold;">IMPORTANT TAX DISCLAIMER</h3>
+                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0;">
                     <strong>User-Entered Tax Estimates:</strong> All tax calculations in this report are based on the tax percentage(s) 
                     YOU entered in Bookd. These are your personal estimates, not professional tax advice.
                 </p>
-                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0; color: #78350f;">
+                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0;">
                     <strong>Not Tax Advice:</strong> Bookd is a tracking tool, not a tax advisor. This report is for informational 
                     and record-keeping purposes only. We do not provide tax, legal, or accounting advice.
                 </p>
-                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0; color: #78350f;">
+                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0;">
                     <strong>Consult a Professional:</strong> Please consult with a qualified CPA, tax professional, or enrolled agent 
                     to determine your actual tax obligations, deductions, estimated tax payments, and filing requirements based on 
                     your complete financial situation.
                 </p>
-                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0; color: #78350f;">
+                <p style="font-size: 13px; line-height: 1.6; margin: 8px 0;">
                     <strong>No Liability:</strong> Bookd and its creators assume no responsibility for the accuracy of tax estimates, 
                     calculations, or any tax-related decisions you make based on this report.
                 </p>
