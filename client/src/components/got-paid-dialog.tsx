@@ -140,6 +140,9 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
     taxPercentage: gig.taxPercentage ? gig.taxPercentage.toString() : "25",
   });
 
+  // Track if we've already auto-calculated to avoid repeat calls
+  const [hasAutoCalculated, setHasAutoCalculated] = React.useState(false);
+
   // Update tax percentage and addresses when user data loads
   React.useEffect(() => {
     if (user?.defaultTaxPercentage && !gig.taxPercentage) {
@@ -159,6 +162,48 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
       setEndingAddress(gig.gigAddress);
     }
   }, [user, gig.taxPercentage, gig.gigAddress]);
+
+  // Auto-calculate mileage when both addresses are available
+  React.useEffect(() => {
+    const autoCalculate = async () => {
+      // Only auto-calculate if we have both addresses and haven't already calculated
+      if (startingAddress && endingAddress && !hasAutoCalculated && !formData.mileage && isOpen) {
+        setHasAutoCalculated(true);
+        setIsCalculatingMileage(true);
+        setMileageError(null);
+
+        try {
+          const response = await apiRequest('POST', '/api/calculate-distance', {
+            startAddress: resolvedStartAddress || startingAddress,
+            endAddress: resolvedEndAddress || endingAddress,
+            roundTrip: isRoundTrip
+          });
+
+          const data = await response.json();
+          
+          if (data.status === 'success' && data.distanceMiles) {
+            let miles = Math.ceil(data.distanceMiles);
+            
+            if (gig.isMultiDay && isPerDay) {
+              const start = new Date(gig.startDate + 'T00:00:00');
+              const end = new Date(gig.endDate + 'T00:00:00');
+              const diffTime = Math.abs(end.getTime() - start.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+              miles = miles * Math.max(1, diffDays);
+            }
+            
+            setFormData(prev => ({ ...prev, mileage: miles.toString() }));
+          }
+        } catch (error) {
+          console.log('Auto-calculate mileage failed, user can calculate manually');
+        } finally {
+          setIsCalculatingMileage(false);
+        }
+      }
+    };
+
+    autoCalculate();
+  }, [startingAddress, endingAddress, hasAutoCalculated, formData.mileage, isOpen, isRoundTrip, isPerDay]);
 
   // Calculate mileage using Google Maps API
   const calculateMileage = async () => {
@@ -260,6 +305,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
       setIsRoundTrip(gig.isRoundTrip ?? false);
       setIsPerDay(gig.isRoundTripEachDay ?? false);
       setMileageError(null);
+      setHasAutoCalculated(false);
       
       // Close dialog with proper cleanup
       onClose();
@@ -488,12 +534,19 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   />
                 </div>
 
-                {/* Deduction preview */}
+                {/* Celebratory deduction preview */}
                 {parseNumber(formData.mileage) > 0 && (
-                  <Badge variant="secondary" className="bg-green-50 text-green-700">
-                    <Calculator className="w-3 h-3 mr-1" />
-                    Tax deduction: {formatCurrency(parseNumber(formData.mileage) * 0.70)} ({formData.mileage} miles × $0.70)
-                  </Badge>
+                  <div className="p-4 bg-green-50 border-2 border-green-300 rounded-lg text-center">
+                    <div className="text-green-700 font-bold text-lg mb-1">
+                      Congratulations!
+                    </div>
+                    <div className="text-green-800 font-semibold">
+                      That's a tax deduction of {formatCurrency(parseNumber(formData.mileage) * 0.70)}!
+                    </div>
+                    <div className="text-green-600 text-sm mt-1">
+                      ({formData.mileage} miles × $0.70)
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
