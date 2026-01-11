@@ -752,46 +752,62 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
   // Group multi-day gigs to prevent double counting
   const groupedGigs = groupMultiDayGigs(gigs);
   
-  // Add parking expenses from gigs to expenses array as "Work Travel" category
-  const parkingExpenses = groupedGigs
-    .filter(gig => parseFloat(gig.parkingExpense || '0') > 0)
-    .map((gig, index) => ({
-      id: parseInt(`${gig.id}${index}000`), // Create unique numeric ID
-      userId: gig.userId,
-      date: gig.date,
-      amount: parseFloat(gig.parkingExpense || '0').toString(),
-      merchant: `Parking - ${gig.eventName || 'Gig'}`,
-      businessPurpose: `Parking for ${gig.eventName || 'gig'}`,
-      category: 'Work Travel',
-      gigId: gig.id,
-      reimbursedAmount: (gig as any).parkingReimbursed ? parseFloat(gig.parkingExpense || '0').toString() : '0',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }));
+  // Filter completed gigs FIRST so expenses match income calculations
+  const completedGigs = groupedGigs.filter(g => g.status === 'completed');
   
-  // Add "other expenses" from gigs as "Gig Supplies" category
-  const otherGigExpenses = groupedGigs
+  // Add parking expenses from COMPLETED gigs to expenses array as "Work Travel" category
+  // Use reimbursedParking (actual dollar amount from Got Paid workflow) for consistency
+  const parkingExpenses = completedGigs
+    .filter(gig => parseFloat(gig.parkingExpense || '0') > 0)
+    .map((gig, index) => {
+      const parkingAmount = parseFloat(gig.parkingExpense || '0');
+      // Use the actual reimbursed amount from Got Paid workflow, or check old boolean field
+      const reimbursedAmount = parseFloat((gig as any).reimbursedParking || '0') || 
+                               ((gig as any).parkingReimbursed ? parkingAmount : 0);
+      return {
+        id: parseInt(`${gig.id}${index}000`),
+        userId: gig.userId,
+        date: gig.date,
+        amount: parkingAmount.toString(),
+        merchant: `Parking - ${gig.eventName || 'Gig'}`,
+        businessPurpose: `Parking for ${gig.eventName || 'gig'}`,
+        category: 'Work Travel',
+        gigId: gig.id,
+        reimbursedAmount: reimbursedAmount.toString(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    });
+  
+  // Add "other expenses" from COMPLETED gigs as "Gig Supplies" category
+  // Use reimbursedOther (actual dollar amount from Got Paid workflow) for consistency
+  const otherGigExpenses = completedGigs
     .filter(gig => parseFloat(gig.otherExpenses || '0') > 0)
-    .map((gig, index) => ({
-      id: parseInt(`${gig.id}${index}999`), // Create unique numeric ID
-      userId: gig.userId,
-      date: gig.date,
-      amount: parseFloat(gig.otherExpenses || '0').toString(),
-      merchant: `${gig.eventName || 'Gig'} - Other`,
-      businessPurpose: `Other expenses for ${gig.eventName || 'gig'}`,
-      category: 'Gig Supplies',
-      gigId: gig.id,
-      reimbursedAmount: (gig as any).otherExpensesReimbursed ? parseFloat(gig.otherExpenses || '0').toString() : '0',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }));
+    .map((gig, index) => {
+      const otherAmount = parseFloat(gig.otherExpenses || '0');
+      // Use the actual reimbursed amount from Got Paid workflow, or check old boolean field
+      const reimbursedAmount = parseFloat((gig as any).reimbursedOther || '0') || 
+                               ((gig as any).otherExpensesReimbursed ? otherAmount : 0);
+      return {
+        id: parseInt(`${gig.id}${index}999`),
+        userId: gig.userId,
+        date: gig.date,
+        amount: otherAmount.toString(),
+        merchant: `${gig.eventName || 'Gig'} - Other`,
+        businessPurpose: `Other expenses for ${gig.eventName || 'gig'}`,
+        category: 'Gig Supplies',
+        gigId: gig.id,
+        reimbursedAmount: reimbursedAmount.toString(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    });
   
   // Combine standalone expenses with gig expenses (parking + other)
   const allExpenses = [...expenses, ...parkingExpenses, ...otherGigExpenses];
   
-  // Filter completed gigs for income calculations (match dashboard logic exactly)
-  const completedGigs = groupedGigs.filter(g => g.status === 'completed');
   // Calculate totals using tax-smart logic (same as dashboard)
+  // Note: completedGigs already defined above for expense filtering
   let totalIncome = 0; // Taxable income
   let totalReceived = 0; // Gross income
   let businessDeductions = 0; // Unreimbursed expenses
