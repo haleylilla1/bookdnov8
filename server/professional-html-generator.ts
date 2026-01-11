@@ -396,72 +396,58 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         // Sort categories alphabetically
                         const sortedCategories = Object.keys(expensesByCategory).sort();
                         
-                        return sortedCategories.map(category => `
+                        return sortedCategories.map(category => {
+                            const categoryExpenses = expensesByCategory[category];
+                            let categoryTotal = 0;
+                            let categoryReimbursed = 0;
+                            let categoryNet = 0;
+                            
+                            return `
                             <div style="margin-bottom: 30px;">
                                 <h3 style="font-size: 14px; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #000; font-weight: bold;">${category}</h3>
                                 <div style="overflow-x: auto;">
                                     <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 10px;">
                                         <thead>
                                             <tr>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; white-space: nowrap;">Date</th>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; max-width: 60px;">Merchant</th>
-                                                <th style="text-align: left; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; max-width: 80px;">Purpose</th>
-                                                <th style="text-align: right; padding: 4px 2px; border-bottom: 2px solid #000; font-size: 9px; white-space: nowrap;">Amount</th>
+                                                <th style="text-align: left; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Date</th>
+                                                <th style="text-align: left; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Merchant</th>
+                                                <th style="text-align: left; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Purpose</th>
+                                                <th style="text-align: right; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Amount</th>
+                                                <th style="text-align: right; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px;">Reimbursed</th>
+                                                <th style="text-align: right; padding: 6px 4px; border-bottom: 2px solid #000; font-size: 10px; font-weight: bold;">Out of Pocket</th>
                                             </tr>
                                         </thead>
                                     <tbody>
-                                        ${(() => {
-                                            // Create transparency breakdown for each expense
-                                            const transparencyItems = [];
+                                        ${categoryExpenses.map(expense => {
+                                            const expenseAmount = parseFloat(expense.amount || '0');
+                                            const reimbursedAmount = parseFloat(expense.reimbursedAmount || '0');
+                                            const outOfPocket = expenseAmount - reimbursedAmount;
+                                            categoryTotal += expenseAmount;
+                                            categoryReimbursed += reimbursedAmount;
+                                            categoryNet += outOfPocket;
                                             
-                                            for (const expense of expensesByCategory[category]) {
-                                                const expenseAmount = parseFloat(expense.amount || '0');
-                                                const reimbursedAmount = parseFloat(expense.reimbursedAmount || '0');
-                                                
-                                                // Add the expense line item
-                                                transparencyItems.push(`
-                                                    <tr>
-                                                        <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">${new Date(expense.date).toLocaleDateString()}</td>
-                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 60px; word-wrap: break-word; overflow-wrap: break-word; border-bottom: 1px solid #000;">${expense.merchant}</td>
-                                                        <td style="padding: 4px 2px; font-size: 9px; max-width: 80px; word-wrap: break-word; overflow-wrap: break-word; border-bottom: 1px solid #000;">${expense.businessPurpose}</td>
-                                                        <td style="padding: 4px 2px; text-align: right; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">$${expenseAmount.toFixed(2)}</td>
-                                                    </tr>
-                                                `);
-                                                
-                                                // Add reimbursement line item if there was any reimbursement
-                                                if (reimbursedAmount > 0) {
-                                                    transparencyItems.push(`
-                                                        <tr>
-                                                            <td style="padding: 4px 2px; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">${new Date(expense.date).toLocaleDateString()}</td>
-                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 60px; word-wrap: break-word; border-bottom: 1px solid #000;">${expense.merchant} (Reimb)</td>
-                                                            <td style="padding: 4px 2px; font-size: 9px; font-style: italic; max-width: 80px; word-wrap: break-word; border-bottom: 1px solid #000;">Reimb: ${expense.businessPurpose}</td>
-                                                            <td style="padding: 4px 2px; text-align: right; font-size: 9px; white-space: nowrap; border-bottom: 1px solid #000;">-$${reimbursedAmount.toFixed(2)}</td>
-                                                        </tr>
-                                                    `);
-                                                }
-                                                
-                                                // Add net impact row if there was reimbursement
-                                                if (reimbursedAmount > 0) {
-                                                    const netAmount = expenseAmount - reimbursedAmount;
-                                                    transparencyItems.push(`
-                                                        <tr style="border-bottom: 2px solid #000;">
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;"></td>
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;">Net</td>
-                                                            <td style="padding: 4px 2px; font-size: 8px; font-weight: bold;"></td>
-                                                            <td style="padding: 4px 2px; text-align: right; font-size: 8px; font-weight: bold; white-space: nowrap;">$${netAmount.toFixed(2)}</td>
-                                                        </tr>
-                                                    `);
-                                                }
-                                            }
-                                            
-                                            return transparencyItems.join('');
-                                        })()
-                                        }
+                                            return `
+                                                <tr>
+                                                    <td style="padding: 6px 4px; font-size: 10px; border-bottom: 1px solid #000;">${new Date(expense.date).toLocaleDateString()}</td>
+                                                    <td style="padding: 6px 4px; font-size: 10px; border-bottom: 1px solid #000;">${expense.merchant}</td>
+                                                    <td style="padding: 6px 4px; font-size: 10px; border-bottom: 1px solid #000;">${expense.businessPurpose}</td>
+                                                    <td style="padding: 6px 4px; text-align: right; font-size: 10px; border-bottom: 1px solid #000;">$${expenseAmount.toFixed(2)}</td>
+                                                    <td style="padding: 6px 4px; text-align: right; font-size: 10px; border-bottom: 1px solid #000;">${reimbursedAmount > 0 ? '$' + reimbursedAmount.toFixed(2) : '-'}</td>
+                                                    <td style="padding: 6px 4px; text-align: right; font-size: 10px; border-bottom: 1px solid #000; font-weight: bold;">$${outOfPocket.toFixed(2)}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                        <tr style="font-weight: bold; border-top: 2px solid #000;">
+                                            <td style="padding: 8px 4px; font-size: 10px;" colspan="3">Category Total</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 10px;">$${categoryTotal.toFixed(2)}</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 10px;">${categoryReimbursed > 0 ? '$' + categoryReimbursed.toFixed(2) : '-'}</td>
+                                            <td style="padding: 8px 4px; text-align: right; font-size: 10px; font-weight: bold;">$${categoryNet.toFixed(2)}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                                 </div>
                             </div>
-                        `).join('');
+                        `}).join('');
                     })()}
                     
                     <!-- Category Summary -->
