@@ -590,7 +590,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       gotPaidDate: z.string().optional().nullable(),
       // Multi-day gig fields
       isMultiDay: z.boolean().optional(),
-      multiDayGroupId: z.string().optional().nullable()
+      multiDayGroupId: z.string().optional().nullable(),
+      // Mileage tracking fields
+      gigAddress: z.string().optional().nullable(),
+      startingAddress: z.string().optional().nullable(),
+      isRoundTrip: z.boolean().optional().default(true),
+      isRoundTripEachDay: z.boolean().optional().default(false)
     })),
     async (req: any, res) => {
     try {
