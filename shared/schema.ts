@@ -171,6 +171,8 @@ export const gigs = pgTable("gigs", {
   gotPaidDate: timestamp("got_paid_date"),
   
   gigAddress: text("gig_address"),
+  isRoundTrip: boolean("is_round_trip").default(true),
+  isRoundTripEachDay: boolean("is_round_trip_each_day").default(false),
   distanceMiles: decimal("distance_miles", { precision: 8, scale: 2 }),
   travelTimeMinutes: integer("travel_time_minutes"),
   includeInResume: boolean("include_in_resume").default(true),

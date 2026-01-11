@@ -14,7 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGigSchema, type InsertGig, type User } from "@shared/schema";
 import { z } from "zod";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, MapPin, Navigation } from "lucide-react";
+import { AddressAutocomplete } from "@/components/address-autocomplete";
 
 // Simplified form schema for planning gigs (detailed tracking happens in "Got Paid")
 const gigFormSchema = z.object({
@@ -27,6 +28,9 @@ const gigFormSchema = z.object({
   status: z.enum(["upcoming", "pending payment", "completed"]).default("upcoming"),
   duties: z.string().optional(),
   notes: z.string().optional(),
+  gigAddress: z.string().optional(),
+  isRoundTrip: z.boolean().optional(),
+  isRoundTripEachDay: z.boolean().optional(),
 }).refine((data) => {
   // If no end date provided, validation passes
   if (!data.endDate || data.endDate.trim() === "") {
@@ -145,6 +149,9 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
       status: "upcoming" as const,
       duties: "",
       notes: "",
+      gigAddress: "",
+      isRoundTrip: true,
+      isRoundTripEachDay: false,
     }
   });
 
@@ -282,6 +289,10 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
         unreimbursedParking: "0",
         unreimbursedOther: "0",
         gotPaidDate: null,
+        // Mileage tracking fields (optional - can be set now or during Got Paid)
+        gigAddress: data.gigAddress || null,
+        isRoundTrip: data.isRoundTrip ?? true,
+        isRoundTripEachDay: data.isRoundTripEachDay ?? false,
       };
 
       // Use mutation for proper state management
@@ -605,6 +616,100 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                 </p>
               </div>
             )}
+
+            {/* Gig Location Section (Optional) */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-gray-600" />
+                <span className="font-medium text-gray-800">Mileage Tracking (Optional)</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                If you know the address, add it now. If not, you can add it once you get paid.
+              </p>
+              
+              {/* Starting Location (from profile) */}
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  <Navigation className="w-4 h-4 inline mr-1" />
+                  Starting from
+                </label>
+                <div className="p-3 bg-white border rounded-lg text-gray-700">
+                  {user?.homeAddress || "Set your home address in Profile to auto-fill"}
+                </div>
+              </div>
+
+              {/* Gig Location */}
+              <FormField
+                control={form.control}
+                name="gigAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      Gig Location
+                    </FormLabel>
+                    <FormControl>
+                      <AddressAutocomplete
+                        label=""
+                        value={field.value || ""}
+                        onChange={(address: string) => field.onChange(address)}
+                        placeholder="Enter gig address"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Round Trip Options */}
+              {form.watch("gigAddress") && (
+                <div className="space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="isRoundTrip"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="isRoundTrip"
+                            checked={field.value || false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            className="w-5 h-5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                          />
+                          <label htmlFor="isRoundTrip" className="text-sm font-medium cursor-pointer">
+                            Round trip (doubles the distance)
+                          </label>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {multiDayInfo.isMultiDay && form.watch("isRoundTrip") && (
+                    <FormField
+                      control={form.control}
+                      name="isRoundTripEachDay"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-3 ml-8">
+                            <input
+                              type="checkbox"
+                              id="isRoundTripEachDay"
+                              checked={field.value || false}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                              className="w-5 h-5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                            />
+                            <label htmlFor="isRoundTripEachDay" className="text-sm font-medium cursor-pointer">
+                              Round trip each day ({multiDayInfo.dayCount} trips total)
+                            </label>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Payment Planning */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
