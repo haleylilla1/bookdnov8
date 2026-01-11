@@ -283,10 +283,10 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         </div>
                     </div>
                     
-                    ${(data.totalReimbursements && data.totalReimbursements > 0) ? `
+                    ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
                     <div style="margin-top: 15px; padding: 10px; border-top: 1px solid #000;">
                         <p style="font-size: 12px; margin: 0;">
-                            <strong>Note:</strong> You received $${(data.totalReimbursements || 0).toFixed(2)} in reimbursements that are NOT taxable income.
+                            <strong>Note:</strong> You received $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)} in reimbursements that are NOT taxable income.
                         </p>
                     </div>
                     ` : ''}
@@ -524,9 +524,9 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                     <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Includes all payments + reimbursements</p>
                     <p style="margin: 8px 0;"><strong>Taxable Income:</strong> $${data.totalIncome.toFixed(2)}</p>
                     <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">↳ Excludes reimbursements (use for tax filing)</p>
-                    ${(data.totalReimbursements && data.totalReimbursements > 0) ? `
+                    ${(data.totalReceived && data.totalReceived > data.totalIncome) ? `
                     <p style="margin: 8px 0; font-size: 14px; margin-left: 20px;">
-                        ↳ Reimbursements (not taxable): $${(data.totalReimbursements || 0).toFixed(2)}
+                        ↳ Reimbursements (not taxable): $${((data.totalReceived || 0) - data.totalIncome).toFixed(2)}
                     </p>
                     ` : ''}
                 </div>
