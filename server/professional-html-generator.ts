@@ -310,21 +310,26 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                           const dateStr = gig.date.includes(' - ') ? gig.date : new Date(gig.date).toLocaleDateString();
                           const purpose = `${gig.eventName || 'Event'} (${gig.clientName || 'Client'})`;
                           const value = (miles * MILEAGE_RATE);
+                          const gigAddress = (gig as any).gigAddress;
                           const startAddress = data.user.homeAddress || 'Home';
-                          const endAddress = (gig as any).gigAddress || 'Gig Location';
+                          
+                          // Only show route if gig address was saved (2026+ gigs)
+                          const routeRow = gigAddress ? `
+                            <tr>
+                                <td colspan="4" style="padding: 4px 0 12px 0; font-size: 11px; border-bottom: 1px solid #ccc;">
+                                    <strong>Route:</strong> ${startAddress} → ${gigAddress} (Roundtrip)
+                                </td>
+                            </tr>
+                          ` : '';
                           
                           return `
                             <tr>
-                                <td style="padding: 8px 0; border-bottom: none;">${dateStr}</td>
-                                <td style="padding: 8px 0; border-bottom: none;">${purpose}</td>
-                                <td style="padding: 8px 0; text-align: right; border-bottom: none;">${Math.round(miles)}</td>
-                                <td style="padding: 8px 0; text-align: right; border-bottom: none;">$${value.toFixed(2)}</td>
+                                <td style="padding: 8px 0; border-bottom: ${gigAddress ? 'none' : '1px solid #ccc'};">${dateStr}</td>
+                                <td style="padding: 8px 0; border-bottom: ${gigAddress ? 'none' : '1px solid #ccc'};">${purpose}</td>
+                                <td style="padding: 8px 0; text-align: right; border-bottom: ${gigAddress ? 'none' : '1px solid #ccc'};">${Math.round(miles)}</td>
+                                <td style="padding: 8px 0; text-align: right; border-bottom: ${gigAddress ? 'none' : '1px solid #ccc'};">$${value.toFixed(2)}</td>
                             </tr>
-                            <tr>
-                                <td colspan="4" style="padding: 4px 0 12px 0; font-size: 11px; border-bottom: 1px solid #ccc;">
-                                    <strong>Route:</strong> ${startAddress} → ${endAddress} (Roundtrip)
-                                </td>
-                            </tr>
+                            ${routeRow}
                           `;
                         }).join('')}
                     </tbody>
