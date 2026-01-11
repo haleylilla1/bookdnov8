@@ -168,7 +168,7 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
                               form.setValue("reimbursedAmount", "");
                             }
                           }}
-                          className="w-5 h-5 rounded border-2 border-gray-400 text-green-600 focus:ring-2 focus:ring-green-500 cursor-pointer"
+                          className="w-5 h-5 rounded border-2 border-gray-400 text-green-600 focus:ring-2 focus:ring-green-500 cursor-pointer accent-green-600 checked:bg-green-600"
                         />
                         <label htmlFor="isReimbursed" className="text-sm font-medium cursor-pointer flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-600" />
