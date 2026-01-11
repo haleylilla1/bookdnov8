@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit2, Trash2, Filter, Calendar, DollarSign, Clock } from "lucide-react";
+import { Edit2, Trash2, Filter, Calendar, DollarSign, Clock, MapPin, Navigation } from "lucide-react";
+import { AddressAutocomplete } from "./address-autocomplete";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -387,6 +388,9 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
     duties: gig.duties || "",
     paymentMethod: gig.paymentMethod || "",
     taxPercentage: (gig.taxPercentage !== null && gig.taxPercentage !== undefined) ? gig.taxPercentage : 23,
+    gigAddress: gig.gigAddress || "",
+    isRoundTrip: gig.isRoundTrip ?? true,
+    isRoundTripEachDay: gig.isRoundTripEachDay ?? false,
   });
 
   // Update tax percentage when user data loads
@@ -503,6 +507,84 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
           onChange={(e) => setFormData({ ...formData, duties: e.target.value })}
           placeholder="Key duties and responsibilities..."
         />
+      </div>
+
+      {/* Mileage Tracking Section */}
+      <div className="space-y-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-gray-600" />
+          <span className="font-medium text-sm text-gray-800">Mileage Tracking</span>
+        </div>
+        
+        {/* Starting Location (from profile) */}
+        <div>
+          <label className="block text-xs font-medium mb-1 text-gray-600">
+            <Navigation className="w-3 h-3 inline mr-1" />
+            Starting from
+          </label>
+          <div className="p-2 bg-white border rounded text-sm text-gray-700">
+            {(user as any)?.homeAddress || "Set home address in Profile"}
+          </div>
+        </div>
+
+        {/* Gig Location */}
+        <div>
+          <label className="block text-xs font-medium mb-1 text-gray-600">
+            <MapPin className="w-3 h-3 inline mr-1" />
+            Gig Location
+          </label>
+          <AddressAutocomplete
+            label=""
+            value={formData.gigAddress}
+            onChange={(address: string) => setFormData({ ...formData, gigAddress: address })}
+            placeholder="Enter gig address"
+          />
+        </div>
+
+        {/* Round Trip Options */}
+        {formData.gigAddress && (
+          <div className="space-y-2">
+            <div 
+              className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
+                formData.isRoundTrip 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-300'
+              }`}
+              onClick={() => setFormData({ ...formData, isRoundTrip: !formData.isRoundTrip })}
+            >
+              <input
+                type="checkbox"
+                checked={formData.isRoundTrip}
+                onChange={(e) => setFormData({ ...formData, isRoundTrip: e.target.checked })}
+                className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+              />
+              <label className="text-sm font-medium cursor-pointer text-gray-900">
+                Round trip (doubles the distance)
+              </label>
+            </div>
+
+            {gig.isMultiDay && formData.isRoundTrip && (
+              <div 
+                className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ml-4 ${
+                  formData.isRoundTripEachDay 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 hover:border-blue-300'
+                }`}
+                onClick={() => setFormData({ ...formData, isRoundTripEachDay: !formData.isRoundTripEachDay })}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.isRoundTripEachDay}
+                  onChange={(e) => setFormData({ ...formData, isRoundTripEachDay: e.target.checked })}
+                  className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+                />
+                <label className="text-sm font-medium cursor-pointer text-gray-900">
+                  Round trip each day
+                </label>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
