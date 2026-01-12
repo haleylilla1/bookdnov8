@@ -1080,8 +1080,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Add location bias if coordinates provided (strongly prefers nearby results)
       if (lat && lng) {
-        url += `&location=${lat},${lng}&radius=80000`; // 80km (~50 miles) radius bias
+        // Use origin parameter for distance-based ranking + location/radius for soft bias
+        url += `&location=${lat},${lng}&radius=100000&origin=${lat},${lng}`;
         console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
+      } else {
+        // Default to Southern California (Huntington Beach area) if no coordinates provided
+        // This helps prioritize CA results for the primary user base
+        url += `&location=33.6603,-117.9992&radius=200000&origin=33.6603,-117.9992`;
+        console.log(`[GOOGLE_MAPS] Using default SoCal location bias`);
       }
       
       console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"`);
