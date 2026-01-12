@@ -519,6 +519,157 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
             ` : ''}
         </div>
 
+        <!-- Client Summary Page (for 1099 matching) -->
+        <div class="page">
+            <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">INCOME BY CLIENT</h2>
+            <p style="font-size: 14px; margin-bottom: 20px; text-align: center;">Use this section to match against 1099-NEC forms received from clients</p>
+            
+            ${(() => {
+                const clientData: Record<string, { 
+                    income: number, 
+                    tips: number,
+                    reimbursedParking: number, 
+                    reimbursedOther: number,
+                    totalReimbursements: number,
+                    gigCount: number,
+                    periods: Record<string, { income: number, tips: number, reimbursements: number }>
+                }> = {};
+                
+                completedGigs.forEach(gig => {
+                    const clientName = gig.clientName || 'Unknown Client';
+                    const actualPay = safeParseFloat(gig.actualPay);
+                    const tips = safeParseFloat(gig.tips);
+                    const reimbursedParking = safeParseFloat(gig.reimbursedParking);
+                    const reimbursedOther = safeParseFloat(gig.reimbursedOther);
+                    const totalReimbursements = reimbursedParking + reimbursedOther;
+                    
+                    const gigDate = new Date(gig.date);
+                    const month = gigDate.getMonth() + 1;
+                    const quarter = Math.floor((month - 1) / 3) + 1;
+                    const year = gigDate.getFullYear();
+                    
+                    let periodKey = '';
+                    if (safeOptions.period === 'annual') {
+                        periodKey = `Q${quarter} ${year}`;
+                    } else if (safeOptions.period === 'quarterly') {
+                        periodKey = gigDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    } else {
+                        periodKey = gigDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }
+                    
+                    if (!clientData[clientName]) {
+                        clientData[clientName] = { 
+                            income: 0, tips: 0, reimbursedParking: 0, reimbursedOther: 0, 
+                            totalReimbursements: 0, gigCount: 0, periods: {} 
+                        };
+                    }
+                    
+                    clientData[clientName].income += actualPay;
+                    clientData[clientName].tips += tips;
+                    clientData[clientName].reimbursedParking += reimbursedParking;
+                    clientData[clientName].reimbursedOther += reimbursedOther;
+                    clientData[clientName].totalReimbursements += totalReimbursements;
+                    clientData[clientName].gigCount += 1;
+                    
+                    if (!clientData[clientName].periods[periodKey]) {
+                        clientData[clientName].periods[periodKey] = { income: 0, tips: 0, reimbursements: 0 };
+                    }
+                    clientData[clientName].periods[periodKey].income += actualPay;
+                    clientData[clientName].periods[periodKey].tips += tips;
+                    clientData[clientName].periods[periodKey].reimbursements += totalReimbursements;
+                });
+                
+                const sortedClients = Object.entries(clientData).sort(([,a], [,b]) => (b.income + b.tips) - (a.income + a.tips));
+                
+                if (sortedClients.length === 0) {
+                    return '<p style="text-align: center; font-size: 14px;">No completed gigs in this period.</p>';
+                }
+                
+                let grandTotalIncome = 0;
+                let grandTotalTips = 0;
+                let grandTotalReimbursements = 0;
+                
+                return sortedClients.map(([clientName, clientInfo]) => {
+                    const clientTotal = clientInfo.income + clientInfo.tips;
+                    grandTotalIncome += clientInfo.income;
+                    grandTotalTips += clientInfo.tips;
+                    grandTotalReimbursements += clientInfo.totalReimbursements;
+                    
+                    const sortedPeriods = Object.entries(clientInfo.periods).sort(([a], [b]) => a.localeCompare(b));
+                    
+                    const periodRows = sortedPeriods.map(([period, periodData]) => `
+                        <tr>
+                            <td style="padding: 6px 4px; border-bottom: 1px solid #ddd;">${period}</td>
+                            <td style="padding: 6px 4px; text-align: right; border-bottom: 1px solid #ddd;">$${periodData.income.toFixed(2)}</td>
+                            <td style="padding: 6px 4px; text-align: right; border-bottom: 1px solid #ddd;">${periodData.tips > 0 ? '$' + periodData.tips.toFixed(2) : '-'}</td>
+                            <td style="padding: 6px 4px; text-align: right; border-bottom: 1px solid #ddd;">${periodData.reimbursements > 0 ? '$' + periodData.reimbursements.toFixed(2) : '-'}</td>
+                            <td style="padding: 6px 4px; text-align: right; border-bottom: 1px solid #ddd; font-weight: bold;">$${(periodData.income + periodData.tips).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                    
+                    return `
+                    <div style="margin-bottom: 30px; border: 1px solid #000; padding: 15px;">
+                        <h3 style="font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 8px;">
+                            ${escapeHtml(clientName)} <span style="font-weight: normal; font-size: 12px;">(${clientInfo.gigCount} gig${clientInfo.gigCount !== 1 ? 's' : ''})</span>
+                        </h3>
+                        
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 6px 4px; border-bottom: 1px solid #000;">Period</th>
+                                    <th style="text-align: right; padding: 6px 4px; border-bottom: 1px solid #000;">Pay</th>
+                                    <th style="text-align: right; padding: 6px 4px; border-bottom: 1px solid #000;">Tips</th>
+                                    <th style="text-align: right; padding: 6px 4px; border-bottom: 1px solid #000;">Reimbursements</th>
+                                    <th style="text-align: right; padding: 6px 4px; border-bottom: 1px solid #000; font-weight: bold;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${periodRows}
+                            </tbody>
+                        </table>
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; border-top: 2px solid #000; padding-top: 10px;">
+                            <div>
+                                <strong>Total Income (Taxable):</strong> $${clientTotal.toFixed(2)}
+                                <span style="font-size: 10px; margin-left: 5px;">(Pay: $${clientInfo.income.toFixed(2)}${clientInfo.tips > 0 ? ' + Tips: $' + clientInfo.tips.toFixed(2) : ''})</span>
+                            </div>
+                            <div>
+                                <strong>Reimbursements (Non-Taxable):</strong> ${clientInfo.totalReimbursements > 0 ? '$' + clientInfo.totalReimbursements.toFixed(2) : '$0.00'}
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('') + `
+                    <div style="margin-top: 30px; padding: 20px; border: 2px solid #000;">
+                        <h3 style="font-size: 18px; margin-bottom: 15px; font-weight: bold;">GRAND TOTALS</h3>
+                        <table style="width: 100%; font-size: 14px;">
+                            <tr>
+                                <td style="padding: 8px 0;"><strong>Total Taxable Income:</strong></td>
+                                <td style="text-align: right; padding: 8px 0; font-size: 18px; font-weight: bold;">$${grandTotalIncome + grandTotalTips}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-size: 12px; padding-left: 20px;">↳ Pay: $${grandTotalIncome.toFixed(2)}</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-size: 12px; padding-left: 20px;">↳ Tips: $${grandTotalTips.toFixed(2)}</td>
+                                <td></td>
+                            </tr>
+                            <tr style="border-top: 1px solid #000;">
+                                <td style="padding: 8px 0;"><strong>Total Reimbursements (Non-Taxable):</strong></td>
+                                <td style="text-align: right; padding: 8px 0;">$${grandTotalReimbursements.toFixed(2)}</td>
+                            </tr>
+                        </table>
+                        <div style="margin-top: 15px; padding: 10px; border: 1px solid #000; font-size: 12px;">
+                            <strong>1099-NEC Note:</strong> Your 1099 forms from clients should show the taxable income amount. 
+                            Reimbursements for business expenses (parking, mileage, etc.) are typically not included on 1099s 
+                            as they are not taxable income.
+                        </div>
+                    </div>
+                `;
+            })()}
+        </div>
+
         <!-- Summary Totals Page -->
         <div class="page">
             <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">SUMMARY TOTALS</h2>
