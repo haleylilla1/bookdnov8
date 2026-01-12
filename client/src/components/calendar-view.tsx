@@ -906,7 +906,7 @@ export default function CalendarView() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center text-sm">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4 text-green-600" />
                         {gig.expectedPay 
@@ -914,9 +914,6 @@ export default function CalendarView() {
                           : "No pay set"
                         }
                       </div>
-                      <Badge className={getStatusColor(gig.status)}>
-                        {getStatusLabel(gig.status)}
-                      </Badge>
                     </div>
 
                     {gig.duties && (
@@ -927,7 +924,7 @@ export default function CalendarView() {
                   </div>
 
                   {/* Action Buttons - Mobile Optimized Layout */}
-                  <div className="flex flex-col gap-2 pt-2">
+                  <div className="flex flex-col gap-2 pt-2 items-center">
                     {gig.status !== 'completed' && (
                       <div className="flex justify-center">
                         <Button
@@ -972,6 +969,9 @@ export default function CalendarView() {
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
+                    <Badge className={`${getStatusColor(gig.status)} mt-1`}>
+                      {getStatusLabel(gig.status)}
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
