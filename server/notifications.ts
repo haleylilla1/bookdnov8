@@ -4,6 +4,8 @@ if (!process.env.SENDGRID_API_KEY) {
   console.error("SENDGRID_API_KEY environment variable must be set");
 } else {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  // Set timeout to prevent hanging requests (10 seconds)
+  sgMail.setTimeout(10000);
 }
 
 interface NewUserNotificationData {

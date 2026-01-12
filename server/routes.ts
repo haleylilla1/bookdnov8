@@ -24,6 +24,21 @@ import {
 import { userValidation, gigValidation, expenseValidation, goalValidation, sanitizeText, sanitizeNumber, sanitizeAddress } from "@shared/validation";
 import { z } from 'zod';
 
+// Fetch with timeout - prevents external API calls from hanging the app
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 10000): Promise<globalThis.Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 // Helper function to get user ID from request
 function getUserId(req: any): number {
@@ -1100,7 +1115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"${sessionToken ? ' (with session token)' : ''}`);
 
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url, {}, 10000); // 10 second timeout
 
       if (!response.ok) {
         console.error(`[GOOGLE_MAPS] Places API HTTP error: ${response.status} ${response.statusText}`);
@@ -1158,7 +1173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[GOOGLE_MAPS] Place details with session token (completing session)`);
       }
 
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url, {}, 10000); // 10 second timeout
 
       if (!response.ok) {
         console.error(`[GOOGLE_MAPS] Place Details API HTTP error: ${response.status}`);
@@ -1202,8 +1217,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Maps API not configured' });
       }
 
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
+      const response = await fetchWithTimeout(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`,
+        {},
+        10000 // 10 second timeout
       );
 
       if (!response.ok) {
