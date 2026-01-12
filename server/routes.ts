@@ -573,6 +573,233 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard summary endpoint - calculates all metrics server-side
+  app.get('/api/dashboard/summary', requireAuth,
+    validateQueryParams(z.object({
+      period: z.enum(['monthly', 'quarterly', 'annual']).default('monthly'),
+      date: z.string().optional() // ISO date string
+    })),
+    async (req: any, res: Response) => {
+    try {
+      const userId = getUserId(req);
+      const period = req.query.period || 'monthly';
+      const dateStr = req.query.date || new Date().toISOString();
+      const currentDate = new Date(dateStr);
+
+      // Get user for tax rate
+      const user = await storage.getUser(userId);
+      const userTaxRate = user?.defaultTaxPercentage || 23;
+
+      // Calculate period date range
+      let startDate: Date, endDate: Date;
+      
+      if (period === 'monthly') {
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      } else if (period === 'quarterly') {
+        const month = currentDate.getMonth() + 1;
+        let quarter: number;
+        if (month >= 1 && month <= 3) quarter = 1;
+        else if (month >= 4 && month <= 5) quarter = 2;
+        else if (month >= 6 && month <= 8) quarter = 3;
+        else quarter = 4;
+        
+        const quarterRanges: Record<number, { start: Date; end: Date }> = {
+          1: { start: new Date(currentDate.getFullYear(), 0, 1), end: new Date(currentDate.getFullYear(), 2, 31) },
+          2: { start: new Date(currentDate.getFullYear(), 3, 1), end: new Date(currentDate.getFullYear(), 4, 31) },
+          3: { start: new Date(currentDate.getFullYear(), 5, 1), end: new Date(currentDate.getFullYear(), 7, 31) },
+          4: { start: new Date(currentDate.getFullYear(), 8, 1), end: new Date(currentDate.getFullYear(), 11, 31) }
+        };
+        startDate = quarterRanges[quarter].start;
+        endDate = quarterRanges[quarter].end;
+      } else {
+        startDate = new Date(currentDate.getFullYear(), 0, 1);
+        endDate = new Date(currentDate.getFullYear(), 11, 31);
+      }
+
+      // Fetch gigs and expenses for the period
+      const gigsData = await storage.getGigsByUser(userId, 50000, 0);
+      const expensesData = await storage.getExpensesByUser(userId, 50000, 0);
+      const allGigs = gigsData.gigs || [];
+      const allExpenses = expensesData.expenses || [];
+
+      // Filter gigs by period
+      const periodGigs = allGigs.filter((gig: any) => {
+        const gigDate = new Date(gig.date + 'T00:00:00');
+        return gigDate >= startDate && gigDate <= endDate;
+      });
+
+      // Filter expenses by period
+      const periodExpenses = allExpenses.filter((expense: any) => {
+        const expenseDate = new Date(expense.date + 'T00:00:00');
+        return expenseDate >= startDate && expenseDate <= endDate;
+      });
+
+      // Group multi-day gigs to prevent double-counting
+      const groupedGigs: any[] = [];
+      const processed = new Set<number>();
+      const sortedGigs = [...periodGigs].sort((a, b) => 
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      for (let i = 0; i < sortedGigs.length; i++) {
+        if (processed.has(sortedGigs[i].id)) continue;
+        
+        const currentGig = sortedGigs[i];
+        
+        // Check if this is part of a multi-day event
+        if (currentGig.multiDayGroupId) {
+          // Find all gigs with the same multiDayGroupId
+          const groupGigs = sortedGigs.filter(g => g.multiDayGroupId === currentGig.multiDayGroupId);
+          groupGigs.forEach(g => processed.add(g.id));
+          
+          // Use the first gig's data (payment info is the same across all days)
+          groupedGigs.push({
+            ...currentGig,
+            isMultiDay: true,
+            startDate: groupGigs[0].date,
+            endDate: groupGigs[groupGigs.length - 1].date
+          });
+        } else {
+          // Check for legacy multi-day (consecutive dates with same details)
+          const relatedGigs = [currentGig];
+          processed.add(currentGig.id);
+          
+          for (let j = i + 1; j < sortedGigs.length; j++) {
+            const nextGig = sortedGigs[j];
+            if (processed.has(nextGig.id)) continue;
+            
+            const lastGig = relatedGigs[relatedGigs.length - 1];
+            const lastDate = new Date(lastGig.date);
+            const nextDate = new Date(nextGig.date);
+            const dayDiff = (nextDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
+            
+            if (dayDiff === 1 && 
+                nextGig.eventName === currentGig.eventName &&
+                nextGig.clientName === currentGig.clientName &&
+                nextGig.gigType === currentGig.gigType) {
+              relatedGigs.push(nextGig);
+              processed.add(nextGig.id);
+            } else {
+              break;
+            }
+          }
+          
+          if (relatedGigs.length > 1) {
+            groupedGigs.push({
+              ...currentGig,
+              isMultiDay: true,
+              startDate: currentGig.date,
+              endDate: relatedGigs[relatedGigs.length - 1].date
+            });
+          } else {
+            groupedGigs.push(currentGig);
+          }
+        }
+      }
+
+      // Helper function for safe parsing
+      const safeParseFloat = (val: any): number => {
+        if (val === null || val === undefined || val === '') return 0;
+        const parsed = parseFloat(String(val));
+        return isNaN(parsed) ? 0 : parsed;
+      };
+
+      // Calculate stats using same logic as frontend
+      const completedGigs = groupedGigs.filter(g => g.status === 'completed');
+      const upcomingGigs = groupedGigs.filter(g => g.status !== 'completed');
+
+      let actualEarnings = 0;
+      let totalReceived = 0;
+      let businessDeductions = 0;
+
+      completedGigs.forEach(gig => {
+        const tips = safeParseFloat(gig.tips);
+        
+        if (gig.totalReceived && parseFloat(gig.totalReceived) > 0) {
+          const received = safeParseFloat(gig.totalReceived);
+          const reimbursedParking = safeParseFloat(gig.reimbursedParking);
+          const reimbursedOther = safeParseFloat(gig.reimbursedOther);
+          const unreimbursedParking = safeParseFloat(gig.unreimbursedParking);
+          const unreimbursedOther = safeParseFloat(gig.unreimbursedOther);
+          
+          totalReceived += received + tips;
+          businessDeductions += unreimbursedParking + unreimbursedOther;
+          actualEarnings += (received - reimbursedParking - reimbursedOther) + tips;
+        } else {
+          const payAmount = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
+          totalReceived += payAmount + tips;
+          actualEarnings += payAmount + tips;
+        }
+      });
+
+      const totalTips = completedGigs.reduce((sum, gig) => sum + safeParseFloat(gig.tips), 0);
+
+      // Calculate expenses
+      const gigExpenses = groupedGigs.reduce((sum, gig) => {
+        const parkingExpense = safeParseFloat(gig.parkingExpense);
+        const otherExpenses = safeParseFloat(gig.otherExpenses);
+        const mileageDeduction = (gig.mileage || 0) * 0.70;
+        return sum + parkingExpense + otherExpenses + mileageDeduction;
+      }, 0);
+
+      const standaloneExpenses = periodExpenses.reduce((sum: number, expense: any) => 
+        sum + safeParseFloat(expense.amount), 0
+      );
+
+      const totalExpenses = gigExpenses + standaloneExpenses;
+
+      // Calculate projected earnings
+      const projectedEarnings = groupedGigs.reduce((sum, gig) => {
+        if (gig.status === 'completed') {
+          const payAmount = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
+          return sum + payAmount + safeParseFloat(gig.tips);
+        } else {
+          return sum + safeParseFloat(gig.expectedPay) + safeParseFloat(gig.tips);
+        }
+      }, 0);
+
+      // Calculate tax estimate
+      const estimatedTax = completedGigs.reduce((sum, gig) => {
+        let taxableIncome = 0;
+        
+        if (gig.totalReceived && parseFloat(gig.totalReceived) > 0) {
+          const received = safeParseFloat(gig.totalReceived);
+          const reimbursedParking = safeParseFloat(gig.reimbursedParking);
+          const reimbursedOther = safeParseFloat(gig.reimbursedOther);
+          taxableIncome = received - reimbursedParking - reimbursedOther;
+        } else {
+          taxableIncome = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
+        }
+        
+        taxableIncome += safeParseFloat(gig.tips);
+        
+        const gigTaxRate = (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
+          ? gig.taxPercentage : userTaxRate;
+        return sum + (taxableIncome * gigTaxRate / 100);
+      }, 0);
+
+      res.json({
+        actualEarnings: Math.round(actualEarnings * 100) / 100,
+        projectedEarnings: Math.round(projectedEarnings * 100) / 100,
+        totalTips: Math.round(totalTips * 100) / 100,
+        totalExpenses: Math.round(totalExpenses * 100) / 100,
+        estimatedTax: Math.round(estimatedTax * 100) / 100,
+        completedGigs: completedGigs.length,
+        upcomingGigs: upcomingGigs.length,
+        totalGigs: groupedGigs.length,
+        totalReceived: Math.round(totalReceived * 100) / 100,
+        businessDeductions: Math.round(businessDeductions * 100) / 100,
+        period,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      });
+    } catch (error) {
+      console.error('Dashboard summary error:', error);
+      res.status(500).json({ error: 'Failed to calculate dashboard summary' });
+    }
+  });
+
   app.post('/api/gigs', requireAuth,
     validateRequestBody(z.object({
       // Core gig fields that match InsertGig schema
