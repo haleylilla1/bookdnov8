@@ -906,7 +906,7 @@ export default function CalendarView() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4 text-green-600" />
                         {gig.expectedPay 
