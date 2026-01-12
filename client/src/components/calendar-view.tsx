@@ -243,45 +243,53 @@ export default function CalendarView() {
     return days;
   }, [currentDate]);
 
-  // Memoize gigs by date for better performance
+  // Memoize gigs by date for better performance - includes multi-day span expansion
   const gigsByDate = useMemo(() => {
-    if (!gigs || !Array.isArray(gigs)) return new Map();
+    if (!gigs || !Array.isArray(gigs)) return new Map<string, Gig[]>();
     const gigMap = new Map<string, Gig[]>();
     
-    gigs.forEach(gig => {
-      const dateString = gig.date;
-      if (!gigMap.has(dateString)) {
-        gigMap.set(dateString, []);
+    const addGigToDate = (dateStr: string, gig: Gig) => {
+      if (!gigMap.has(dateStr)) {
+        gigMap.set(dateStr, []);
       }
-      gigMap.get(dateString)!.push(gig);
+      const existing = gigMap.get(dateStr)!;
+      // Avoid duplicates
+      if (!existing.some(g => g.id === gig.id)) {
+        existing.push(gig);
+      }
+    };
+    
+    gigs.forEach(gig => {
+      // Add gig to its primary date
+      addGigToDate(gig.date, gig);
+      
+      // For multi-day gigs, also add to all dates in the span
+      if (gig.isMultiDay && gig.startDate && gig.endDate) {
+        const start = new Date(gig.startDate + 'T00:00:00');
+        const end = new Date(gig.endDate + 'T00:00:00');
+        
+        // Loop through each day in the range (max 30 days to prevent runaway)
+        for (let d = new Date(start); d <= end && d.getTime() - start.getTime() < 30 * 24 * 60 * 60 * 1000; d.setDate(d.getDate() + 1)) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const dateStr = `${year}-${month}-${day}`;
+          addGigToDate(dateStr, gig);
+        }
+      }
     });
     
     return gigMap;
   }, [gigs]);
 
-  // Get gigs for a specific date - includes multi-day gigs that span this date
+  // Get gigs for a specific date - O(1) lookup from pre-computed map
   const getGigsForDate = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
     
-    // Get gigs that start on this date
-    const directGigs = gigsByDate.get(dateString) || [];
-    
-    // Also find multi-day gigs that span over this date
-    const spanningGigs = gigs.filter(gig => {
-      if (!gig.isMultiDay || !gig.startDate || !gig.endDate) return false;
-      
-      const gigStart = new Date(gig.startDate + 'T00:00:00');
-      const gigEnd = new Date(gig.endDate + 'T00:00:00');
-      const checkDate = new Date(dateString + 'T00:00:00');
-      
-      // Check if this date falls within the multi-day range
-      return checkDate >= gigStart && checkDate <= gigEnd && gig.date !== dateString;
-    });
-    
-    return [...directGigs, ...spanningGigs];
+    return gigsByDate.get(dateString) || [];
   };
 
   // Handle day click
