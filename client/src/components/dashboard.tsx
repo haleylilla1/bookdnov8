@@ -107,6 +107,8 @@ export default function Dashboard() {
     queryKey: ["/api/gigs", { lightweight: true }],
     queryFn: () => fetch('/api/gigs?lightweight=true&limit=10000').then(res => res.json()),
     retry: 1,
+    staleTime: 30000, // Data stays fresh for 30 seconds - prevents constant refetching
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
   const gigs = gigsResponse?.gigs || [];
@@ -116,6 +118,8 @@ export default function Dashboard() {
     queryKey: ["/api/expenses"],
     queryFn: () => fetch('/api/expenses?limit=10000').then(res => res.json()),
     retry: 1,
+    staleTime: 30000, // Data stays fresh for 30 seconds
+    refetchOnWindowFocus: false,
   });
 
   const expenses = expensesResponse?.expenses || [];
@@ -1662,8 +1666,6 @@ function ExpenseEditForm({
   onCancel: () => void;
   isLoading: boolean;
 }) {
-  console.log("🔍 Expense data for edit form:", expense);
-  
   const hasReimbursement = Boolean(expense.reimbursedAmount && parseFloat(expense.reimbursedAmount) > 0);
   const [isReimbursed, setIsReimbursed] = useState(hasReimbursement);
   
