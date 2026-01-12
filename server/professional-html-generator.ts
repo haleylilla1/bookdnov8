@@ -92,13 +92,14 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
     const MILEAGE_RATE = 0.70; // 2025 IRS rate
     
     // Filter to completed gigs only with safe handling
+    // Note: data.gigs already comes grouped from prepareReportData, don't re-group
     const allGigs = Array.isArray(data.gigs) ? data.gigs : [];
     const completedGigs = allGigs.filter(g => g && (g.status === 'completed' || g.actualPay));
     console.log('💰 Completed gigs found:', completedGigs.length);
     
     // Generate tax breakdown table with bulletproof logic
-    const groupedGigs = groupMultiDayGigsSafe(completedGigs);
-    const taxEstimatesRows = groupedGigs.map((gig, index) => {
+    // Use completedGigs directly (already grouped in prepareReportData)
+    const taxEstimatesRows = completedGigs.map((gig, index) => {
       try {
         const actualPay = safeParseFloat(gig.actualPay);
         const tips = safeParseFloat(gig.tips);
