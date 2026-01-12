@@ -45,8 +45,6 @@ const getGigStatusColor = (status: string) => {
   }
 };
 
-const GIGS_PER_PAGE = 50;
-
 export default function CalendarView() {
   const [editingGig, setEditingGig] = useState<(Gig & { isMultiDay?: boolean | null; startDate?: string | null; endDate?: string | null; gigIds?: number[] }) | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -57,52 +55,20 @@ export default function CalendarView() {
   const [gotPaidGig, setGotPaidGig] = useState<Gig | null>(null);
   const [showGotPaidDialog, setShowGotPaidDialog] = useState(false);
   const hasUpdatedStatusesRef = useRef(false);
-  const [loadedGigs, setLoadedGigs] = useState<Gig[]>([]);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Load all gigs for calendar view - needed to display gigs across all months
   const { data: gigsResponse, isLoading } = useQuery<{ gigs: Gig[], total: number }>({
-    queryKey: ["/api/gigs", "initial"],
-    queryFn: () => fetch(`/api/gigs?limit=${GIGS_PER_PAGE}&offset=0`).then(res => res.json()),
+    queryKey: ["/api/gigs", "calendar-all"],
+    queryFn: () => fetch('/api/gigs?limit=1000').then(res => res.json()),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 2,
   });
 
-  useEffect(() => {
-    if (gigsResponse?.gigs) {
-      setLoadedGigs(gigsResponse.gigs);
-      setOffset(gigsResponse.gigs.length);
-      setHasMore(gigsResponse.gigs.length < gigsResponse.total);
-    }
-  }, [gigsResponse]);
-
-  const loadMoreGigs = async () => {
-    if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    try {
-      const response = await fetch(`/api/gigs?limit=${GIGS_PER_PAGE}&offset=${offset}`, { credentials: 'include' });
-      const data = await response.json();
-      if (data.gigs && data.gigs.length > 0) {
-        setLoadedGigs(prev => [...prev, ...data.gigs]);
-        setOffset(prev => prev + data.gigs.length);
-        setHasMore(loadedGigs.length + data.gigs.length < data.total);
-      } else {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error('Error loading more gigs:', error);
-      toast({ title: "Error", description: "Failed to load more gigs", variant: "destructive" });
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
-
-  const gigs = loadedGigs;
+  const gigs = gigsResponse?.gigs || [];
 
   const { data: user } = useQuery({
     queryKey: ["/api/user"],
@@ -136,12 +102,10 @@ export default function CalendarView() {
 
   // Simple utility to refresh cache after mutations
   const refreshCache = () => {
-    setLoadedGigs([]);
-    setOffset(0);
-    setHasMore(true);
     queryClient.removeQueries({ queryKey: ["/api/gigs"] });
     queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
     queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
   };
 
   const updateGigMutation = useMutation({
@@ -916,10 +880,10 @@ export default function CalendarView() {
         gigs={filteredGigs}
         searchQuery={searchQuery}
         filterStatus={filterStatus}
-        hasMore={hasMore}
-        isLoadingMore={isLoadingMore}
-        remainingCount={gigsResponse?.total ? gigsResponse.total - loadedGigs.length : 0}
-        onLoadMore={loadMoreGigs}
+        hasMore={false}
+        isLoadingMore={false}
+        remainingCount={0}
+        onLoadMore={() => {}}
         onGotPaid={handleGotPaid}
         onEdit={handleEditGig}
         onDelete={(gig) => {
