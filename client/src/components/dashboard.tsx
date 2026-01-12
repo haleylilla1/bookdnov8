@@ -84,6 +84,12 @@ export default function Dashboard() {
     });
   }, [user, userLoading, userError]);
 
+  // Helper to invalidate all dashboard-related caches
+  const invalidateDashboardCaches = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+  };
+
   // Mutation to automatically update gig statuses
   const updateGigStatusesMutation = useMutation({
     mutationFn: async () => {
@@ -93,8 +99,7 @@ export default function Dashboard() {
     onSuccess: (data) => {
       if (data.updatedCount > 0) {
         console.log(`${data.updatedCount} gigs updated to pending payment`);
-        // Refetch gigs to show updated statuses
-        queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
+        invalidateDashboardCaches();
       }
     },
     onError: (error) => {
@@ -102,23 +107,45 @@ export default function Dashboard() {
     },
   });
 
-  // Fetch gigs for calculations (lightweight version for dashboard performance)
+  // Fetch summary from server (fast - no need to load all gigs)
+  interface DashboardSummary {
+    actualEarnings: number;
+    projectedEarnings: number;
+    totalTips: number;
+    totalExpenses: number;
+    estimatedTax: number;
+    completedGigs: number;
+    upcomingGigs: number;
+    totalGigs: number;
+    totalReceived: number;
+    businessDeductions: number;
+  }
+  
+  const { data: summaryData, isLoading: summaryLoading } = useQuery<DashboardSummary>({
+    queryKey: ["/api/dashboard/summary", selectedPeriod, currentDate.toISOString()],
+    queryFn: () => fetch(`/api/dashboard/summary?period=${selectedPeriod}&date=${currentDate.toISOString()}`).then(res => res.json()),
+    retry: 1,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch gigs for breakdown modals only (limited to recent 500 for performance)
   const { data: gigsResponse, isLoading: gigsLoading, error: gigsError } = useQuery<{ gigs: Gig[], total: number }>({
     queryKey: ["/api/gigs", { lightweight: true }],
-    queryFn: () => fetch('/api/gigs?lightweight=true&limit=10000').then(res => res.json()),
+    queryFn: () => fetch('/api/gigs?lightweight=true&limit=500').then(res => res.json()),
     retry: 1,
-    staleTime: 30000, // Data stays fresh for 30 seconds - prevents constant refetching
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const gigs = gigsResponse?.gigs || [];
 
-  // Fetch expenses for dashboard
+  // Fetch expenses for breakdown modals (limited for performance)
   const { data: expensesResponse, isLoading: expensesLoading } = useQuery<{ expenses: Expense[], total: number }>({
     queryKey: ["/api/expenses"],
-    queryFn: () => fetch('/api/expenses?limit=10000').then(res => res.json()),
+    queryFn: () => fetch('/api/expenses?limit=500').then(res => res.json()),
     retry: 1,
-    staleTime: 30000, // Data stays fresh for 30 seconds
+    staleTime: 30000,
     refetchOnWindowFocus: false,
   });
 
@@ -186,7 +213,7 @@ export default function Dashboard() {
     onSuccess: () => {
       handleSuccess("Expense updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
       setEditingExpense(null);
     },
     onError: (error) => {
@@ -202,7 +229,7 @@ export default function Dashboard() {
     onSuccess: () => {
       handleSuccess("Expense deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
     },
     onError: (error) => {
       handleError(error, "delete expense");
@@ -223,8 +250,7 @@ export default function Dashboard() {
       });
       
       handleSuccess("Gig expenses cleared successfully!");
-      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      invalidateDashboardCaches();
     } catch (error) {
       handleError(error, "clear gig expenses");
     }
@@ -237,8 +263,7 @@ export default function Dashboard() {
     },
     onSuccess: () => {
       handleSuccess("Gig expenses updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      invalidateDashboardCaches();
       setEditingGigExpense(null);
     },
     onError: (error) => {
@@ -361,122 +386,37 @@ export default function Dashboard() {
     return grouped;
   };
 
-  // Calculate earnings with proper multi-day grouping to prevent double-counting
+  // Use server-calculated summary for period stats (much faster than loading all gigs)
   const periodStats = useMemo(() => {
-    if (!currentPeriodGigs.length) {
+    if (summaryData) {
       return {
-        actualEarnings: 0,
-        projectedEarnings: 0,
-        totalTips: 0,
-        totalExpenses: 0,
-        estimatedTax: 0,
-        completedGigs: 0,
-        upcomingGigs: 0,
-        totalGigs: 0
+        actualEarnings: summaryData.actualEarnings,
+        projectedEarnings: summaryData.projectedEarnings,
+        totalTips: summaryData.totalTips,
+        totalExpenses: summaryData.totalExpenses,
+        estimatedTax: summaryData.estimatedTax,
+        completedGigs: summaryData.completedGigs,
+        upcomingGigs: summaryData.upcomingGigs,
+        totalGigs: summaryData.totalGigs,
+        totalReceived: summaryData.totalReceived,
+        businessDeductions: summaryData.businessDeductions
       };
     }
-
-    // Use grouped gigs to prevent double-counting multi-day events
-    const groupedGigs = getGroupedGigs(currentPeriodGigs);
-    const completedGroupedGigs = groupedGigs.filter(gig => gig.status === "completed");
-    const upcomingGroupedGigs = groupedGigs.filter(gig => gig.status !== "completed");
     
-    // Tax-smart earnings calculation
-    let actualEarnings = 0;
-    let totalReceived = 0;
-    let businessDeductions = 0;
-    
-    completedGroupedGigs.forEach(gig => {
-      const tips = safeParseFloat(gig.tips);
-      
-      if (gig.totalReceived && parseFloat(gig.totalReceived) > 0) {
-        // New "Got Paid" workflow - use tax-smart calculation
-        const received = safeParseFloat(gig.totalReceived);
-        const reimbursedParking = safeParseFloat(gig.reimbursedParking);
-        const reimbursedOther = safeParseFloat(gig.reimbursedOther);
-        const unreimbursedParking = safeParseFloat(gig.unreimbursedParking);
-        const unreimbursedOther = safeParseFloat(gig.unreimbursedOther);
-        
-        totalReceived += received + tips;
-        businessDeductions += unreimbursedParking + unreimbursedOther;
-        actualEarnings += (received - reimbursedParking - reimbursedOther) + tips; // Taxable income
-      } else {
-        // Legacy calculation
-        const payAmount = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
-        totalReceived += payAmount + tips;
-        actualEarnings += payAmount + tips;
-      }
-    });
-    
-    const totalTips = completedGroupedGigs.reduce((sum, gig) => {
-      return sum + safeParseFloat(gig.tips);
-    }, 0);
-    
-    // Calculate expenses from both gigs and standalone expense entries
-    const gigExpenses = groupedGigs.reduce((sum, gig) => {
-      const parkingExpense = safeParseFloat(gig.parkingExpense);
-      const otherExpenses = safeParseFloat(gig.otherExpenses);
-      const mileageDeduction = (gig.mileage || 0) * 0.70; // 2025 IRS standard mileage rate
-      return sum + parkingExpense + otherExpenses + mileageDeduction;
-    }, 0);
-    
-    const standaloneExpenses = currentPeriodExpenses.reduce((sum, expense) => {
-      return sum + safeParseFloat(expense.amount);
-    }, 0);
-    
-    const totalExpenses = gigExpenses + standaloneExpenses;
-    
-
-    
-    const projectedEarnings = groupedGigs.reduce((sum, gig) => {
-      if (gig.status === "completed") {
-        const payAmount = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
-        return sum + payAmount + safeParseFloat(gig.tips);
-      } else {
-        // For upcoming/pending gigs, use expected pay (this should show the expected amount, not $0)
-        return sum + safeParseFloat(gig.expectedPay) + safeParseFloat(gig.tips);
-      }
-    }, 0);
-
-    // Use user's default tax rate (23%), but allow per-gig overrides (including 0% for under-the-table)
-    const userTaxRate = user?.defaultTaxPercentage || 23;
-    
-    // Tax-smart tax calculation (only on taxable income)
-    const estimatedTax = completedGroupedGigs.reduce((sum, gig) => {
-      let taxableIncome = 0;
-      
-      if (gig.totalReceived && parseFloat(gig.totalReceived) > 0) {
-        // New calculation: total received minus reimbursements
-        const received = safeParseFloat(gig.totalReceived);
-        const reimbursedParking = safeParseFloat(gig.reimbursedParking);
-        const reimbursedOther = safeParseFloat(gig.reimbursedOther);
-        taxableIncome = received - reimbursedParking - reimbursedOther;
-      } else {
-        // Legacy calculation
-        taxableIncome = gig.actualPay ? safeParseFloat(gig.actualPay) : safeParseFloat(gig.expectedPay);
-      }
-      
-      // Add tips (always taxable)
-      taxableIncome += safeParseFloat(gig.tips);
-      
-      const gigTaxRate = (gig.taxPercentage !== null && gig.taxPercentage !== undefined) ? gig.taxPercentage : userTaxRate;
-      return sum + (taxableIncome * gigTaxRate / 100);
-    }, 0);
-
+    // Fallback to zeros while loading
     return {
-      actualEarnings: Math.round(actualEarnings * 100) / 100, // Taxable income
-      projectedEarnings: Math.round(projectedEarnings * 100) / 100,
-      totalTips: Math.round(totalTips * 100) / 100,
-      totalExpenses: Math.round(totalExpenses * 100) / 100,
-      estimatedTax: Math.round(estimatedTax * 100) / 100,
-      completedGigs: completedGroupedGigs.length,
-      upcomingGigs: upcomingGroupedGigs.length,
-      totalGigs: groupedGigs.length,
-      // New tax-smart fields
-      totalReceived: Math.round(totalReceived * 100) / 100,
-      businessDeductions: Math.round(businessDeductions * 100) / 100
+      actualEarnings: 0,
+      projectedEarnings: 0,
+      totalTips: 0,
+      totalExpenses: 0,
+      estimatedTax: 0,
+      completedGigs: 0,
+      upcomingGigs: 0,
+      totalGigs: 0,
+      totalReceived: 0,
+      businessDeductions: 0
     };
-  }, [currentPeriodGigs, user]);
+  }, [summaryData]);
 
   // Get period display text
   const getPeriodText = () => {
@@ -825,7 +765,7 @@ export default function Dashboard() {
     return breakdown;
   };
 
-  if (gigsLoading || expensesLoading) {
+  if (summaryLoading) {
     return (
       <div className="p-4">
         <div className="animate-pulse space-y-4">
@@ -840,7 +780,7 @@ export default function Dashboard() {
   }
 
   // Show message when no gigs are found
-  if (!gigsLoading && !gigs?.length && user) {
+  if (!summaryLoading && summaryData?.totalGigs === 0 && user) {
     return (
       <div className="p-4 text-center space-y-4">
         <h2 className="text-xl font-semibold text-gray-600">Welcome to Bookd!</h2>
