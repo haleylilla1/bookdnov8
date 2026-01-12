@@ -1072,21 +1072,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ suggestions: [] });
       }
 
-      // If nearCity is provided, append it to the search for better local results
-      let searchInput = input;
-      if (nearCity && !input.toLowerCase().includes(nearCity.toLowerCase())) {
-        searchInput = `${input} near ${nearCity}`;
-        console.log(`[GOOGLE_MAPS] Enhanced search: "${searchInput}"`);
-      }
-
-      // Build URL with optional location bias for better local results
-      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(searchInput)}&key=${apiKey}`;
+      // Build URL for Places Autocomplete - prioritize establishments (venues, hotels, businesses)
+      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
       
-      // Add location bias if coordinates provided (prefers nearby results)
+      // Bias towards US results for gig workers
+      url += `&components=country:us`;
+      
+      // Add location bias if coordinates provided (strongly prefers nearby results)
       if (lat && lng) {
-        url += `&location=${lat},${lng}&radius=50000`; // 50km (~30 miles) radius bias
+        url += `&location=${lat},${lng}&radius=80000`; // 80km (~50 miles) radius bias
         console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
       }
+      
+      console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"`);
 
       const response = await fetch(url);
 
