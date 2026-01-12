@@ -274,6 +274,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
 
       // DEBUG: Log expected pay value before submission
       console.log('🐛 DEBUG: expectedPay from form:', data.expectedPay, 'Type:', typeof data.expectedPay);
+      console.log('📍 DEBUG: gigAddress from form:', data.gigAddress);
 
       const gigData: InsertGig = {
         userId: user.id,

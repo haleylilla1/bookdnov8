@@ -1176,7 +1176,7 @@ export default function CalendarView() {
 }
 
 interface GigEditFormProps {
-  gig: Gig & { isMultiDay?: boolean; startDate?: string; endDate?: string; gigIds?: number[] };
+  gig: Gig & { isMultiDay?: boolean | null; startDate?: string | null; endDate?: string | null; gigIds?: number[] };
   onSave: (data: Partial<Gig>) => void;
   onCancel: () => void;
   isLoading: boolean;

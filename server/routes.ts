@@ -603,6 +603,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // DEBUG: Log received expectedPay
       console.log('🐛 DEBUG: expectedPay received from frontend:', req.body.expectedPay, 'Type:', typeof req.body.expectedPay);
+      console.log('📍 DEBUG: gigAddress received from frontend:', req.body.gigAddress);
       
       const gigData = { ...req.body, userId };
       
@@ -726,6 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.body;
 
       console.log(`📍 Got Paid: gigAddress="${gigAddress}", startingAddress="${startingAddress}", mileage=${mileage}`);
+      console.log(`📍 Got Paid: req.body.gigAddress="${req.body.gigAddress}", raw body keys:`, Object.keys(req.body));
 
       // Calculate total other expenses and reimbursed amounts
       const totalOtherSpent = Array.isArray(otherExpenses) 
@@ -803,6 +805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Save addresses for mileage reports
         gigAddress: gigAddress || null
       };
+      console.log(`📍 Got Paid updateData.gigAddress="${updateData.gigAddress}" for gig ${gigId}`);
 
       // If multiple related gigs found, update all of them
       if (relatedGigs.length > 1) {

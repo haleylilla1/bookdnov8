@@ -306,6 +306,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
         gigAddress: endingAddress || undefined,
         startingAddress: startingAddress || undefined,
       };
+      console.log('📍 [GotPaid] Saving gigAddress:', dataToSave.gigAddress);
       
       await onSave(dataToSave);
       
