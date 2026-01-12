@@ -1060,11 +1060,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .transform(sanitizeText),
       lat: z.string().optional(),
       lng: z.string().optional(),
-      nearCity: z.string().optional()
+      nearCity: z.string().optional(),
+      sessionToken: z.string().optional() // Session token for cost optimization
     })),
     async (req: any, res: Response) => {
     try {
-      const { input, lat, lng, nearCity } = req.query;
+      const { input, lat, lng, nearCity, sessionToken } = req.query;
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
@@ -1078,6 +1079,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Bias towards US results for gig workers
       url += `&components=country:us`;
       
+      // Add session token for cost optimization (groups autocomplete + place details into one billable session)
+      if (sessionToken) {
+        url += `&sessiontoken=${sessionToken}`;
+      }
+      
       // Add location bias ONLY if user's coordinates are provided (from their home address)
       // Otherwise, let Google's default IP biasing work - it's smart about user location
       if (lat && lng) {
@@ -1086,11 +1092,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[GOOGLE_MAPS] Using user location bias: ${lat},${lng}`);
       } else {
         // No hardcoded location - let Google's IP-based biasing work naturally
-        // This ensures users nationwide get results relevant to their actual location
         console.log(`[GOOGLE_MAPS] Using default IP-based location bias`);
       }
       
-      console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"`);
+      console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"${sessionToken ? ' (with session token)' : ''}`);
 
       const response = await fetch(url);
 
@@ -1130,11 +1135,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Resolve Place ID to formatted address (for mileage calculation with place names)
   app.get('/api/place-details', requireAuth,
     validateQueryParams(z.object({
-      placeId: z.string().min(1, 'Place ID is required').max(500)
+      placeId: z.string().min(1, 'Place ID is required').max(500),
+      sessionToken: z.string().optional() // Session token completes the billing session
     })),
     async (req: any, res: Response) => {
     try {
-      const { placeId } = req.query;
+      const { placeId, sessionToken } = req.query;
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
@@ -1142,9 +1148,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Maps API not configured' });
       }
 
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=formatted_address,name,geometry&key=${apiKey}`
-      );
+      // Build URL with session token if provided (completes the session for billing)
+      let url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=formatted_address,name,geometry&key=${apiKey}`;
+      if (sessionToken) {
+        url += `&sessiontoken=${sessionToken}`;
+        console.log(`[GOOGLE_MAPS] Place details with session token (completing session)`);
+      }
+
+      const response = await fetch(url);
 
       if (!response.ok) {
         console.error(`[GOOGLE_MAPS] Place Details API HTTP error: ${response.status}`);
