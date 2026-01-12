@@ -547,10 +547,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res: Response) => {
     try {
       const userId = getUserId(req);
-      const { limit, offset } = req.query;
+      const { limit, offset, startDate, endDate } = req.query;
       
-      const gigsData = await storage.getGigsByUser(userId, limit, offset);
-      res.json(gigsData);
+      // If date range is provided, use date-filtered query
+      if (startDate && endDate) {
+        const gigs = await storage.getGigsByDateRange(userId, startDate, endDate);
+        res.json({ gigs, total: gigs.length });
+      } else {
+        const gigsData = await storage.getGigsByUser(userId, limit, offset);
+        res.json(gigsData);
+      }
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch gigs' });
     }

@@ -45,6 +45,9 @@ const getGigStatusColor = (status: string) => {
   }
 };
 
+// Helper to get month key for tracking loaded months
+const getMonthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
 export default function CalendarView() {
   const [editingGig, setEditingGig] = useState<(Gig & { isMultiDay?: boolean | null; startDate?: string | null; endDate?: string | null; gigIds?: number[] }) | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -55,20 +58,82 @@ export default function CalendarView() {
   const [gotPaidGig, setGotPaidGig] = useState<Gig | null>(null);
   const [showGotPaidDialog, setShowGotPaidDialog] = useState(false);
   const hasUpdatedStatusesRef = useRef(false);
+  
+  // Track loaded gigs and which months have been fetched
+  const [allGigs, setAllGigs] = useState<Gig[]>([]);
+  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
+  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Load all gigs for calendar view - needed to display gigs across all months
-  const { data: gigsResponse, isLoading } = useQuery<{ gigs: Gig[], total: number }>({
-    queryKey: ["/api/gigs", "calendar-all"],
-    queryFn: () => fetch('/api/gigs?limit=1000').then(res => res.json()),
+  // Initial load - fetch recent 50 gigs
+  const { data: initialGigsResponse, isLoading } = useQuery<{ gigs: Gig[], total: number }>({
+    queryKey: ["/api/gigs", "initial"],
+    queryFn: () => fetch('/api/gigs?limit=50&offset=0').then(res => res.json()),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 2,
   });
 
-  const gigs = gigsResponse?.gigs || [];
+  // Initialize allGigs with initial response and mark those months as loaded
+  useEffect(() => {
+    if (initialGigsResponse?.gigs && allGigs.length === 0) {
+      setAllGigs(initialGigsResponse.gigs);
+      // Mark months from initial gigs as loaded
+      const months = new Set<string>();
+      initialGigsResponse.gigs.forEach(gig => {
+        const gigDate = new Date(gig.date);
+        months.add(getMonthKey(gigDate));
+      });
+      setLoadedMonths(months);
+    }
+  }, [initialGigsResponse]);
+
+  // Fetch gigs for current month when navigating
+  useEffect(() => {
+    const monthKey = getMonthKey(currentDate);
+    
+    // Skip if month already loaded or currently loading
+    if (loadedMonths.has(monthKey) || isLoadingMonth) return;
+    
+    const fetchMonthGigs = async () => {
+      setIsLoadingMonth(true);
+      try {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        const endDate = `${year}-${String(month + 2).padStart(2, '0')}-01`; // First of next month
+        
+        const response = await fetch(`/api/gigs?startDate=${startDate}&endDate=${endDate}`, { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.gigs && data.gigs.length > 0) {
+          // Merge new gigs, avoiding duplicates
+          setAllGigs(prev => {
+            const existingIds = new Set(prev.map(g => g.id));
+            const newGigs = data.gigs.filter((g: Gig) => !existingIds.has(g.id));
+            return [...prev, ...newGigs];
+          });
+        }
+        
+        // Mark month as loaded even if no gigs found
+        setLoadedMonths(prev => {
+          const newSet = new Set(prev);
+          newSet.add(monthKey);
+          return newSet;
+        });
+      } catch (error) {
+        console.error('Error fetching month gigs:', error);
+      } finally {
+        setIsLoadingMonth(false);
+      }
+    };
+    
+    fetchMonthGigs();
+  }, [currentDate, loadedMonths, isLoadingMonth]);
+
+  const gigs = allGigs;
 
   const { data: user } = useQuery({
     queryKey: ["/api/user"],
@@ -102,6 +167,9 @@ export default function CalendarView() {
 
   // Simple utility to refresh cache after mutations
   const refreshCache = () => {
+    // Clear local state to force refetch
+    setAllGigs([]);
+    setLoadedMonths(new Set());
     queryClient.removeQueries({ queryKey: ["/api/gigs"] });
     queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
     queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
