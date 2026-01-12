@@ -888,14 +888,9 @@ export default function CalendarView() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg text-gray-900">
-                        {gig.eventName}
-                      </h3>
-                      <Badge className={getStatusColor(gig.status)}>
-                        {getStatusLabel(gig.status)}
-                      </Badge>
-                    </div>
+                    <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                      {gig.eventName}
+                    </h3>
 
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
@@ -911,15 +906,17 @@ export default function CalendarView() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-3 text-sm">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4 text-green-600" />
-                        {/* Always show expected pay in calendar view */}
                         {gig.expectedPay 
                           ? formatCurrency(parseFloat(gig.expectedPay))
                           : "No pay set"
                         }
                       </div>
+                      <Badge className={getStatusColor(gig.status)}>
+                        {getStatusLabel(gig.status)}
+                      </Badge>
                     </div>
 
                     {gig.duties && (
