@@ -632,7 +632,19 @@ export default function CalendarView() {
     if (updatedData.parkingReimbursed !== undefined) {
       updatePayload.parkingReimbursed = Boolean(updatedData.parkingReimbursed);
     }
-
+    
+    // Save gig address for mileage reports
+    if (updatedData.gigAddress !== undefined) {
+      updatePayload.gigAddress = updatedData.gigAddress || null;
+    }
+    
+    // Save round trip settings
+    if (updatedData.isRoundTrip !== undefined) {
+      updatePayload.isRoundTrip = Boolean(updatedData.isRoundTrip);
+    }
+    if (updatedData.isRoundTripEachDay !== undefined) {
+      updatePayload.isRoundTripEachDay = Boolean(updatedData.isRoundTripEachDay);
+    }
 
     // Handle multi-day gigs with efficient date change detection
     if (editingGig.isMultiDay && editingGig.gigIds?.length) {
@@ -1200,9 +1212,9 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
     taxPercentage: (gig.taxPercentage !== null && gig.taxPercentage !== undefined) ? gig.taxPercentage.toString() : ((user as any)?.defaultTaxPercentage?.toString() || "23"),
     mileage: gig.mileage || 0,
     startingAddress: (user as any)?.homeAddress || "",
-    endingAddress: "",
+    endingAddress: gig.gigAddress || "", // Load existing gig address
     resolvedStartAddress: "",
-    resolvedEndAddress: "",
+    resolvedEndAddress: gig.gigAddress || "", // Use existing address as resolved
     startLat: undefined as number | undefined,
     startLng: undefined as number | undefined,
     stops: [] as string[],
@@ -1343,7 +1355,15 @@ function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEditFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // Include gigAddress in the saved data
+    const dataToSave = {
+      ...formData,
+      gigAddress: formData.endingAddress || null,
+      isRoundTrip: formData.includeRoundtrip,
+      isRoundTripEachDay: formData.roundTripEachDay,
+    };
+    console.log('📍 [EditGig] Saving gigAddress:', dataToSave.gigAddress);
+    onSave(dataToSave);
   };
 
   return (
