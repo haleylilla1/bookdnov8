@@ -1139,29 +1139,24 @@ function groupMultiDayGigs(gigs: Gig[]): Gig[] {
     }
     
     if (similarGigs.length > 1) {
-      // Multi-day gig - Sum all amounts across all days, keep first entry's base data
-      const totalActualPay = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.actualPay || '0')), 0);
-      const totalTips = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.tips || '0')), 0);
+      // Multi-day gig - INCOME uses first entry (payment entered once for whole show)
+      // EXPENSES are summed (could be logged on any day)
       const totalParkingExpense = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.parkingExpense || '0')), 0);
       const totalReimbursedParking = similarGigs.reduce((sum, g) => sum + parseFloat(String((g as any).reimbursedParking || '0')), 0);
       const totalOtherExpenses = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.otherExpenses || '0')), 0);
       const totalReimbursedOther = similarGigs.reduce((sum, g) => sum + parseFloat(String((g as any).reimbursedOther || '0')), 0);
-      const totalReceived = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.totalReceived || '0')), 0);
       const totalMileage = similarGigs.reduce((sum, g) => sum + parseFloat(String(g.mileage || '0')), 0);
       
       grouped.push({
-        ...similarGigs[0], // Use first entry's base data (event, client, type)
-        date: similarGigs[0].date, // Keep first date for parsing (range info lost but date parsing works)
-        actualPay: String(totalActualPay),
-        tips: String(totalTips),
+        ...similarGigs[0], // Use first entry's data (income already entered once for whole show)
+        date: similarGigs[0].date, // Keep first date for parsing
         parkingExpense: String(totalParkingExpense),
         reimbursedParking: String(totalReimbursedParking),
         otherExpenses: String(totalOtherExpenses),
         reimbursedOther: String(totalReimbursedOther),
-        totalReceived: String(totalReceived),
         mileage: String(totalMileage),
         isMultiDay: true,
-        multiDayDates: `${similarGigs[0].date} - ${similarGigs[similarGigs.length - 1].date}` // Store range separately
+        multiDayDates: `${similarGigs[0].date} - ${similarGigs[similarGigs.length - 1].date}`
       } as Gig);
     } else {
       grouped.push(currentGig);
