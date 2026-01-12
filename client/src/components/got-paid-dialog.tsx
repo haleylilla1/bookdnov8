@@ -151,11 +151,24 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
     if (user?.homeAddress) {
       setStartingAddress(user.homeAddress);
       setResolvedStartAddress(user.homeAddress);
-      // Extract city for location biasing (simpler and more reliable than geocoding)
+      // Extract city for location biasing
       const city = extractCityFromAddress(user.homeAddress);
       if (city) {
         setStartCity(city);
         console.log(`[GotPaid] Extracted city from home address: "${city}"`);
+      }
+      // Geocode home address to get coordinates for location biasing
+      if (!startLat) {
+        fetch(`/api/geocode?address=${encodeURIComponent(user.homeAddress)}`, { credentials: 'include' })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data?.lat && data?.lng) {
+              setStartLat(data.lat);
+              setStartLng(data.lng);
+              console.log(`[GotPaid] Geocoded home address to (${data.lat}, ${data.lng}) for location biasing`);
+            }
+          })
+          .catch(() => {});
       }
     }
     if (gig.gigAddress) {

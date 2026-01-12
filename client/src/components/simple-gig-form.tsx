@@ -170,6 +170,25 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
   // State for client management
   const [showNewClientInput, setShowNewClientInput] = useState(false);
   const [newClientName, setNewClientName] = useState("");
+  
+  // State for location biasing (geocoded home address coordinates)
+  const [homeLat, setHomeLat] = useState<number | undefined>();
+  const [homeLng, setHomeLng] = useState<number | undefined>();
+  
+  // Geocode home address for location biasing when user loads
+  useEffect(() => {
+    if (user?.homeAddress && !homeLat) {
+      fetch(`/api/geocode?address=${encodeURIComponent(user.homeAddress)}`, { credentials: 'include' })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.lat && data?.lng) {
+            setHomeLat(data.lat);
+            setHomeLng(data.lng);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user?.homeAddress]);
 
   // MULTI-DAY GIG DETECTION - Simple and clear for users
   const multiDayInfo = useMemo(() => {
@@ -654,6 +673,8 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                         value={field.value || ""}
                         onChange={(address: string) => field.onChange(address)}
                         placeholder="Enter gig address"
+                        biasLat={homeLat}
+                        biasLng={homeLng}
                       />
                     </FormControl>
                     <FormMessage />

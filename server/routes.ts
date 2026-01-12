@@ -1072,22 +1072,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ suggestions: [] });
       }
 
-      // Build URL for Places Autocomplete - prioritize establishments (venues, hotels, businesses)
+      // Build URL for Places Autocomplete
       let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
       
       // Bias towards US results for gig workers
       url += `&components=country:us`;
       
-      // Add location bias if coordinates provided (strongly prefers nearby results)
+      // Add location bias ONLY if user's coordinates are provided (from their home address)
+      // Otherwise, let Google's default IP biasing work - it's smart about user location
       if (lat && lng) {
         // Use origin parameter for distance-based ranking + location/radius for soft bias
-        url += `&location=${lat},${lng}&radius=100000&origin=${lat},${lng}`;
-        console.log(`[GOOGLE_MAPS] Using location bias: ${lat},${lng}`);
+        url += `&location=${lat},${lng}&radius=80000&origin=${lat},${lng}`;
+        console.log(`[GOOGLE_MAPS] Using user location bias: ${lat},${lng}`);
       } else {
-        // Default to Southern California (Huntington Beach area) if no coordinates provided
-        // This helps prioritize CA results for the primary user base
-        url += `&location=33.6603,-117.9992&radius=200000&origin=33.6603,-117.9992`;
-        console.log(`[GOOGLE_MAPS] Using default SoCal location bias`);
+        // No hardcoded location - let Google's IP-based biasing work naturally
+        // This ensures users nationwide get results relevant to their actual location
+        console.log(`[GOOGLE_MAPS] Using default IP-based location bias`);
       }
       
       console.log(`[GOOGLE_MAPS] Autocomplete search: "${input}"`);
