@@ -1664,6 +1664,9 @@ function ExpenseEditForm({
 }) {
   console.log("🔍 Expense data for edit form:", expense);
   
+  const hasReimbursement = Boolean(expense.reimbursedAmount && parseFloat(expense.reimbursedAmount) > 0);
+  const [isReimbursed, setIsReimbursed] = useState(hasReimbursement);
+  
   const form = useForm<ExpenseEditFormData>({
     resolver: zodResolver(editExpenseSchema),
     defaultValues: {
@@ -1672,10 +1675,16 @@ function ExpenseEditForm({
       merchant: expense.merchant || "",
       businessPurpose: expense.businessPurpose || "",
       category: expense.category,
+      isReimbursed: hasReimbursement,
+      reimbursedAmount: expense.reimbursedAmount || "0",
     },
   });
 
   const onSubmit = (data: ExpenseEditFormData) => {
+    // If not reimbursed, set amount to 0
+    if (!isReimbursed) {
+      data.reimbursedAmount = "0";
+    }
     onSave(data);
   };
 
@@ -1688,6 +1697,54 @@ function ExpenseEditForm({
         <MerchantField control={form.control} />
         <BusinessPurposeField control={form.control} />
         <CategoryField control={form.control} />
+        
+        {/* Reimbursement Section */}
+        <div className="border-t pt-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="isReimbursed"
+              checked={isReimbursed}
+              onCheckedChange={(checked) => {
+                setIsReimbursed(!!checked);
+                if (!checked) {
+                  form.setValue('reimbursedAmount', '0');
+                }
+              }}
+            />
+            <label htmlFor="isReimbursed" className="text-sm font-medium cursor-pointer">
+              This expense was reimbursed
+            </label>
+          </div>
+          
+          {isReimbursed && (
+            <FormField
+              control={form.control}
+              name="reimbursedAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reimbursed Amount</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className="pl-7 text-base h-12 touch-manipulation"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Amount reimbursed by the client (not deductible)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
 
         <div className="flex gap-3 pt-6">
           <Button 
