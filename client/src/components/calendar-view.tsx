@@ -906,16 +906,6 @@ export default function CalendarView() {
                       </div>
                     </div>
 
-                    <div className="flex items-center text-sm">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-green-600" />
-                        {gig.expectedPay 
-                          ? formatCurrency(parseFloat(gig.expectedPay))
-                          : "No pay set"
-                        }
-                      </div>
-                    </div>
-
                     {gig.duties && (
                       <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded mt-3">
                         {gig.duties}
@@ -969,10 +959,21 @@ export default function CalendarView() {
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
-                    <Badge className={`${getStatusColor(gig.status)} mt-1`}>
-                      {getStatusLabel(gig.status)}
-                    </Badge>
                   </div>
+                </div>
+                
+                {/* Bottom row: $ amount on left, status badge on right */}
+                <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                  <div className="flex items-center gap-1 text-sm">
+                    <DollarSign className="w-4 h-4 text-green-600" />
+                    {gig.expectedPay 
+                      ? formatCurrency(parseFloat(gig.expectedPay))
+                      : "No pay set"
+                    }
+                  </div>
+                  <Badge className={getStatusColor(gig.status)}>
+                    {getStatusLabel(gig.status)}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
