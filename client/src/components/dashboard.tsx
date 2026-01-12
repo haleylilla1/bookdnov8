@@ -121,9 +121,15 @@ export default function Dashboard() {
     businessDeductions: number;
   }
   
-  const { data: summaryData, isLoading: summaryLoading } = useQuery<DashboardSummary>({
+  const { data: summaryData, isLoading: summaryLoading, error: summaryError } = useQuery<DashboardSummary>({
     queryKey: ["/api/dashboard/summary", selectedPeriod, currentDate.toISOString()],
-    queryFn: () => fetch(`/api/dashboard/summary?period=${selectedPeriod}&date=${currentDate.toISOString()}`).then(res => res.json()),
+    queryFn: async () => {
+      console.log('📊 Fetching summary:', { period: selectedPeriod, date: currentDate.toISOString(), year: currentDate.getFullYear() });
+      const res = await fetch(`/api/dashboard/summary?period=${selectedPeriod}&date=${currentDate.toISOString()}`, { credentials: 'include' });
+      const data = await res.json();
+      console.log('📊 Summary response:', data);
+      return data;
+    },
     retry: 1,
     staleTime: 30000,
     refetchOnWindowFocus: false,
@@ -132,7 +138,7 @@ export default function Dashboard() {
   // Fetch gigs for breakdown modals only (limited to recent 500 for performance)
   const { data: gigsResponse, isLoading: gigsLoading, error: gigsError } = useQuery<{ gigs: Gig[], total: number }>({
     queryKey: ["/api/gigs", { lightweight: true }],
-    queryFn: () => fetch('/api/gigs?lightweight=true&limit=500').then(res => res.json()),
+    queryFn: () => fetch('/api/gigs?lightweight=true&limit=500', { credentials: 'include' }).then(res => res.json()),
     retry: 1,
     staleTime: 30000,
     refetchOnWindowFocus: false,
@@ -143,7 +149,7 @@ export default function Dashboard() {
   // Fetch expenses for breakdown modals (limited for performance)
   const { data: expensesResponse, isLoading: expensesLoading } = useQuery<{ expenses: Expense[], total: number }>({
     queryKey: ["/api/expenses"],
-    queryFn: () => fetch('/api/expenses?limit=500').then(res => res.json()),
+    queryFn: () => fetch('/api/expenses?limit=500', { credentials: 'include' }).then(res => res.json()),
     retry: 1,
     staleTime: 30000,
     refetchOnWindowFocus: false,
@@ -449,18 +455,21 @@ export default function Dashboard() {
       
       if (direction === "prev") {
         targetQuarter = currentQuarter === 1 ? 4 : currentQuarter - 1;
+        // When going from Q1 to Q4, go back a year
+        if (currentQuarter === 1) {
+          newDate.setFullYear(newDate.getFullYear() - 1);
+        }
       } else {
         targetQuarter = currentQuarter === 4 ? 1 : currentQuarter + 1;
+        // When going from Q4 to Q1, go forward a year
+        if (currentQuarter === 4) {
+          newDate.setFullYear(newDate.getFullYear() + 1);
+        }
       }
       
       // Set date to first month of target quarter
       if (targetQuarter === 1) {
         newDate.setMonth(0); // January
-        if (direction === "prev" && currentQuarter === 1) {
-          newDate.setFullYear(newDate.getFullYear() - 1);
-        } else if (direction === "next" && currentQuarter === 4) {
-          newDate.setFullYear(newDate.getFullYear() + 1);
-        }
       } else if (targetQuarter === 2) {
         newDate.setMonth(3); // April
       } else if (targetQuarter === 3) {
