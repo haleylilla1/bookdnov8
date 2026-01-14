@@ -49,7 +49,6 @@ export default function AppHeader({ currentScreen, onScreenChange }: AppHeaderPr
         </Badge>
       );
     }
-    // Removed trial badge - no subscription tiers for now
     return null;
   };
 

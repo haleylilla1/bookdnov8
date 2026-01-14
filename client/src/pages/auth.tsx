@@ -151,22 +151,17 @@ export default function AuthPage() {
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
             error = await response.json();
-            console.log("🔍 Parsed error response:", error);
           } else {
             // Non-JSON error - might be HTML error page
             const errorText = await response.text();
-            console.log("🔍 Non-JSON error response:", errorText.substring(0, 200));
             error = { message: `Server error: ${response.status} ${response.statusText}` };
           }
         } catch (jsonError) {
-          console.error("🔍 Error parsing response:", jsonError);
+          console.error("Error parsing response:", jsonError);
           error = { message: `Authentication failed: ${response.status} ${response.statusText}` };
         }
         
         const errorMessage = error.error || error.message || "An unexpected error occurred";
-        console.log("🔍 Final error message to display:", errorMessage);
-        console.log("🔍 Error object:", JSON.stringify(error));
-        console.log("🔍 CODE VERSION: v2.0 - Nov 15 2025 23:49 - Full error in title");
         
         // Show full error message in title for visibility
         toast({

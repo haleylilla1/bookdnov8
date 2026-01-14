@@ -155,7 +155,6 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
       const city = extractCityFromAddress(user.homeAddress);
       if (city) {
         setStartCity(city);
-        console.log(`[GotPaid] Extracted city from home address: "${city}"`);
       }
       // Geocode home address to get coordinates for location biasing
       if (!startLat) {
@@ -165,7 +164,6 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
             if (data?.lat && data?.lng) {
               setStartLat(data.lat);
               setStartLng(data.lng);
-              console.log(`[GotPaid] Geocoded home address to (${data.lat}, ${data.lng}) for location biasing`);
             }
           })
           .catch(() => {});
@@ -208,7 +206,6 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
             setFormData(prev => ({ ...prev, mileage: miles.toString() }));
           }
         } catch (error) {
-          console.log('Auto-calculate mileage failed, user can calculate manually');
         } finally {
           setIsCalculatingMileage(false);
         }
@@ -306,7 +303,6 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
         gigAddress: endingAddress || undefined,
         startingAddress: startingAddress || undefined,
       };
-      console.log('📍 [GotPaid] Saving gigAddress:', dataToSave.gigAddress);
       
       await onSave(dataToSave);
       

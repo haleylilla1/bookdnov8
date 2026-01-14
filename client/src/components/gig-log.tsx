@@ -170,8 +170,6 @@ export default function GigLog() {
     updatePayload.expectedPay = safeParseFloat(updatedData.expectedPay);
     updatePayload.actualPay = safeParseFloat(updatedData.actualPay);
     updatePayload.tips = safeParseFloat(updatedData.tips);
-
-    console.log("Saving gig edit:", updatePayload); // Debug log
     
     updateGigMutation.mutate({
       id: editingGig.id,

@@ -88,14 +88,6 @@ export const users = pgTable("users", {
   subscriptionTier: varchar("subscription_tier").default("trial"), // trial, free, premium
   lastLoginAt: timestamp("last_login_at"),
   
-  // Emergency BA profile fields
-  bio: text("bio"),
-  headshotUrls: text("headshot_urls").array().default([]),
-  resumeUrl: varchar("resume_url", { length: 500 }),
-  w2Documents: text("w2_documents").array().default([]),
-  emergencyNotifications: boolean("emergency_notifications").default(true),
-  preferredCities: text("preferred_cities").array().default([]),
-  
   // RevenueCat subscription management
   revenuecatCustomerId: text("revenuecat_customer_id"),
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
@@ -175,7 +167,6 @@ export const gigs = pgTable("gigs", {
   isRoundTripEachDay: boolean("is_round_trip_each_day").default(false),
   distanceMiles: decimal("distance_miles", { precision: 8, scale: 2 }),
   travelTimeMinutes: integer("travel_time_minutes"),
-  includeInResume: boolean("include_in_resume").default(true),
   // Multi-day gig support
   isMultiDay: boolean("is_multi_day").default(false),
   multiDayGroupId: text("multi_day_group_id"), // Groups multi-day gig entries together
@@ -414,74 +405,6 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
 
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type Invoice = typeof invoices.$inferSelect;
-
-// Agencies table for posting emergency gigs
-export const agencies = pgTable("agencies", {
-  id: serial("id").primaryKey(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-  companyName: varchar("company_name", { length: 255 }).notNull(),
-  contactName: varchar("contact_name", { length: 255 }).notNull(),
-  phoneNumber: varchar("phone_number", { length: 50 }),
-  website: varchar("website", { length: 255 }),
-  description: text("description"),
-  isVerified: boolean("is_verified").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_agencies_email").on(table.email),
-]);
-
-// Emergency BA feature tables
-export const emergencyGigs = pgTable("emergency_gigs", {
-  id: serial("id").primaryKey(),
-  agencyId: integer("agency_id").references(() => agencies.id),
-  agencyEmail: varchar("agency_email", { length: 255 }).notNull(),
-  agencyName: varchar("agency_name", { length: 255 }),
-  contactEmail: varchar("contact_email", { length: 255 }).notNull(),
-  eventName: varchar("event_name", { length: 255 }).notNull(),
-  eventDate: timestamp("event_date").notNull(),
-  city: varchar("city", { length: 100 }).notNull(),
-  venue: varchar("venue", { length: 255 }),
-  roleDescription: text("role_description"),
-  payRate: varchar("pay_rate", { length: 100 }),
-  urgency: varchar("urgency", { length: 50 }).default("ASAP"),
-  status: varchar("status", { length: 20 }).default("active"),
-  revenuecatTransactionId: varchar("revenuecat_transaction_id", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  filledAt: timestamp("filled_at"),
-});
-
-export const baApplications = pgTable("ba_applications", {
-  id: serial("id").primaryKey(),
-  emergencyGigId: integer("emergency_gig_id").notNull().references(() => emergencyGigs.id),
-  baUserId: integer("ba_user_id").notNull().references(() => users.id),
-  appliedAt: timestamp("applied_at").defaultNow(),
-  emailSent: boolean("email_sent").default(false),
-});
-
-export const insertAgencySchema = createInsertSchema(agencies).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertEmergencyGigSchema = createInsertSchema(emergencyGigs).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertBAApplicationSchema = createInsertSchema(baApplications).omit({
-  id: true,
-  appliedAt: true,
-});
-
-export type InsertAgency = z.infer<typeof insertAgencySchema>;
-export type Agency = typeof agencies.$inferSelect;
-export type InsertEmergencyGig = z.infer<typeof insertEmergencyGigSchema>;
-export type EmergencyGig = typeof emergencyGigs.$inferSelect;
-export type InsertBAApplication = z.infer<typeof insertBAApplicationSchema>;
-export type BAApplication = typeof baApplications.$inferSelect;
 
 // Business expense categories for tax deductions
 export const BUSINESS_EXPENSE_CATEGORIES = [

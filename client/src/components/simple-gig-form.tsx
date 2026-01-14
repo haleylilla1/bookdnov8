@@ -110,7 +110,6 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
   // BULLETPROOF AUTH HANDLING - Always show clear feedback
   useEffect(() => {
     if (isError && userError) {
-      console.log("🚨 Auth error detected:", userError.message);
       toast({
         title: "Authentication Required",
         description: "Please log in to add gigs",
@@ -272,10 +271,6 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
       // Create SINGLE gig entry with date range (calendar will show dots on each day)
       const isMultiDay = data.endDate && data.endDate !== data.startDate;
 
-      // DEBUG: Log expected pay value before submission
-      console.log('🐛 DEBUG: expectedPay from form:', data.expectedPay, 'Type:', typeof data.expectedPay);
-      console.log('📍 DEBUG: gigAddress from form:', data.gigAddress);
-
       const gigData: InsertGig = {
         userId: user.id,
         date: data.startDate, // Primary date (start date)
@@ -326,7 +321,6 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
           apiRequest('POST', '/api/user/add-preferred-client', {
             clientName: data.clientName
           }).catch(() => {
-            console.log("Note: Could not save client to preferences, but gig was created");
           });
         }
       }
@@ -415,11 +409,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                         position="popper"
                         sideOffset={4}
                       >
-                        {(() => {
-                          console.log("🔍 SimpleGigForm - User data:", user);
-                          console.log("🔍 SimpleGigForm - CustomGigTypes:", user?.customGigTypes);
-                          return user?.customGigTypes && user.customGigTypes.length > 0;
-                        })() ? (
+                        {user?.customGigTypes && user.customGigTypes.length > 0 ? (
                           <>
                             {user.customGigTypes!.map((gigType) => (
                               <SelectItem 
@@ -493,7 +483,6 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                                   });
                                   queryClient.invalidateQueries({ queryKey: ["/api/user"] });
                                 } catch (error) {
-                                  console.log("Could not save client to preferences");
                                 }
                                 
                                 setShowNewClientInput(false);
@@ -521,7 +510,6 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                                     });
                                     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
                                   } catch (error) {
-                                    console.log("Could not save client to preferences");
                                   }
                                   
                                   setShowNewClientInput(false);

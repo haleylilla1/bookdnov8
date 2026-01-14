@@ -208,7 +208,6 @@ export function AddressAutocomplete({
         const data = await response.json();
         // Pass display value, resolved address, and coordinates
         onChange(suggestion.description, data.formattedAddress, data.lat, data.lng);
-        console.log(`[AddressAutocomplete] Resolved "${suggestion.description}" to "${data.formattedAddress}" at (${data.lat}, ${data.lng})`);
         
         // Save to recent locations for quick access next time (includes formatted address for mileage)
         saveRecentLocation({
@@ -254,7 +253,6 @@ export function AddressAutocomplete({
       // Use formatted address if available, otherwise fall back to display address
       const addressForMileage = recent.formattedAddress || recent.address;
       onChange(recent.address, addressForMileage, recent.lat, recent.lng);
-      console.log(`[AddressAutocomplete] Used cached recent location: "${recent.address}" -> "${addressForMileage}"`);
     } else {
       onChange(recent.address);
     }

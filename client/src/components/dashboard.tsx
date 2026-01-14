@@ -77,11 +77,6 @@ export default function Dashboard() {
 
   // Debug user authentication
   useEffect(() => {
-    console.log('User auth state:', { 
-      user: user?.email || 'null', 
-      userLoading, 
-      userError 
-    });
   }, [user, userLoading, userError]);
 
   // Helper to invalidate all dashboard-related caches
@@ -98,7 +93,6 @@ export default function Dashboard() {
     },
     onSuccess: (data) => {
       if (data.updatedCount > 0) {
-        console.log(`${data.updatedCount} gigs updated to pending payment`);
         invalidateDashboardCaches();
       }
     },
@@ -124,10 +118,8 @@ export default function Dashboard() {
   const { data: summaryData, isLoading: summaryLoading, error: summaryError } = useQuery<DashboardSummary>({
     queryKey: ["/api/dashboard/summary", selectedPeriod, currentDate.toISOString()],
     queryFn: async () => {
-      console.log('📊 Fetching summary:', { period: selectedPeriod, date: currentDate.toISOString(), year: currentDate.getFullYear() });
       const res = await fetch(`/api/dashboard/summary?period=${selectedPeriod}&date=${currentDate.toISOString()}`, { credentials: 'include' });
       const data = await res.json();
-      console.log('📊 Summary response:', data);
       return data;
     },
     retry: 1,
@@ -178,12 +170,6 @@ export default function Dashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('🎯 Goal query response:', { 
-        period: selectedPeriod, 
-        date: currentDate.toISOString(), 
-        response: data,
-        hasGoals: Array.isArray(data) ? data.length : 'not array'
-      });
       
       // Backend returns an array, get the first goal if exists
       if (Array.isArray(data) && data.length > 0) {
@@ -504,7 +490,6 @@ export default function Dashboard() {
   const handleViewIncomeReport = async () => {
     try {
       setIsGeneratingPDF(true);
-      console.log('Generating income report...');
       
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
@@ -520,8 +505,6 @@ export default function Dashboard() {
         const quarter = getCurrentQuarter(currentDate);
         reportData.quarter = quarter.toString();
       }
-      
-      console.log('Generating report with data:', reportData);
       
       // Fetch the report HTML content from backend
       const response = await fetch('/api/reports/generate', {
@@ -541,21 +524,17 @@ export default function Dashboard() {
       }
       
       const data = await response.json();
-      console.log('Report data received, filename:', data.filename);
       
       // Check if running on native iOS/Android using static import
       const isNative = Capacitor.isNativePlatform();
       const platform = Capacitor.getPlatform();
-      console.log('Platform check - isNative:', isNative, 'platform:', platform);
       
       if (isNative) {
         try {
-          console.log('Using native iOS share sheet for report');
           // Dynamically import native-only modules only on native platforms
           const { Filesystem, Directory } = await import('@capacitor/filesystem');
           const { Share } = await import('@capacitor/share');
           
-          console.log('Writing HTML file to cache directory...');
           // Convert HTML to base64 for iOS file system
           const base64Data = btoa(unescape(encodeURIComponent(data.html)));
           
@@ -566,7 +545,6 @@ export default function Dashboard() {
             directory: Directory.Cache
           });
           
-          console.log('Opening native share sheet with file:', writeResult.uri);
           // Open native share sheet - user can preview, save, email, or print to PDF
           await Share.share({
             title: 'Bookd Income Report',
@@ -588,7 +566,6 @@ export default function Dashboard() {
       }
       
       // Web browser: use blob download (also fallback for failed native)
-      console.log('Using web blob download path');
       const blob = new Blob([data.html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -1756,8 +1733,6 @@ function GigExpenseEditForm({
   onCancel: () => void;
   isLoading: boolean;
 }) {
-  console.log("🔍 Gig data for edit form:", gig);
-  
   const form = useForm({
     defaultValues: {
       parkingExpense: typeof gig.parkingExpense === 'string' ? gig.parkingExpense : (gig.parkingExpense || 0).toString(),

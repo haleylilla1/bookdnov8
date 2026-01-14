@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, PieChart, User, AlertTriangle } from "lucide-react";
+import { Calendar, PieChart, User } from "lucide-react";
 import type { Screen } from "@/pages/home";
 
 interface BottomNavigationProps {
@@ -8,12 +8,9 @@ interface BottomNavigationProps {
 }
 
 export default function BottomNavigation({ currentScreen, onScreenChange }: BottomNavigationProps) {
-  
   const navItems = [
     { id: "calendar" as const, label: "Calendar", icon: Calendar },
     { id: "dashboard" as const, label: "Dashboard", icon: PieChart },
-    // Temporarily hidden - Rescue Roster feature not yet ready for users
-    // { id: "rescue-roster" as const, label: "Roster", icon: AlertTriangle },
     { id: "profile" as const, label: "Profile", icon: User },
   ];
 
