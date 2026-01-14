@@ -20,10 +20,7 @@ import {
   LogOut, 
   Crown,
   Calendar,
-  Target,
-  BarChart3,
-  AlertTriangle,
-  Briefcase
+  BarChart3
 } from "lucide-react";
 import ContactSupport from "./contact-support";
 
@@ -85,16 +82,6 @@ export default function AppHeader({ currentScreen, onScreenChange }: AppHeaderPr
               <BarChart3 className="w-4 h-4" />
               Dashboard
             </Button>
-            {/* Temporarily hidden - Rescue Roster feature not yet ready for users */}
-            {/* <Button
-              variant={currentScreen === 'rescue-roster' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => onScreenChange('rescue-roster')}
-              className="gap-2"
-            >
-              <AlertTriangle className="w-4 h-4" />
-              Roster
-            </Button> */}
           </nav>
         </div>
 

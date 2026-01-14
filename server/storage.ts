@@ -9,9 +9,6 @@ import {
   invoices,
   auditLogs,
   dataExportRequests,
-  emergencyGigs,
-  baApplications,
-  agencies,
   type User,
   type UpsertUser,
   type InsertUser, 
@@ -41,13 +38,7 @@ import {
   type AuditLog,
   type InsertAuditLog,
   type DataExportRequest,
-  type InsertDataExportRequest,
-  type EmergencyGig,
-  type InsertEmergencyGig,
-  type BAApplication,
-  type InsertBAApplication,
-  type Agency,
-  type InsertAgency
+  type InsertDataExportRequest
 } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
@@ -169,24 +160,6 @@ export interface IStorage {
   getUserGigCount(userId: number): Promise<number>;
   getUserExpenseCount(userId: number): Promise<number>;
   getUserTotalEarnings(userId: number): Promise<number>;
-
-  // Agency authentication methods
-  getAgency(id: number): Promise<Agency | undefined>;
-  getAgencyByEmail(email: string): Promise<Agency | undefined>;
-  createAgency(agency: InsertAgency): Promise<Agency>;
-  validateAgencyPassword(email: string, password: string): Promise<Agency | null>;
-  
-  // Emergency BA feature methods
-  getEmergencyGig(id: number): Promise<EmergencyGig | undefined>;
-  getActiveEmergencyGigs(city?: string): Promise<EmergencyGig[]>;
-  createEmergencyGig(gig: InsertEmergencyGig): Promise<EmergencyGig>;
-  updateEmergencyGig(id: number, gig: Partial<InsertEmergencyGig>): Promise<EmergencyGig | undefined>;
-  markEmergencyGigFilled(id: number): Promise<EmergencyGig | undefined>;
-  
-  createBAApplication(application: InsertBAApplication): Promise<BAApplication>;
-  getBAApplicationsForGig(gigId: number): Promise<BAApplication[]>;
-  getBAsForEmergencyGig(gigId: number): Promise<User[]>;
-  getBAsInCity(city: string): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1266,161 +1239,6 @@ export class DatabaseStorage implements IStorage {
       .select({ count: sql<number>`count(*)` })
       .from(expenses);
     return result[0]?.count || 0;
-  }
-
-  // Emergency BA feature implementations
-  async getEmergencyGig(id: number): Promise<EmergencyGig | undefined> {
-    const [gig] = await db.select().from(emergencyGigs).where(eq(emergencyGigs.id, id));
-    return gig || undefined;
-  }
-
-  async getActiveEmergencyGigs(city?: string): Promise<EmergencyGig[]> {
-    if (city) {
-      return await db
-        .select()
-        .from(emergencyGigs)
-        .where(and(eq(emergencyGigs.status, 'active'), eq(emergencyGigs.city, city)))
-        .orderBy(desc(emergencyGigs.createdAt));
-    } else {
-      return await db
-        .select()
-        .from(emergencyGigs)
-        .where(eq(emergencyGigs.status, 'active'))
-        .orderBy(desc(emergencyGigs.createdAt));
-    }
-  }
-
-  async createEmergencyGig(gig: InsertEmergencyGig): Promise<EmergencyGig> {
-    const [newGig] = await db
-      .insert(emergencyGigs)
-      .values(gig)
-      .returning();
-    return newGig;
-  }
-
-  async updateEmergencyGig(id: number, gig: Partial<InsertEmergencyGig>): Promise<EmergencyGig | undefined> {
-    const [updatedGig] = await db
-      .update(emergencyGigs)
-      .set(gig)
-      .where(eq(emergencyGigs.id, id))
-      .returning();
-    return updatedGig || undefined;
-  }
-
-  async markEmergencyGigFilled(id: number): Promise<EmergencyGig | undefined> {
-    const [updatedGig] = await db
-      .update(emergencyGigs)
-      .set({ status: 'filled', filledAt: new Date() })
-      .where(eq(emergencyGigs.id, id))
-      .returning();
-    return updatedGig || undefined;
-  }
-
-  async createBAApplication(application: InsertBAApplication): Promise<BAApplication> {
-    const [newApplication] = await db
-      .insert(baApplications)
-      .values(application)
-      .returning();
-    return newApplication;
-  }
-
-  async getBAApplicationsForGig(gigId: number): Promise<BAApplication[]> {
-    return await db.select().from(baApplications).where(eq(baApplications.emergencyGigId, gigId));
-  }
-
-  async getBAsForEmergencyGig(gigId: number): Promise<User[]> {
-    const applications = await db
-      .select({
-        user: users
-      })
-      .from(baApplications)
-      .innerJoin(users, eq(baApplications.baUserId, users.id))
-      .where(eq(baApplications.emergencyGigId, gigId));
-    
-    return applications.map(app => app.user);
-  }
-
-  async getBAsInCity(city: string): Promise<User[]> {
-    return await db
-      .select()
-      .from(users)
-      .where(
-        and(
-          eq(users.emergencyNotifications, true),
-          sql`${users.preferredCities} @> ARRAY[${city}]::text[]`
-        )
-      );
-  }
-
-  // Agency authentication methods
-  async getAgency(id: number): Promise<Agency | undefined> {
-    try {
-      const result = await db
-        .select()
-        .from(agencies)
-        .where(eq(agencies.id, id))
-        .limit(1);
-      
-      return result[0];
-    } catch (error) {
-      console.error("❌ Failed to get agency:", error);
-      throw error;
-    }
-  }
-
-  async getAgencyByEmail(email: string): Promise<Agency | undefined> {
-    try {
-      const result = await db
-        .select()
-        .from(agencies)
-        .where(eq(agencies.email, email))
-        .limit(1);
-      
-      return result[0];
-    } catch (error) {
-      console.error("❌ Failed to get agency by email:", error);
-      throw error;
-    }
-  }
-
-  async createAgency(agency: InsertAgency): Promise<Agency> {
-    try {
-      // Hash the password
-      const saltRounds = 12;
-      const passwordHash = await bcrypt.hash(agency.passwordHash, saltRounds);
-
-      const result = await db
-        .insert(agencies)
-        .values({
-          ...agency,
-          passwordHash,
-        })
-        .returning();
-
-      return result[0];
-    } catch (error) {
-      console.error("❌ Failed to create agency:", error);
-      throw error;
-    }
-  }
-
-  async validateAgencyPassword(email: string, password: string): Promise<Agency | null> {
-    try {
-      const agency = await this.getAgencyByEmail(email);
-      if (!agency) {
-        return null;
-      }
-
-      const isValid = await bcrypt.compare(password, agency.passwordHash);
-      if (!isValid) {
-        return null;
-      }
-
-      return agency;
-    } catch (error) {
-      console.error("❌ Failed to validate agency password:", error);
-      throw error;
-    }
   }
 }
 

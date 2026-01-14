@@ -11,8 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ArrowLeft, Bell, Settings, Crown } from "lucide-react";
-import NotificationSettingsDialog from "@/components/notification-settings-dialog";
+import { ArrowLeft, Settings, Crown } from "lucide-react";
 import { SubscriptionModal } from "@/components/subscription-modal";
 import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
@@ -30,7 +29,6 @@ export default function Profile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
-  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   const { data: user, isLoading } = useQuery<User>({
@@ -254,36 +252,7 @@ export default function Profile() {
           </Card>
         )}
 
-        {/* Notification Settings Link */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-blue-600" />
-                <div>
-                  <h3 className="font-medium">Notification Settings</h3>
-                  <p className="text-sm text-gray-600">Manage your email and push notifications</p>
-                </div>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowNotificationSettings(true)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
       </div>
-
-      {/* Notification Settings Dialog */}
-      <NotificationSettingsDialog 
-        isOpen={showNotificationSettings}
-        onClose={() => setShowNotificationSettings(false)}
-      />
 
       {/* Subscription Modal */}
       {import.meta.env.VITE_ENABLE_SUBSCRIPTIONS === 'true' && (
