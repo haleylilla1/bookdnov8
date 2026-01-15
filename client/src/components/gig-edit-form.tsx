@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Gig } from "@shared/schema";
 import { AddressAutocomplete } from "./address-autocomplete";
 
@@ -89,21 +90,15 @@ export default function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEdi
     setIsCalculatingMileage(true);
     
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
-      
-      const { calculateDistance } = await import('../lib/distance');
-      
-      const result = await calculateDistance(
-        (formData.resolvedStartAddress || formData.startingAddress).trim(),
-        (formData.resolvedEndAddress || formData.endingAddress).trim(),
-        formData.stops.filter(stop => stop?.trim()),
-        formData.includeRoundtrip
-      );
+      const response = await apiRequest('POST', '/api/calculate-distance', {
+        startAddress: (formData.resolvedStartAddress || formData.startingAddress).trim(),
+        endAddress: (formData.resolvedEndAddress || formData.endingAddress).trim(),
+        roundTrip: formData.includeRoundtrip
+      });
 
-      clearTimeout(timeoutId);
+      const result = await response.json();
 
-      if (result.status === 'error') {
+      if (result.status === 'error' || !result.distanceMiles) {
         throw new Error(result.error || 'Failed to calculate distance');
       }
       
@@ -123,19 +118,11 @@ export default function GigEditForm({ gig, onSave, onCancel, isLoading }: GigEdi
         mileage: roundedDistance 
       }));
       
-      if (result.status === 'success') {
-        const dayText = dayCount > 1 ? ` × ${dayCount} days` : '';
-        toast({
-          title: "Mileage Calculated",
-          description: `${roundedDistance} miles total${formData.includeRoundtrip ? ' (round trip)' : ''}${dayText}${result.fromCache ? ' (from cache)' : ''}.`,
-        });
-      } else {
-        toast({
-          title: "Distance Calculated (with warnings)",
-          description: `${roundedDistance} miles calculated. Some segments may be estimated.`,
-          variant: "default",
-        });
-      }
+      const dayText = dayCount > 1 ? ` × ${dayCount} days` : '';
+      toast({
+        title: "Mileage Calculated",
+        description: `${roundedDistance} miles total${formData.includeRoundtrip ? ' (round trip)' : ''}${dayText}.`,
+      });
       
     } catch (error) {
       console.error("Mileage calculation error:", error);
