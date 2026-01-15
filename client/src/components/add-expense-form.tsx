@@ -238,7 +238,7 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
                 )}
 
                 {linkedGigId && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-sm text-blue-800 font-medium">
                       This expense will be linked to your selected gig
                     </p>

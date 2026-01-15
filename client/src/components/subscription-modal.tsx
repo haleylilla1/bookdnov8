@@ -163,7 +163,7 @@ export function SubscriptionModal({ isOpen, onClose, currentTier = 'trial' }: Su
               key={plan.id}
               className={`relative border rounded-lg p-6 transition-all duration-200 hover:shadow-lg ${
                 plan.popular 
-                  ? 'border-blue-500 shadow-md' 
+                  ? 'border-gray-800 shadow-md' 
                   : 'border-gray-200'
               } ${
                 selectedPlan === plan.id 
@@ -172,7 +172,7 @@ export function SubscriptionModal({ isOpen, onClose, currentTier = 'trial' }: Su
               }`}
             >
               {plan.popular && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
+                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gray-800">
                   <Crown className="w-3 h-3 mr-1" />
                   Most Popular
                 </Badge>
@@ -219,7 +219,7 @@ export function SubscriptionModal({ isOpen, onClose, currentTier = 'trial' }: Su
               <Button
                 className={`w-full ${
                   plan.popular 
-                    ? 'bg-blue-500 hover:bg-blue-600' 
+                    ? 'bg-gray-800 hover:bg-gray-900' 
                     : 'bg-gray-800 hover:bg-gray-900'
                 }`}
                 onClick={() => handlePlanSelect(plan.id)}

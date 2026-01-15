@@ -39,7 +39,7 @@ const getGigStatusColor = (status: string) => {
       return "bg-orange-500";
     case "upcoming":
     case "confirmed":
-      return "bg-blue-500";
+      return "bg-gray-800";
     default:
       return "bg-orange-500"; // Default to pending payment
   }
@@ -408,7 +408,7 @@ export default function CalendarView() {
       case "pending payment":
         return "bg-orange-100 text-orange-800";
       case "upcoming":
-        return "bg-blue-100 text-blue-800";
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -784,7 +784,7 @@ export default function CalendarView() {
             variant="link"
             size="sm"
             onClick={() => setCurrentDate(new Date())}
-            className="text-xs text-blue-600 p-0 h-auto"
+            className="text-xs text-gray-900 p-0 h-auto"
           >
             Back to current month
           </Button>
@@ -829,9 +829,9 @@ export default function CalendarView() {
                     calendar-day-button h-16 w-full p-2 text-sm relative transition-all duration-200 rounded-md border border-gray-100
                     ${isCurrentMonth 
                       ? hasGigs 
-                        ? 'hover:bg-blue-50 cursor-pointer hover:border-blue-200 hover:shadow-sm bg-white' 
+                        ? 'hover:bg-gray-50 cursor-pointer hover:border-gray-300 hover:shadow-sm bg-white' 
                         : isToday
-                          ? 'text-blue-600 font-semibold hover:bg-blue-50 bg-white'
+                          ? 'text-gray-900 font-semibold hover:bg-gray-50 bg-white'
                           : 'text-gray-700 hover:bg-gray-50 bg-white'
                       : 'text-gray-300 bg-gray-50'
                     }
@@ -880,7 +880,7 @@ export default function CalendarView() {
                     
                     {/* Today indicator */}
                     {isToday && (
-                      <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-600 rounded-full" />
+                      <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-gray-900 rounded-full" />
                     )}
                   </div>
                 </button>
@@ -909,7 +909,7 @@ export default function CalendarView() {
               <span className="text-gray-600">Pending Payment</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-blue-500 flex-shrink-0"></div>
+              <div className="w-4 h-4 rounded-full bg-gray-800 flex-shrink-0"></div>
               <span className="text-gray-600">Upcoming</span>
             </div>
           </div>

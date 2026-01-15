@@ -410,7 +410,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                 </CardTitle>
                 <p className="text-sm text-gray-600">
                   Calculate miles driven for tax deductions ({formatCurrency(parseNumber(formData.mileage) * 0.70)} at $0.70/mile)
-                  {gig.isMultiDay && <span className="block mt-1 text-xs text-blue-600">Multi-day gig: Select "Calculate for each day" to multiply by {calculateDayCount()} days</span>}
+                  {gig.isMultiDay && <span className="block mt-1 text-xs text-gray-900">Multi-day gig: Select "Calculate for each day" to multiply by {calculateDayCount()} days</span>}
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -456,7 +456,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   
                   <div className={`flex items-start space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${
                     isRoundTrip 
-                      ? 'border-blue-500 bg-blue-50' 
+                      ? 'border-gray-800 bg-gray-50' 
                       : 'border-gray-200 hover:border-blue-300'
                   }`}>
                     <input
@@ -464,7 +464,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                       id="roundTrip"
                       checked={isRoundTrip}
                       onChange={(e) => setIsRoundTrip(e.target.checked)}
-                      className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+                      className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-gray-900 focus:ring-2 focus:ring-gray-500 focus:border-gray-800 cursor-pointer checked:bg-gray-900 checked:border-gray-800"
                     />
                     <div className="flex-1">
                       <label htmlFor="roundTrip" className="text-sm font-medium cursor-pointer text-gray-900">
@@ -479,7 +479,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   {gig.isMultiDay && (
                     <div className={`flex items-start space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${
                       isPerDay 
-                        ? 'border-blue-500 bg-blue-50' 
+                        ? 'border-gray-800 bg-gray-50' 
                         : 'border-gray-200 hover:border-blue-300'
                     }`}>
                       <input
@@ -487,7 +487,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                         id="perDay"
                         checked={isPerDay}
                         onChange={(e) => setIsPerDay(e.target.checked)}
-                        className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+                        className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-gray-900 focus:ring-2 focus:ring-gray-500 focus:border-gray-800 cursor-pointer checked:bg-gray-900 checked:border-gray-800"
                       />
                       <div className="flex-1">
                         <label htmlFor="perDay" className="text-sm font-medium cursor-pointer text-gray-900">
@@ -591,7 +591,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   />
                 </div>
                 {parseNumber(formData.parkingSpent) - parseNumber(formData.parkingReimbursed) > 0 && (
-                  <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                  <Badge variant="secondary" className="bg-gray-50 text-gray-800">
                     Business deduction: {formatCurrency(parseNumber(formData.parkingSpent) - parseNumber(formData.parkingReimbursed))}
                   </Badge>
                 )}
@@ -809,7 +809,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                 
                 {/* Summary */}
                 {formData.otherExpenses.length > 0 && (
-                  <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="p-3 bg-gray-50 rounded-lg">
                     <div className="text-sm text-gray-600 space-y-1">
                       <div>Total spent: {formatCurrency(formData.otherExpenses.reduce((sum, exp) => sum + parseNumber(exp.amount), 0))}</div>
                       <div>Total reimbursed: {formatCurrency(parseNumber(formData.otherReimbursed))}</div>
@@ -863,9 +863,9 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                     Your default is {user?.defaultTaxPercentage || 25}%. You can adjust for this specific gig.
                   </p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="p-3 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-600">Estimated tax amount:</div>
-                  <div className="font-bold text-blue-700">
+                  <div className="font-bold text-gray-800">
                     {formatCurrency(calculations.taxableIncome * (parseNumber(formData.taxPercentage) / 100))}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
@@ -936,10 +936,10 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
 
                 {/* Business Deductions (Informational) */}
                 {calculations.businessDeductions > 0 && (
-                  <div className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                  <div className="p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
                     <div className="text-sm font-medium text-blue-800 mb-2">Potential Business Deductions:</div>
-                    <div className="text-lg font-bold text-blue-700 mb-2">{formatCurrency(calculations.businessDeductions)}</div>
-                    <div className="text-xs text-blue-600 space-y-1">
+                    <div className="text-lg font-bold text-gray-800 mb-2">{formatCurrency(calculations.businessDeductions)}</div>
+                    <div className="text-xs text-gray-900 space-y-1">
                       {parseNumber(formData.mileage) > 0 && (
                         <div>• Mileage: {formData.mileage} miles × $0.70 = {formatCurrency(calculations.mileageDeduction)}</div>
                       )}
@@ -949,7 +949,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                       {calculations.totalOtherSpent - calculations.totalOtherReimbursed > 0 && (
                         <div>• Other expenses: {formatCurrency(calculations.totalOtherSpent - calculations.totalOtherReimbursed)}</div>
                       )}
-                      <div className="text-xs text-blue-500 mt-2 italic">Track these for tax filing - not included in tax estimate above</div>
+                      <div className="text-xs text-gray-700 mt-2 italic">Track these for tax filing - not included in tax estimate above</div>
                     </div>
                   </div>
                 )}

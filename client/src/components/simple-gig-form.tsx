@@ -393,7 +393,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger 
-                          className="min-h-[48px] text-base bg-white border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                          className="min-h-[48px] text-base bg-white border-2 border-gray-300 focus:border-gray-800 focus:ring-2 focus:ring-blue-200"
                           style={{
                             fontSize: '16px',
                             minHeight: '48px',
@@ -557,7 +557,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                                 {client}
                               </SelectItem>
                             ))}
-                            <SelectItem value="__new_client__" className="font-medium text-blue-600">
+                            <SelectItem value="__new_client__" className="font-medium text-gray-900">
                               + Add New Client
                             </SelectItem>
                           </SelectContent>
@@ -612,14 +612,14 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
 
             {/* MULTI-DAY INDICATOR */}
             {multiDayInfo.isMultiDay && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-gray-800 rounded-full"></div>
                   <span className="text-blue-800 font-medium">
                     Multi-day gig: {multiDayInfo.dayCount} days ({new Date(startDate + 'T00:00:00').toLocaleDateString()} to {new Date(endDate + 'T00:00:00').toLocaleDateString()})
                   </span>
                 </div>
-                <p className="text-blue-700 text-sm mt-1">
+                <p className="text-gray-800 text-sm mt-1">
                   This will create one gig spanning {multiDayInfo.dayCount} days. Calendar will show dots on each day in the range.
                 </p>
               </div>
@@ -681,7 +681,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                       <FormItem>
                         <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
                           field.value 
-                            ? 'border-blue-500 bg-blue-50' 
+                            ? 'border-gray-800 bg-gray-50' 
                             : 'border-gray-200 hover:border-blue-300'
                         }`}
                         onClick={() => field.onChange(!field.value)}>
@@ -690,7 +690,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                             id="isRoundTrip"
                             checked={field.value || false}
                             onChange={(e) => field.onChange(e.target.checked)}
-                            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+                            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-gray-900 focus:ring-2 focus:ring-gray-500 focus:border-gray-800 cursor-pointer checked:bg-gray-900 checked:border-gray-800"
                           />
                           <div className="flex-1">
                             <label htmlFor="isRoundTrip" className="text-sm font-medium cursor-pointer text-gray-900">
@@ -710,7 +710,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                         <FormItem>
                           <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ml-4 ${
                             field.value 
-                              ? 'border-blue-500 bg-blue-50' 
+                              ? 'border-gray-800 bg-gray-50' 
                               : 'border-gray-200 hover:border-blue-300'
                           }`}
                           onClick={() => field.onChange(!field.value)}>
@@ -719,7 +719,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
                               id="isRoundTripEachDay"
                               checked={field.value || false}
                               onChange={(e) => field.onChange(e.target.checked)}
-                              className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
+                              className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-gray-900 focus:ring-2 focus:ring-gray-500 focus:border-gray-800 cursor-pointer checked:bg-gray-900 checked:border-gray-800"
                             />
                             <div className="flex-1">
                               <label htmlFor="isRoundTripEachDay" className="text-sm font-medium cursor-pointer text-gray-900">
@@ -811,12 +811,12 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
             />
 
             {/* Planning Note */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-gray-800 rounded-full"></div>
                 <span className="text-blue-800 font-medium">Planning Tool</span>
               </div>
-              <p className="text-blue-700 text-sm">
+              <p className="text-gray-800 text-sm">
                 This form is for planning gigs. Use "Got Paid" on completed gigs for detailed payment tracking with tax-smart calculations.
               </p>
             </div>

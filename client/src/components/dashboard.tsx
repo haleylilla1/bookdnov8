@@ -944,14 +944,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Expected Earnings</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-gray-900">
                   ${periodStats.projectedEarnings.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   From {periodStats.totalGigs} total gigs (includes upcoming)
                 </p>
               </div>
-              <TrendingUp className="w-8 h-8 text-blue-500" />
+              <TrendingUp className="w-8 h-8 text-gray-700" />
             </div>
           </CardContent>
         </Card>
@@ -991,14 +991,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Tips Earned</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-gray-700">
                   ${periodStats.totalTips.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Cash and card tips
                 </p>
               </div>
-              <PiggyBank className="w-8 h-8 text-purple-500" />
+              <PiggyBank className="w-8 h-8 text-gray-600" />
             </div>
           </CardContent>
         </Card>
@@ -1148,7 +1148,7 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-600">{gig.clientName}</p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold ${gig.status === "completed" ? "text-green-600" : "text-blue-600"}`}>
+                    <p className={`font-semibold ${gig.status === "completed" ? "text-green-600" : "text-gray-900"}`}>
                       ${gig.amount.toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-500">
@@ -1246,7 +1246,7 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-600">{gig.clientName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-purple-600">${gig.amount.toFixed(2)}</p>
+                    <p className="font-semibold text-gray-700">${gig.amount.toFixed(2)}</p>
                     <p className="text-xs text-gray-500">
                       {parseGigDate(gig.date).toLocaleDateString()}
                     </p>
@@ -1296,7 +1296,7 @@ export default function Dashboard() {
                     <div className="space-y-1">
                       <div className="flex justify-between">
                         <span>Parking:</span>
-                        <span className="text-blue-600">${gig.parkingExpense.toFixed(2)}</span>
+                        <span className="text-gray-900">${gig.parkingExpense.toFixed(2)}</span>
                       </div>
                       {safeParseFloat(gig.reimbursedParking) > 0 && (
                         <div className="flex justify-between ml-2">
@@ -1323,7 +1323,7 @@ export default function Dashboard() {
                     <div className="space-y-1">
                       <div className="flex justify-between">
                         <span>Other:</span>
-                        <span className="text-blue-600">${gig.otherExpenses.toFixed(2)}</span>
+                        <span className="text-gray-900">${gig.otherExpenses.toFixed(2)}</span>
                       </div>
                       {safeParseFloat(gig.reimbursedOther) > 0 && (
                         <div className="flex justify-between ml-2">
@@ -1377,7 +1377,7 @@ export default function Dashboard() {
                 <div className="space-y-3">
                   {getNewExpensesBreakdown().map((item, index) => (
                     <div key={`${item.type}-${item.id}-${index}`} className={`border rounded-lg p-3 ${
-                      item.isReimbursement ? 'bg-green-50 border-green-200' : 'bg-blue-50'
+                      item.isReimbursement ? 'bg-green-50 border-green-200' : 'bg-gray-50'
                     }`}>
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
@@ -1386,7 +1386,7 @@ export default function Dashboard() {
                         </div>
                         <div className="text-right">
                           <p className={`font-semibold ${
-                            item.isReimbursement ? 'text-green-600' : 'text-blue-600'
+                            item.isReimbursement ? 'text-green-600' : 'text-gray-900'
                           }`}>
                             {item.isReimbursement ? '-' : ''}${Math.abs(item.displayAmount).toFixed(2)}
                           </p>
@@ -1406,7 +1406,7 @@ export default function Dashboard() {
                               disabled={updateExpenseMutation.isPending}
                               className="h-8 w-8"
                             >
-                              <Edit2 className="w-4 h-4 text-blue-500" />
+                              <Edit2 className="w-4 h-4 text-gray-700" />
                             </Button>
                             <Button
                               size="icon"
@@ -1489,7 +1489,7 @@ export default function Dashboard() {
                           <div className="space-y-1">
                             <div className="flex justify-between">
                               <span>Parking:</span>
-                              <span className="text-blue-600">${gig.parkingExpense.toFixed(2)}</span>
+                              <span className="text-gray-900">${gig.parkingExpense.toFixed(2)}</span>
                             </div>
                             {safeParseFloat(gig.reimbursedParking) > 0 && (
                               <div className="flex justify-between ml-2">
@@ -1516,7 +1516,7 @@ export default function Dashboard() {
                           <div className="space-y-1">
                             <div className="flex justify-between">
                               <span>Other:</span>
-                              <span className="text-blue-600">${gig.otherExpenses.toFixed(2)}</span>
+                              <span className="text-gray-900">${gig.otherExpenses.toFixed(2)}</span>
                             </div>
                             {safeParseFloat(gig.reimbursedOther) > 0 && (
                               <div className="flex justify-between ml-2">
