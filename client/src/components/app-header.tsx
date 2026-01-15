@@ -43,7 +43,7 @@ export default function AppHeader({ currentScreen, onScreenChange }: AppHeaderPr
   const getSubscriptionBadge = () => {
     if (user.subscriptionTier === 'premium') {
       return (
-        <Badge className="bg-gray-900 hover:bg-black">
+        <Badge className="bg-blue-600 hover:bg-blue-700">
           <Crown className="w-3 h-3 mr-1" />
           Premium
         </Badge>
@@ -93,7 +93,7 @@ export default function AppHeader({ currentScreen, onScreenChange }: AppHeaderPr
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user.profileImageUrl || undefined} alt={user.name || user.email} />
-                  <AvatarFallback className="bg-gray-100 text-gray-800">
+                  <AvatarFallback className="bg-blue-100 text-blue-700">
                     {getInitials(user.name || user.email)}
                   </AvatarFallback>
                 </Avatar>

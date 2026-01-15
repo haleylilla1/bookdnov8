@@ -41,7 +41,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
   const setupSteps = [
     {
       title: "Welcome to Bookd",
-      icon: <User className="w-8 h-8 text-gray-700" />,
+      icon: <User className="w-8 h-8 text-blue-500" />,
       field: "welcome",
       placeholder: "",
       description: "Know exactly what's coming in, what's going out, and what's yours to keep.",
@@ -49,7 +49,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     },
     {
       title: "What's your name?",
-      icon: <User className="w-8 h-8 text-gray-700" />,
+      icon: <User className="w-8 h-8 text-blue-500" />,
       field: "name",
       placeholder: "Enter your full name",
       description: "We'll use this to personalize your experience and for your records."
@@ -94,8 +94,8 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           <p className="text-gray-600">
             Use the <strong>"Add Gig"</strong> and <strong>"Add Expense"</strong> buttons to track your work and business expenses.
           </p>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-800 text-sm">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-blue-700 text-sm">
               💡 <strong>Tip:</strong> Add gigs as soon as you accept them, and log expenses immediately so you don't forget!
             </p>
           </div>

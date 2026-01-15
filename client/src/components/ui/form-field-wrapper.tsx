@@ -184,7 +184,7 @@ export function SmartCategoryField<T extends FieldValues>({ control, name }: { c
             <Briefcase className="h-4 w-4" />
             Business Category *
             {suggestions.length > 0 && (
-              <span className="text-xs text-gray-900 bg-gray-50 px-2 py-1 rounded">
+              <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
                 Smart suggestions
               </span>
             )}
@@ -206,7 +206,7 @@ export function SmartCategoryField<T extends FieldValues>({ control, name }: { c
                     <SelectItem 
                       key={category} 
                       value={category}
-                      className="h-12 text-base touch-manipulation cursor-pointer bg-gray-50 hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
+                      className="h-12 text-base touch-manipulation cursor-pointer bg-blue-50 hover:bg-blue-100 focus:bg-blue-100 data-[highlighted]:bg-blue-100"
                     >
                       ⭐ {category}
                     </SelectItem>
