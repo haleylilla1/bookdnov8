@@ -78,15 +78,22 @@ export default function CalendarView() {
 
   // Initialize allGigs with initial response and mark those months as loaded
   useEffect(() => {
-    if (initialGigsResponse?.gigs && allGigs.length === 0) {
-      setAllGigs(initialGigsResponse.gigs);
-      // Mark months from initial gigs as loaded
-      const months = new Set<string>();
-      initialGigsResponse.gigs.forEach(gig => {
-        const gigDate = new Date(gig.date);
-        months.add(getMonthKey(gigDate));
+    if (initialGigsResponse?.gigs) {
+      // Merge initial gigs with any already-fetched gigs (avoiding duplicates)
+      setAllGigs(prev => {
+        const existingIds = new Set(prev.map(g => g.id));
+        const newGigs = initialGigsResponse.gigs.filter((g: Gig) => !existingIds.has(g.id));
+        return [...prev, ...newGigs];
       });
-      setLoadedMonths(months);
+      // Mark months from initial gigs as loaded
+      setLoadedMonths(prev => {
+        const newSet = new Set(prev);
+        initialGigsResponse.gigs.forEach(gig => {
+          const gigDate = new Date(gig.date);
+          newSet.add(getMonthKey(gigDate));
+        });
+        return newSet;
+      });
     }
   }, [initialGigsResponse]);
 
