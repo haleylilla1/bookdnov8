@@ -80,9 +80,10 @@ function generateDateRange(startDate: string, endDate?: string): string[] {
 
 interface SimpleGigFormProps {
   onClose: () => void;
+  defaultDate?: string;
 }
 
-export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
+export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -142,7 +143,7 @@ export default function SimpleGigForm({ onClose }: SimpleGigFormProps) {
       gigType: "",
       eventName: "",
       clientName: "",
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: defaultDate || new Date().toISOString().split('T')[0],
       endDate: "",
       expectedPay: "",
       status: "upcoming" as const,

@@ -21,6 +21,7 @@ import { MobileErrorBoundary } from "./error-boundary";
 import GigEditForm from "./gig-edit-form";
 import GigList from "./gig-list";
 import DayGigDialog from "./day-gig-dialog";
+import SimpleGigForm from "./simple-gig-form";
 
 // Utility function to parse dates consistently across timezones (same as dashboard)
 const parseGigDate = (dateString: string): Date => {
@@ -55,6 +56,8 @@ export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDayGigs, setShowDayGigs] = useState(false);
+  const [showAddGigDialog, setShowAddGigDialog] = useState(false);
+  const [addGigDate, setAddGigDate] = useState<string | null>(null);
   const [gotPaidGig, setGotPaidGig] = useState<Gig | null>(null);
   const [showGotPaidDialog, setShowGotPaidDialog] = useState(false);
   const hasUpdatedStatusesRef = useRef(false);
@@ -306,6 +309,12 @@ export default function CalendarView() {
       if (dayGigs.length > 0) {
         setSelectedDate(date);
         setShowDayGigs(true);
+      } else {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        setAddGigDate(`${year}-${month}-${day}`);
+        setShowAddGigDialog(true);
       }
     } catch (error) {
       console.error('Error handling day click:', error);
@@ -831,22 +840,21 @@ export default function CalendarView() {
               return (
                 <button
                   key={index}
-                  onClick={() => handleDayClick(date)}
+                  onClick={() => isCurrentMonth && handleDayClick(date)}
                   className={`
                     calendar-day-button h-16 w-full p-2 text-sm relative transition-all duration-200 rounded-md border border-gray-100
                     ${isCurrentMonth 
                       ? hasGigs 
                         ? 'hover:bg-blue-50 cursor-pointer hover:border-blue-200 hover:shadow-sm bg-white' 
                         : isToday
-                          ? 'text-blue-600 font-semibold hover:bg-blue-50 bg-white'
-                          : 'text-gray-700 hover:bg-gray-50 bg-white'
-                      : 'text-gray-300 bg-gray-50'
+                          ? 'text-blue-600 font-semibold hover:bg-blue-50 cursor-pointer bg-white'
+                          : 'text-gray-700 hover:bg-gray-50 cursor-pointer bg-white'
+                      : 'text-gray-300 bg-gray-50 cursor-default'
                     }
-                    ${!hasGigs && isCurrentMonth ? 'cursor-default' : ''}
                   `}
-                  disabled={!hasGigs}
-                  aria-label={`${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })} ${date.getFullYear()}${hasGigs ? `, ${dayGigs.length} gig${dayGigs.length > 1 ? 's' : ''}` : ''}`}
-                  tabIndex={hasGigs ? 0 : -1}
+                  disabled={!isCurrentMonth}
+                  aria-label={`${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })} ${date.getFullYear()}${hasGigs ? `, ${dayGigs.length} gig${dayGigs.length > 1 ? 's' : ''}` : ', tap to add a gig'}`}
+                  tabIndex={isCurrentMonth ? 0 : -1}
                   style={{ 
                     /* iOS touch fix: explicit positioning */
                     WebkitTransform: 'none',
@@ -896,7 +904,7 @@ export default function CalendarView() {
           </div>
           
           <div className="mt-4 text-center text-xs text-gray-500">
-            Click on highlighted dates to view and edit gig details
+            Tap any date to view gigs or add a new one
           </div>
           </MobileErrorBoundary>
         </CardContent>
@@ -921,7 +929,7 @@ export default function CalendarView() {
             </div>
           </div>
           <div className="text-xs text-gray-500 pt-2 border-t">
-            Click dates with colored circles to view gig details
+            Tap any date to view gigs or add a new one
           </div>
         </CardContent>
       </Card>
@@ -1017,6 +1025,18 @@ export default function CalendarView() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Add Gig Form - triggered when tapping an empty date */}
+      {showAddGigDialog && (
+        <SimpleGigForm
+          defaultDate={addGigDate || undefined}
+          onClose={() => {
+            setShowAddGigDialog(false);
+            setAddGigDate(null);
+            refreshCache();
+          }}
+        />
+      )}
 
       {/* Got Paid Dialog */}
       {gotPaidGig && (
