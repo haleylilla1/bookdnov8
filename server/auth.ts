@@ -324,9 +324,9 @@ export class Auth {
         console.log('Klaviyo email sending not available yet');
       }
 
-      // Use SendGrid for password reset emails (transactional)
-      if (!process.env.SENDGRID_API_KEY) {
-        console.log('SendGrid not configured - password reset link generated but not sent');
+      // Use Resend for password reset emails (transactional)
+      if (!process.env.RESEND_API_KEY) {
+        console.log('Resend not configured - password reset link generated but not sent');
         let baseUrl = 'http://localhost:5000';
         if (process.env.NODE_ENV === 'production') {
           baseUrl = 'https://app.bookd.tools';
@@ -334,13 +334,11 @@ export class Auth {
           baseUrl = `https://${process.env.REPLIT_DOMAINS}`;
         }
         console.log(`Reset URL: ${baseUrl}/?reset_token=${token}`);
-        return true; // Return true for development
+        return true;
       }
 
-      // Import SendGrid properly for ES modules
-      const sendgrid = await import('@sendgrid/mail');
-      const sgMail = sendgrid.default;
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
 
       // Determine the correct base URL for reset links
       let baseUrl = 'http://localhost:5000';
@@ -348,15 +346,14 @@ export class Auth {
       if (process.env.NODE_ENV === 'production') {
         baseUrl = 'https://app.bookd.tools';
       } else if (process.env.REPLIT_DOMAINS) {
-        // Running on Replit, use the actual deployed domain
         baseUrl = `https://${process.env.REPLIT_DOMAINS}`;
       }
       
       const resetUrl = `${baseUrl}/?reset_token=${token}`;
       
-      await sgMail.send({
+      await resend.emails.send({
         to: email,
-        from: 'haleylilla@gmail.com', // Use verified sender
+        from: 'Bookd <onboarding@resend.dev>',
         subject: 'Reset Your Bookd Password',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -377,15 +374,15 @@ export class Auth {
             <p style="color: #007bff; word-break: break-all; font-size: 14px;">${resetUrl}</p>
             
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-              <p style="color: #999; font-size: 13px;">⏰ This link will expire in 1 hour</p>
-              <p style="color: #999; font-size: 13px;">🔒 If you didn't request this password reset, please ignore this email</p>
-              <p style="color: #999; font-size: 13px;">💼 Keep tracking your gig work finances with Bookd</p>
+              <p style="color: #999; font-size: 13px;">This link will expire in 1 hour</p>
+              <p style="color: #999; font-size: 13px;">If you didn't request this password reset, please ignore this email</p>
+              <p style="color: #999; font-size: 13px;">Keep tracking your gig work finances with Bookd</p>
             </div>
           </div>
         `
       });
       
-      console.log('Password reset email sent successfully via SendGrid');
+      console.log('Password reset email sent successfully via Resend');
       return true;
     } catch (error) {
       console.error('Failed to send password reset email:', error);
