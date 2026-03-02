@@ -32,7 +32,7 @@ const parseGigDate = (dateString: string): Date => {
 const getGigStatusColor = (status: string) => {
   switch (status) {
     case "completed":
-      return "bg-green-500";
+      return "bg-emerald-500";
     case "pending_payment":
     case "pending payment":
     case "pending":
@@ -419,7 +419,7 @@ export default function CalendarView() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-100 text-emerald-800";
       case "pending_payment":
       case "pending payment":
         return "bg-orange-100 text-orange-800";
@@ -916,7 +916,7 @@ export default function CalendarView() {
           <h3 className="font-semibold text-sm mb-3 text-gray-700">Gig Status Colors</h3>
           <div className="flex flex-wrap gap-4 text-xs mb-3">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-green-500 flex-shrink-0"></div>
+              <div className="w-4 h-4 rounded-full bg-emerald-500 flex-shrink-0"></div>
               <span className="text-gray-600">Completed</span>
             </div>
             <div className="flex items-center gap-2">

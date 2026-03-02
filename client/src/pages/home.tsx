@@ -18,7 +18,7 @@ export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expens
 
 const CYAN = "#00b4d8";
 const NAVY = "#03045e";
-const GREEN = "#16a34a";
+const GREEN = "#10b981";
 
 // Tooltip tour steps
 const TOUR_STEPS = [
@@ -65,31 +65,21 @@ function TourOverlay({ step, total, onNext, onSkip }: {
   const s = TOUR_STEPS[step];
   const isLast = step === total - 1;
 
-  // Position the tooltip differently per step
-  const getTooltipStyle = (): React.CSSProperties => {
-    const base: React.CSSProperties = {
-      position: "fixed",
-      backgroundColor: "#ffffff",
-      borderRadius: "16px",
-      padding: "16px 18px",
-      maxWidth: "260px",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-      zIndex: 10001,
-    };
-
+  // Position the coach mark per step anchor
+  const getCoachPosition = (): React.CSSProperties => {
     if (s.anchor === "fab-add") {
-      return { ...base, bottom: "180px", right: "16px" };
+      return { position: "fixed", bottom: "190px", right: "12px", maxWidth: "270px" };
     }
     if (s.anchor === "fab-paid") {
-      return { ...base, bottom: "240px", right: "16px" };
+      return { position: "fixed", bottom: "250px", right: "12px", maxWidth: "270px" };
     }
     if (s.anchor === "dashboard-tab") {
-      return { ...base, bottom: "100px", left: "50%", transform: "translateX(-50%)" };
+      return { position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" };
     }
     if (s.anchor === "profile-tab") {
-      return { ...base, bottom: "100px", right: "16px" };
+      return { position: "fixed", bottom: "100px", right: "12px", maxWidth: "270px" };
     }
-    return base;
+    return { position: "fixed", bottom: "120px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" };
   };
 
   return (
@@ -97,58 +87,81 @@ function TourOverlay({ step, total, onNext, onSkip }: {
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(3,4,94,0.55)",
+        backgroundColor: "rgba(3,4,94,0.72)",
         zIndex: 10000,
-        display: "flex",
-        alignItems: "flex-end",
       }}
       onClick={onNext}
     >
-      {/* Tooltip bubble */}
+      {/* Coach mark — dark navy pill card */}
       <div
-        style={getTooltipStyle()}
+        style={{
+          ...getCoachPosition(),
+          zIndex: 10001,
+          backgroundColor: NAVY,
+          borderRadius: "20px",
+          border: `2.5px solid ${CYAN}`,
+          padding: "18px 20px 16px",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ fontSize: "24px", marginBottom: "6px" }}>{s.emoji}</div>
-        <div style={{ fontSize: "15px", fontWeight: 700, color: NAVY, marginBottom: "4px" }}>{s.title}</div>
-        <div style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.5, marginBottom: "14px" }}>{s.body}</div>
+        {/* Emoji + title row */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+          <span style={{ fontSize: "22px", lineHeight: 1 }}>{s.emoji}</span>
+          <span style={{ fontSize: "16px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+            {s.title}
+          </span>
+        </div>
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <button
-            style={{ background: "none", border: "none", color: "#9ca3af", fontSize: "13px", cursor: "pointer", padding: 0, minHeight: "unset" }}
-            onClick={onSkip}
-          >
-            Skip tour
-          </button>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ display: "flex", gap: "4px" }}>
-              {Array.from({ length: total }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    backgroundColor: i === step ? CYAN : "#e5e7eb",
-                  }}
-                />
-              ))}
-            </div>
+        {/* Body text */}
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "16px", marginLeft: "32px" }}>
+          {s.body}
+        </p>
+
+        {/* Footer row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginLeft: "32px" }}>
+          {/* Dot indicators */}
+          <div style={{ display: "flex", gap: "5px" }}>
+            {Array.from({ length: total }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i === step ? "18px" : "6px",
+                  height: "6px",
+                  borderRadius: "3px",
+                  backgroundColor: i === step ? CYAN : "rgba(255,255,255,0.25)",
+                  transition: "all 0.25s ease",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {!isLast && (
+              <button
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: "12px", cursor: "pointer", padding: "4px 6px", minHeight: "unset" }}
+                onClick={onSkip}
+              >
+                Skip
+              </button>
+            )}
             <button
               style={{
                 backgroundColor: CYAN,
                 color: "#ffffff",
                 border: "none",
-                borderRadius: "8px",
-                padding: "6px 14px",
+                borderRadius: "100px",
+                padding: "7px 18px",
                 fontSize: "13px",
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: "pointer",
                 minHeight: "unset",
+                letterSpacing: "0.01em",
               }}
               onClick={onNext}
             >
-              {isLast ? "Done" : "Next"}
+              {isLast ? "Done ✓" : "Next →"}
             </button>
           </div>
         </div>

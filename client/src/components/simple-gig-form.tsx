@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGigSchema, type InsertGig, type User } from "@shared/schema";
 import { z } from "zod";
-import { X, Loader2, MapPin, Navigation } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, Navigation } from "lucide-react";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 
 // Simplified form schema for planning gigs (detailed tracking happens in "Got Paid")
@@ -366,16 +366,19 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
     );
   }
 
-  // MAIN FORM - Simple, clean, reliable
+  // MAIN FORM - Full-page slide-in
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
-      <div className="w-full max-w-2xl max-h-[85vh] overflow-hidden bg-white relative z-50 touch-manipulation rounded-lg flex flex-col">
+    <div className="fixed inset-0 bg-white z-40 flex flex-col" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b shrink-0">
-          <h2 className="text-lg font-semibold">Add New Gig</h2>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100 shrink-0">
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", minHeight: "unset", display: "flex", alignItems: "center", color: "#374151", borderRadius: "8px" }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-lg font-semibold text-gray-900">Add Gig</h2>
         </div>
 
         {/* Form */}
@@ -853,32 +856,33 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
               </div>
             </div>
             
-            {/* Fixed bottom buttons - always visible */}
-            <div className="border-t bg-white p-4 rounded-b-lg shrink-0">
-              <div className="flex gap-2">
+            {/* Split bottom action buttons */}
+            <div className="border-t border-gray-100 bg-white shrink-0" style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}>
+              <div className="flex gap-3 p-4">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 h-12 text-base font-medium touch-manipulation rounded-xl border-gray-200"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 h-12 text-base font-medium touch-manipulation"
+                  className="flex-1 h-12 text-base font-semibold touch-manipulation rounded-xl"
+                  style={{ backgroundColor: "#03045e", color: "#ffffff" }}
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating gig...
+                      Saving...
                     </>
                   ) : (
                     multiDayInfo.isMultiDay 
                       ? `Save ${multiDayInfo.dayCount}-Day Gig` 
                       : "Save Gig"
                   )}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={onClose}
-                  className="flex-1 h-12 text-base font-medium touch-manipulation"
-                >
-                  Cancel
                 </Button>
               </div>
             </div>
