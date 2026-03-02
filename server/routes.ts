@@ -466,11 +466,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = getUserId(req);
       const { name, homeAddress, gigTypes, clientName, defaultTaxPercentage } = req.body;
-      
-      // Validate required fields
-      if (!name || !homeAddress || !gigTypes || !clientName || !defaultTaxPercentage) {
-        return res.status(400).json({ error: 'All setup fields are required' });
-      }
 
       const user = await storage.getUser(userId);
       if (!user) {
@@ -479,31 +474,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user profile with setup data
       const workPreferences = user.workPreferences || { preferredClients: [] };
-      
-      // Add single gig type to customGigTypes (consistent with profile page)
-      const gigType = gigTypes.trim();
+
+      // Accept gigTypes as array or single string
+      const rawGigTypes = Array.isArray(gigTypes)
+        ? gigTypes
+        : gigTypes ? [gigTypes.trim()] : [];
       const existingTypes = user.customGigTypes || [];
-      const updatedGigTypes = existingTypes.includes(gigType) 
-        ? existingTypes 
-        : [...existingTypes, gigType];
-      
-      // Add client (avoid duplicates)
+      const updatedGigTypes = Array.from(new Set([...existingTypes, ...rawGigTypes.filter(Boolean)]));
+
+      // Add client (avoid duplicates), clientName is optional
       const updatedClients = (workPreferences as any)?.preferredClients || [];
-      if (!updatedClients.includes(clientName.trim())) {
+      if (clientName && clientName.trim() && !updatedClients.includes(clientName.trim())) {
         updatedClients.push(clientName.trim());
       }
 
-      const updateData = {
-        name: name.trim(),
-        homeAddress: homeAddress.trim(),
+      const updateData: Record<string, any> = {
         onboardingCompleted: true,
-        defaultTaxPercentage: parseInt(defaultTaxPercentage, 10),
-        customGigTypes: updatedGigTypes,  // Save to customGigTypes field
-        workPreferences: {
-          ...workPreferences,
-          preferredClients: updatedClients
-        }
       };
+      if (name && name.trim()) updateData.name = name.trim();
+      if (homeAddress && homeAddress.trim()) updateData.homeAddress = homeAddress.trim();
+      if (defaultTaxPercentage !== undefined && defaultTaxPercentage !== '') {
+        updateData.defaultTaxPercentage = parseInt(defaultTaxPercentage, 10);
+      }
+      if (updatedGigTypes.length > 0) updateData.customGigTypes = updatedGigTypes;
+      updateData.workPreferences = { ...workPreferences, preferredClients: updatedClients };
 
       await storage.updateUser(userId, updateData);
       

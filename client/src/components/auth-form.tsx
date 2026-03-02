@@ -1,612 +1,506 @@
 
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Loader2, ArrowLeft, Building } from "lucide-react";
-import { clientValidation, FormErrorHandler, sanitizeText, sanitizeEmail } from "@/utils/validation";
+import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
+import { sanitizeEmail, sanitizeText } from "@/utils/validation";
 
-// Enhanced form schemas with sanitization
-const loginSchema = z.object({
-  email: z.string()
-    .min(1, "Email is required")
-    .email("Invalid email address")
-    .transform(sanitizeEmail)
-    .refine(val => val.includes('@'), 'Email must contain @ symbol'),
-  password: z.string()
-    .min(1, "Password is required")
-    .max(128, "Password too long")
-    .transform(val => val.trim()),
-});
+type Mode = 'welcome' | 'login' | 'register' | 'reset-request' | 'reset-password';
 
-const registerSchema = z.object({
-  name: z.string()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters")
-    .transform(sanitizeText)
-    .refine(val => val.length > 0, 'Name cannot be empty'),
-  email: z.string()
-    .min(1, "Email is required")
-    .email("Invalid email address")
-    .transform(sanitizeEmail)
-    .refine(val => val.includes('@'), 'Email must contain @ symbol'),
-  password: z.string()
-    .min(6, "Password must be at least 6 characters")
-    .max(128, "Password too long")
-    .transform(val => val.trim()),
-  confirmPassword: z.string()
-    .min(1, "Please confirm your password")
-    .transform(val => val.trim()),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const CYAN = "#00b4d8";
+const NAVY = "#03045e";
 
-const resetRequestSchema = z.object({
-  email: z.string()
-    .min(1, "Email is required")
-    .email("Invalid email address")
-    .transform(sanitizeEmail)
-    .refine(val => val.includes('@'), 'Email must contain @ symbol'),
-});
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  height: "52px",
+  fontSize: "16px",
+  padding: "0 16px",
+  border: "1.5px solid #d1d5db",
+  borderRadius: "12px",
+  backgroundColor: "#ffffff",
+  color: "#111827",
+  outline: "none",
+  boxSizing: "border-box",
+  WebkitAppearance: "none",
+};
 
-const resetPasswordSchema = z.object({
-  token: z.string()
-    .min(1, "Reset token is required")
-    .transform(sanitizeText),
-  newPassword: z.string()
-    .min(6, "Password must be at least 6 characters")
-    .max(128, "Password too long")
-    .transform(val => val.trim()),
-});
+const btnPrimary: React.CSSProperties = {
+  width: "100%",
+  height: "52px",
+  backgroundColor: CYAN,
+  color: "#ffffff",
+  fontSize: "16px",
+  fontWeight: 600,
+  border: "none",
+  borderRadius: "12px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+};
 
-type LoginData = z.infer<typeof loginSchema>;
-type RegisterData = z.infer<typeof registerSchema>;
-type ResetRequestData = z.infer<typeof resetRequestSchema>;
-type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
+const btnOutline: React.CSSProperties = {
+  width: "100%",
+  height: "52px",
+  backgroundColor: "#ffffff",
+  color: "#374151",
+  fontSize: "15px",
+  fontWeight: 500,
+  border: "1.5px solid #d1d5db",
+  borderRadius: "12px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+};
 
 export default function AuthForm() {
-  const [mode, setMode] = useState<'login' | 'register' | 'reset-request' | 'reset-password'>('login');
+  const [mode, setMode] = useState<Mode>("welcome");
   const [showPassword, setShowPassword] = useState(false);
-  const [, setLocation] = useLocation();
+  const [resetToken, setResetToken] = useState("");
   const { toast } = useToast();
-  const [errorHandler] = useState(() => new FormErrorHandler());
 
-  // Forms
-  const loginForm = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" }
-  });
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [registerData, setRegisterData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
-  const registerForm = useForm<RegisterData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" }
-  });
-
-  const resetRequestForm = useForm<ResetRequestData>({
-    resolver: zodResolver(resetRequestSchema),
-    defaultValues: { email: "" }
-  });
-
-  const resetPasswordForm = useForm<ResetPasswordData>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { token: "", newPassword: "" }
-  });
-
-  // Check for reset token on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const resetToken = urlParams.get('reset_token');
-
-    if (resetToken) {
-      console.log('🔑 Reset token detected:', resetToken);
-      console.log('🔐 SECURITY DEBUG: Reset token flow starting', {
-        url: window.location.href,
-        token: resetToken.substring(0, 10) + '...',
-        timestamp: new Date().toISOString()
-      });
-      
-      // Validate token
+    const token = urlParams.get("reset_token");
+    if (token) {
       fetch("/api/auth/validate-reset-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resetToken })
+        body: JSON.stringify({ token }),
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.valid) {
-          console.log('✅ Token validated for user:', data.user.email);
-          console.log('🔐 SECURITY DEBUG: Token validation successful', {
-            targetUser: data.user.email,
-            userId: data.user.id,
-            timestamp: new Date().toISOString()
-          });
-          setMode('reset-password');
-          resetPasswordForm.setValue('token', resetToken);
-          toast({
-            title: "Password Reset",
-            description: `Resetting password for ${data.user.email}`,
-          });
-        } else {
-          console.log('❌ Invalid token');
-          toast({
-            title: "Invalid Reset Link",
-            description: "This reset link is invalid or has expired.",
-            variant: "destructive",
-          });
-          setMode('login');
-        }
-      })
-      .catch(error => {
-        console.error('Token validation failed:', error);
-        toast({
-          title: "Reset Link Error",
-          description: "Could not validate reset link. Please try again.",
-          variant: "destructive",
-        });
-        setMode('login');
-      });
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.valid) {
+            setResetToken(token);
+            setMode("reset-password");
+            toast({ title: "Reset link valid", description: `Resetting password for ${data.user.email}` });
+          } else {
+            toast({ title: "Link expired", description: "This reset link is invalid or has expired.", variant: "destructive" });
+            setMode("login");
+          }
+        })
+        .catch(() => setMode("login"));
     }
-  }, [resetPasswordForm, toast]);
+  }, [toast]);
 
-  // Mutations
   const loginMutation = useMutation({
-    mutationFn: async (data: LoginData) => {
-      const response = await fetch("/api/auth/login", {
+    mutationFn: async () => {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email: sanitizeEmail(loginData.email), password: loginData.password.trim() }),
       });
-
-      if (!response.ok) {
-        let error;
-        try {
-          error = await response.json();
-        } catch (e) {
-          // Handle non-JSON responses
-          error = { message: `Login failed (${response.status})` };
-        }
-        throw new Error(error.message || "Login failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Login failed" }));
+        throw new Error(err.message || "Login failed");
       }
-
-      return response.json();
+      return res.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Welcome back!",
-        description: "You've been successfully logged in.",
-      });
-      window.location.href = "/";
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Login failed",
-        description: error.message === "Invalid credentials" 
-          ? "Wrong email or password. Use 'Forgot Password' below if you need to reset it."
-          : error.message || "Please try again",
-        variant: "destructive"
-      });
-    }
+    onSuccess: () => { window.location.href = "/"; },
+    onError: (e: any) => toast({ title: "Login failed", description: e.message === "Invalid credentials" ? "Wrong email or password." : e.message, variant: "destructive" }),
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (data: RegisterData) => {
-      const response = await fetch("/api/auth/register", {
+    mutationFn: async () => {
+      if (registerData.password !== registerData.confirmPassword) throw new Error("Passwords don't match");
+      if (registerData.password.length < 6) throw new Error("Password must be at least 6 characters");
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: sanitizeText(registerData.name),
+          email: sanitizeEmail(registerData.email),
+          password: registerData.password.trim(),
+        }),
       });
-
-      if (!response.ok) {
-        let error;
-        try {
-          error = await response.json();
-        } catch (e) {
-          // Handle non-JSON responses
-          error = { message: `Registration failed (${response.status})` };
-        }
-        throw new Error(error.message || "Registration failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Registration failed" }));
+        throw new Error(err.message || "Registration failed");
       }
-
-      return response.json();
+      return res.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Welcome to Bookd!",
-        description: "Your account has been created successfully.",
-      });
-      window.location.href = "/";
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Registration failed",
-        description: error.message || "Please try again",
-        variant: "destructive"
-      });
-    }
+    onSuccess: () => { window.location.href = "/"; },
+    onError: (e: any) => toast({ title: "Sign up failed", description: e.message, variant: "destructive" }),
   });
 
   const resetRequestMutation = useMutation({
-    mutationFn: async (data: ResetRequestData) => {
-      const response = await fetch("/api/auth/reset-password", {
+    mutationFn: async () => {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email: sanitizeEmail(resetEmail) }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Reset request failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Reset failed" }));
+        throw new Error(err.message);
       }
-
-      return response.json();
+      return res.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Reset email sent", 
-        description: data.developmentResetUrl ? 
-          "Check the console below for your reset link!" : 
-          "If an account with that email exists, a reset link has been sent.",
-        variant: data.developmentResetUrl ? "default" : "default"
-      });
-
+      toast({ title: "Reset email sent", description: "Check your inbox for a reset link." });
       if (data.developmentResetUrl) {
-        console.log('🔗 Development Reset Link:', data.developmentResetUrl);
-        console.log('📝 Click the link above to reset your password!');
-        
-        // Also show the link in a more visible way for development
-        if (process.env.NODE_ENV !== 'production') {
-          setTimeout(() => {
-            const shouldRedirect = confirm(`Development Mode: Click OK to go directly to password reset, or Cancel to copy the URL manually.\n\nReset URL: ${data.developmentResetUrl}`);
-            if (shouldRedirect) {
-              window.location.href = data.developmentResetUrl;
-            }
-          }, 1000);
-        }
+        console.log("🔗 Dev Reset Link:", data.developmentResetUrl);
       }
-
-      if (!data.developmentResetUrl) {
-        setMode('login');
-      }
+      setMode("login");
     },
-    onError: (error: any) => {
-      toast({
-        title: "Reset failed",
-        description: error.message || "Please try again",
-        variant: "destructive"
-      });
-    }
+    onError: (e: any) => toast({ title: "Reset failed", description: e.message, variant: "destructive" }),
   });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: async (data: ResetPasswordData) => {
-      const response = await fetch("/api/auth/reset-password", {
+    mutationFn: async () => {
+      if (newPassword.length < 6) throw new Error("Password must be at least 6 characters");
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ token: resetToken, newPassword }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Password reset failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Reset failed" }));
+        throw new Error(err.message);
       }
-
-      return response.json();
+      return res.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Password reset successful",
-        description: "You can now log in with your new password.",
-      });
-      
-      // Clear URL parameters and redirect to login
-      window.history.replaceState({}, document.title, window.location.pathname);
-      setMode('login');
+      toast({ title: "Password updated!", description: "You can now log in with your new password." });
+      window.history.replaceState({}, "", window.location.pathname);
+      setMode("login");
     },
-    onError: (error: any) => {
-      toast({
-        title: "Password reset failed",
-        description: error.message || "Please try again",
-        variant: "destructive"
-      });
-    }
+    onError: (e: any) => toast({ title: "Reset failed", description: e.message, variant: "destructive" }),
   });
 
-  const onLogin = (data: LoginData) => {
-    loginMutation.mutate(data);
-  };
-
-  const onRegister = (data: RegisterData) => {
-    registerMutation.mutate(data);
-  };
-
-  const onResetRequest = (data: ResetRequestData) => {
-    resetRequestMutation.mutate(data);
-  };
-
-  const onResetPassword = (data: ResetPasswordData) => {
-    resetPasswordMutation.mutate(data);
-  };
-
-  const isLoading = loginMutation.isPending || registerMutation.isPending || 
-                   resetRequestMutation.isPending || resetPasswordMutation.isPending;
+  const isLoading = loginMutation.isPending || registerMutation.isPending || resetRequestMutation.isPending || resetPasswordMutation.isPending;
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 pt-8">
-      <div className="w-full max-w-md mx-auto space-y-4">
-        {/* Compact Branding */}
-        <div className="text-center flex flex-col items-center">
-          <img src={logoImage} alt="bookd" className="h-16 mb-3 object-contain" />
-        </div>
+    <div style={{ minHeight: "100dvh", backgroundColor: "#ffffff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "0 24px", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div style={{ width: "100%", maxWidth: "390px", paddingTop: "48px", paddingBottom: "48px" }}>
 
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center space-x-2">
-              {(mode === 'reset-request' || mode === 'reset-password') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setMode('login')}
-                  disabled={isLoading}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              )}
-              <CardTitle className="text-2xl">
-                {mode === 'login' && "Welcome Back"}
-                {mode === 'register' && "Create Account"}
-                {mode === 'reset-request' && "Reset Password"}
-                {mode === 'reset-password' && "Set New Password"}
-              </CardTitle>
+        {/* WELCOME SCREEN */}
+        {mode === "welcome" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0" }}>
+            <img src={logoImage} alt="bookd" style={{ height: "40px", objectFit: "contain", marginBottom: "48px" }} />
+
+            <div style={{ fontSize: "64px", lineHeight: 1, marginBottom: "32px", textAlign: "center" }}>
+              🚗💼💸
             </div>
-            <CardDescription>
-              {mode === 'login' && "Sign in to your Bookd account"}
-              {mode === 'register' && "Start tracking your gigs with Bookd"}
-              {mode === 'reset-request' && "Enter your email to receive a reset link"}
-              {mode === 'reset-password' && "Enter your new password"}
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            {mode === 'login' && (
-              <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-                  <FormField
-                    control={loginForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="Enter your email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={loginForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input 
-                              type={showPassword ? "text" : "password"} 
-                              placeholder="Enter your password"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="absolute right-0 top-0 h-full px-3"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Sign In
-                  </Button>
-                </form>
-              </Form>
-            )}
 
-            {mode === 'register' && (
-              <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
-                  <FormField
-                    control={registerForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="Enter your email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Create a password (min 6 characters)" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Confirm your password" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Create Account
-                  </Button>
-                </form>
-              </Form>
-            )}
+            <h1 style={{ fontSize: "28px", fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: "12px", lineHeight: 1.2 }}>
+              Welcome to Bookd
+            </h1>
+            <p style={{ fontSize: "16px", color: "#6b7280", textAlign: "center", marginBottom: "40px", lineHeight: 1.5 }}>
+              The finance app built for freelancers like you.
+            </p>
 
-            {mode === 'reset-request' && (
-              <Form {...resetRequestForm}>
-                <form onSubmit={resetRequestForm.handleSubmit(onResetRequest)} className="space-y-4">
-                  <FormField
-                    control={resetRequestForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="Enter your email address" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Send Reset Link
-                  </Button>
-                </form>
-              </Form>
-            )}
+            <button style={btnPrimary} onClick={() => setMode("register")}>
+              Get started
+            </button>
 
-            {mode === 'reset-password' && (
-              <Form {...resetPasswordForm}>
-                <form onSubmit={resetPasswordForm.handleSubmit(onResetPassword)} className="space-y-4">
-                  <FormField
-                    control={resetPasswordForm.control}
-                    name="token"
-                    render={({ field }) => (
-                      <FormItem className="hidden">
-                        <FormControl>
-                          <Input type="hidden" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={resetPasswordForm.control}
-                    name="newPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>New Password</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Enter your new password (min 6 characters)"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Reset Password
-                  </Button>
-                </form>
-              </Form>
-            )}
+            <button
+              style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "20px", cursor: "pointer", padding: "8px" }}
+              onClick={() => setMode("login")}
+            >
+              Already have an account?{" "}
+              <span style={{ color: CYAN, fontWeight: 600 }}>Log in</span>
+            </button>
+          </div>
+        )}
 
-            {mode === 'login' && (
-              <div className="space-y-4">
-                <div className="text-center space-y-2">
-                  <Button
-                    variant="link"
-                    onClick={() => setMode('reset-request')}
+        {/* LOGIN SCREEN */}
+        {mode === "login" && (
+          <div>
+            <img src={logoImage} alt="bookd" style={{ height: "36px", objectFit: "contain", marginBottom: "36px", display: "block" }} />
+
+            <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "6px" }}>Welcome back</h1>
+            <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "28px" }}>Sign in to your account to continue.</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "20px" }}>
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Email</label>
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  style={inputStyle}
+                  autoComplete="email"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Password</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                    style={{ ...inputStyle, paddingRight: "48px" }}
+                    autoComplete="current-password"
                     disabled={isLoading}
+                    onKeyDown={(e) => { if (e.key === "Enter") loginMutation.mutate(); }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0, display: "flex", minHeight: "unset" }}
                   >
-                    Forgot your password?
-                  </Button>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
+              </div>
+            </div>
 
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or</span>
-                  </div>
+            <button
+              style={btnPrimary}
+              onClick={() => loginMutation.mutate()}
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : null}
+              Log in
+            </button>
+
+            <button
+              style={{ background: "none", border: "none", color: CYAN, fontSize: "14px", marginTop: "16px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px", fontWeight: 500 }}
+              onClick={() => setMode("reset-request")}
+              disabled={isLoading}
+            >
+              Forgot password?
+            </button>
+
+            <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
+
+            <button
+              style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px" }}
+              onClick={() => setMode("register")}
+              disabled={isLoading}
+            >
+              Don't have an account?{" "}
+              <span style={{ color: CYAN, fontWeight: 600 }}>Get started</span>
+            </button>
+          </div>
+        )}
+
+        {/* REGISTER SCREEN */}
+        {mode === "register" && (
+          <div>
+            <img src={logoImage} alt="bookd" style={{ height: "36px", objectFit: "contain", marginBottom: "36px", display: "block" }} />
+
+            <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "6px" }}>Create your account</h1>
+            <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "28px" }}>Start tracking your gigs in under a minute.</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "20px" }}>
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Full name</label>
+                <input
+                  type="text"
+                  placeholder="Your full name"
+                  value={registerData.name}
+                  onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                  style={inputStyle}
+                  autoComplete="name"
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Email</label>
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={registerData.email}
+                  onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                  style={inputStyle}
+                  autoComplete="email"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Password</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="At least 6 characters"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                    style={{ ...inputStyle, paddingRight: "48px" }}
+                    autoComplete="new-password"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0, display: "flex", minHeight: "unset" }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-
-                <Button
-                  variant="link"
-                  onClick={() => setMode('register')}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Need an account? Sign up
-                </Button>
               </div>
-            )}
-
-            {mode === 'register' && (
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  onClick={() => setMode('login')}
+              <div>
+                <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Confirm password</label>
+                <input
+                  type="password"
+                  placeholder="Re-enter your password"
+                  value={registerData.confirmPassword}
+                  onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                  style={inputStyle}
+                  autoComplete="new-password"
                   disabled={isLoading}
-                >
-                  Already have an account? Sign in
-                </Button>
+                  onKeyDown={(e) => { if (e.key === "Enter") registerMutation.mutate(); }}
+                />
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
 
-        {/* Version indicator to verify deployment */}
-        <p className="text-center text-xs text-gray-400 mt-4">v1.3.0</p>
-        
-        {/* Spacer for iOS keyboard scrolling */}
-        <div className="h-[200px]" aria-hidden="true" />
+            <button
+              style={btnPrimary}
+              onClick={() => registerMutation.mutate()}
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : null}
+              Create my account
+            </button>
+
+            <p style={{ fontSize: "12px", color: "#9ca3af", textAlign: "center", marginTop: "12px", lineHeight: 1.4 }}>
+              By signing up, you agree to our{" "}
+              <a href="/terms-of-service" style={{ color: CYAN }}>Terms</a> and{" "}
+              <a href="/privacy-policy" style={{ color: CYAN }}>Privacy Policy</a>.
+            </p>
+
+            <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
+
+            <button
+              style={btnOutline}
+              onClick={() => { window.location.href = "/api/auth/google"; }}
+              disabled={isLoading}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <button
+              style={{ ...btnOutline, marginTop: "10px" }}
+              onClick={() => {
+                toast({ title: "Coming soon", description: "Apple sign-in will be available in a future update." });
+              }}
+              disabled={isLoading}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#000">
+                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+              </svg>
+              Continue with Apple
+            </button>
+
+            <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
+
+            <button
+              style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px" }}
+              onClick={() => setMode("login")}
+              disabled={isLoading}
+            >
+              Already have an account?{" "}
+              <span style={{ color: CYAN, fontWeight: 600 }}>Log in</span>
+            </button>
+          </div>
+        )}
+
+        {/* RESET REQUEST SCREEN */}
+        {mode === "reset-request" && (
+          <div>
+            <button
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", marginBottom: "28px", padding: 0, minHeight: "unset" }}
+              onClick={() => setMode("login")}
+            >
+              <ArrowLeft size={16} /> Back to login
+            </button>
+
+            <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "6px" }}>Reset your password</h1>
+            <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "28px" }}>Enter your email and we'll send you a reset link.</p>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Email</label>
+              <input
+                type="email"
+                placeholder="you@email.com"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                style={inputStyle}
+                autoComplete="email"
+                autoCapitalize="off"
+                disabled={isLoading}
+                onKeyDown={(e) => { if (e.key === "Enter") resetRequestMutation.mutate(); }}
+              />
+            </div>
+
+            <button
+              style={btnPrimary}
+              onClick={() => resetRequestMutation.mutate()}
+              disabled={isLoading || !resetEmail}
+            >
+              {isLoading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : null}
+              Send reset link
+            </button>
+          </div>
+        )}
+
+        {/* RESET PASSWORD SCREEN */}
+        {mode === "reset-password" && (
+          <div>
+            <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "6px" }}>Set new password</h1>
+            <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "28px" }}>Enter your new password below.</p>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>New password</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{ ...inputStyle, paddingRight: "48px" }}
+                  autoComplete="new-password"
+                  disabled={isLoading}
+                  onKeyDown={(e) => { if (e.key === "Enter") resetPasswordMutation.mutate(); }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0, display: "flex", minHeight: "unset" }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              style={btnPrimary}
+              onClick={() => resetPasswordMutation.mutate()}
+              disabled={isLoading || !newPassword}
+            >
+              {isLoading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : null}
+              Reset password
+            </button>
+          </div>
+        )}
+
+        <p style={{ textAlign: "center", fontSize: "11px", color: "#d1d5db", marginTop: "40px" }}>v1.3.0</p>
+        <div style={{ height: "200px" }} aria-hidden="true" />
       </div>
     </div>
   );
