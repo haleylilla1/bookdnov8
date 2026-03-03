@@ -819,7 +819,7 @@ export default function Dashboard() {
               onClick={() => setSelectedPeriod(p)}
               style={{
                 padding: "8px 20px",
-                minWidth: "100px",
+                width: "110px",
                 borderRadius: "9999px",
                 border: active ? "none" : "1px solid #e5e7eb",
                 backgroundColor: active ? "#03045e" : "#ffffff",
@@ -829,6 +829,7 @@ export default function Dashboard() {
                 cursor: "pointer",
                 transition: "all 0.15s ease",
                 whiteSpace: "nowrap",
+                textAlign: "center",
               }}
             >
               {p === "monthly" ? "Monthly" : p === "quarterly" ? "Quarterly" : "Annual"}
