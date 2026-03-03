@@ -4,6 +4,9 @@ import { setSentryUser, clearSentryUser, addSentryBreadcrumb } from './sentry';
 import { setRevenueCatUser, logoutRevenueCatUser } from './revenuecat';
 import React from 'react';
 
+// Lazy-loaded outside component to avoid infinite Suspense loop
+const AuthForm = React.lazy(() => import('../components/auth-form'));
+
 // User type for traditional auth
 export interface User {
   id: number;
@@ -126,8 +129,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // Import and use the advanced auth form with proper React Hook Form
-    const AuthForm = React.lazy(() => import('../components/auth-form'));
     return (
       <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
