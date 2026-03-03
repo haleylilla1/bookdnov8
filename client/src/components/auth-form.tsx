@@ -193,8 +193,8 @@ export default function AuthForm() {
             <h1 style={{ fontSize: "28px", fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: "12px", lineHeight: 1.2 }}>
               Welcome to Bookd
             </h1>
-            <p style={{ fontSize: "16px", color: "#6b7280", textAlign: "center", marginBottom: "40px", lineHeight: 1.5 }}>
-              The freelancer's all-in-one financial tool.
+            <p style={{ fontSize: "15px", color: "#6b7280", textAlign: "center", marginBottom: "40px", lineHeight: 1.6 }}>
+              Hey, I'm Haley! After six years as an independent gig-based creative — and one too many frustrated calls from my 71-year-old CPA — I built Bookd because the tools out there just don't match our workflow. Inside, you'll track and project your income, know exactly what to set aside for taxes, and maximize deductions through mileage and expense tracking. Thanks for downloading — let's go get bookd!
             </p>
 
             <button style={btnPrimary} onClick={() => setMode("register")}>
