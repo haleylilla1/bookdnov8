@@ -221,10 +221,6 @@ export default function AuthForm() {
               ))}
             </div>
 
-            <p style={{ fontSize: "13px", fontStyle: "italic", color: "#9B9B9B", textAlign: "center", marginBottom: "24px" }}>
-              Thanks for downloading — let's go get bookd!
-            </p>
-
             <button style={btnPrimary} onClick={() => setMode("register")}>
               Get started
             </button>
