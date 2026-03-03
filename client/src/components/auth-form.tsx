@@ -190,11 +190,8 @@ export default function AuthForm() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <img src={logoImage} alt="bookd" style={{ height: "36px", objectFit: "contain", marginBottom: "28px" }} />
 
-            <h1 style={{ fontSize: "26px", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: "4px", lineHeight: 1.25 }}>
-              Welcome to the
-            </h1>
-            <h1 style={{ fontSize: "26px", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: "24px", lineHeight: 1.25 }}>
-              all-in-one freelancer <span style={{ color: CYAN }}>financial tool</span>
+            <h1 style={{ fontSize: "28px", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: "24px", lineHeight: 1.25 }}>
+              Welcome to <span style={{ color: CYAN }}>Bookd</span>
             </h1>
 
             <div style={{ width: "40px", height: "2px", backgroundColor: "#e5e7eb", marginBottom: "24px", borderRadius: "2px" }} />
