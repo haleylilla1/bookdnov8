@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ const containerVariants = {
   visible: {
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.05,
+      delayChildren: 0.2,
     },
   },
 };
@@ -1071,7 +1071,7 @@ export default function Dashboard() {
               View your total taxable income after deductions and reimbursements.
             </DialogDescription>
           </DialogHeader>
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate={showEarningsBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getActualEarningsBreakdown().map((gig, index) => {
               const mileageDeduction = (gig.mileage || 0) * 0.70;
               return (
@@ -1118,7 +1118,7 @@ export default function Dashboard() {
               View detailed breakdown of all gigs including completed and upcoming.
             </DialogDescription>
           </DialogHeader>
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate={showProjectedBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getProjectedEarningsBreakdown().map((gig, index) => (
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1159,7 +1159,7 @@ export default function Dashboard() {
               View detailed tax calculations for each gig based on income and tax rates.
             </DialogDescription>
           </DialogHeader>
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate={showTaxBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTaxBreakdown().map((gig, index) => (
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1217,7 +1217,7 @@ export default function Dashboard() {
               View detailed breakdown of tips earned from completed gigs.
             </DialogDescription>
           </DialogHeader>
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate={showTipsBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTipsBreakdown().map((gig, index) => (
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1249,7 +1249,7 @@ export default function Dashboard() {
               View detailed breakdown of expenses including parking, other costs, and mileage deductions.
             </DialogDescription>
           </DialogHeader>
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate={showExpensesBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getExpensesBreakdown().map((gig, index) => (
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1320,7 +1320,7 @@ export default function Dashboard() {
             {getNewExpensesBreakdown().length > 0 && (
               <div>
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Standalone Expenses</h4>
-                <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <motion.div variants={containerVariants} initial="hidden" animate={showNewExpensesBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getNewExpensesBreakdown().map((item, index) => (
                     <motion.div key={`${item.type}-${item.id}-${index}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1376,7 +1376,16 @@ export default function Dashboard() {
             {getExpensesBreakdown().length > 0 && (
               <div>
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Gig-Related Expenses</h4>
-                <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate={showNewExpensesBreakdown ? "visible" : "hidden"}
+                  transition={{
+                    staggerChildren: 0.1,
+                    delayChildren: 0.2 + getNewExpensesBreakdown().length * 0.1 + 0.3,
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+                >
                   {getExpensesBreakdown().map((gig, index) => (
                     <motion.div key={`gig-${gig.id}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
