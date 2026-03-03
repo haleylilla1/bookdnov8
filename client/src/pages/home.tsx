@@ -217,13 +217,13 @@ export default function Home() {
       case "calendar": return <CalendarView />;
       case "dashboard": return <Dashboard />;
       case "profile": return <Profile />;
-      case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("calendar")} />;
-      case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("calendar")} />;
+      case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
+      case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
       default: return <Dashboard />;
     }
   };
 
-  const isMainScreen = currentScreen === "calendar" || currentScreen === "dashboard";
+  const isMainScreen = currentScreen === "calendar" || currentScreen === "dashboard" || currentScreen === "profile";
 
   return (
     <div className="min-h-screen bg-gray-50">
