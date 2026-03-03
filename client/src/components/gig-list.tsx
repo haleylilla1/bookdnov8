@@ -149,15 +149,7 @@ function GigCard({
             Got Paid
           </button>
         )}
-        {isUpcoming && (
-          <button
-            onClick={() => onEdit(gig)}
-            style={{ background: "none", border: "none", color: "#9B9B9B", fontSize: "13px", fontWeight: 500, cursor: "pointer", padding: 0 }}
-          >
-            Edit
-          </button>
-        )}
-        {/* Completed: no CTA */}
+        {/* Upcoming and Completed: no CTA */}
       </div>
     </div>
   );
