@@ -186,6 +186,23 @@ export default function Home() {
   const [gotPaidSheetVisible, setGotPaidSheetVisible] = useState(false);
   const [gotPaidSelectedGig, setGotPaidSelectedGig] = useState<Gig | null>(null);
 
+  // Keyboard height tracking — pushes bottom sheets above the keyboard on iOS
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const update = () => {
+      const kh = Math.max(0, window.innerHeight - viewport.height);
+      setKeyboardOffset(kh);
+    };
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+    };
+  }, []);
+
   const openGotPaidSheet = () => {
     setShowGotPaidSheet(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setGotPaidSheetVisible(true)));
@@ -381,17 +398,17 @@ export default function Home() {
             {/* Sheet */}
             <div style={{
               position: "fixed",
-              bottom: 0,
+              bottom: keyboardOffset,
               left: "50%",
               transform: gotPaidSheetVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(100%)",
-              transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+              transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1), bottom 120ms ease-out",
               width: "100%",
               maxWidth: "480px",
               backgroundColor: "#ffffff",
               borderRadius: "20px 20px 0 0",
               zIndex: 56,
-              paddingBottom: "max(env(safe-area-inset-bottom, 24px), 24px)",
-              maxHeight: "85vh",
+              paddingBottom: keyboardOffset > 0 ? "12px" : "max(env(safe-area-inset-bottom, 24px), 24px)",
+              maxHeight: `min(85vh, calc(100vh - ${keyboardOffset}px - 40px))`,
               display: "flex",
               flexDirection: "column",
             }}>
