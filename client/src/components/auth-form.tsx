@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2, ArrowLeft, TrendingUp, PiggyBank, Car } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
@@ -58,6 +58,7 @@ const btnOutline: React.CSSProperties = {
 };
 
 export default function AuthForm() {
+  const queryClient = useQueryClient();
   const [mode, setMode] = useState<Mode>("welcome");
   const [showPassword, setShowPassword] = useState(false);
   const [resetToken, setResetToken] = useState("");
@@ -106,7 +107,7 @@ export default function AuthForm() {
       }
       return res.json();
     },
-    onSuccess: () => { window.location.href = "/"; },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['/api/user'] }); },
     onError: (e: any) => toast({ title: "Login failed", description: e.message === "Invalid credentials" ? "Wrong email or password." : e.message, variant: "destructive" }),
   });
 
@@ -130,7 +131,7 @@ export default function AuthForm() {
       }
       return res.json();
     },
-    onSuccess: () => { window.location.href = "/"; },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['/api/user'] }); },
     onError: (e: any) => toast({ title: "Sign up failed", description: e.message, variant: "destructive" }),
   });
 
