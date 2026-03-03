@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
 import { Plus, Briefcase, Receipt, ChevronRight } from "lucide-react";
 import GotPaidSheet from "@/components/got-paid-sheet";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
 
 export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expense-form" | "settings";
 
@@ -189,18 +191,48 @@ export default function Home() {
   // Keyboard height tracking — pushes bottom sheets above the keyboard on iOS
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-    const update = () => {
-      const kh = Math.max(0, window.innerHeight - viewport.height);
-      setKeyboardOffset(kh);
-    };
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-    };
+    if (Capacitor.isNativePlatform()) {
+      // Native iOS app: Capacitor Keyboard plugin gives exact keyboard height
+      let showHandle: any, hideHandle: any;
+      Keyboard.addListener("keyboardWillShow", (info) => {
+        setKeyboardOffset(info.keyboardHeight);
+      }).then(h => { showHandle = h; });
+      Keyboard.addListener("keyboardWillHide", () => {
+        setKeyboardOffset(0);
+      }).then(h => { hideHandle = h; });
+      return () => {
+        showHandle?.remove();
+        hideHandle?.remove();
+      };
+    } else {
+      // Web (Safari/browser): use visualViewport + fallbacks
+      const update = () => {
+        const vp = window.visualViewport;
+        if (vp) {
+          const kh = Math.max(0, window.innerHeight - vp.height - vp.offsetTop);
+          setKeyboardOffset(kh);
+        }
+      };
+      window.visualViewport?.addEventListener("resize", update);
+      window.visualViewport?.addEventListener("scroll", update);
+      window.addEventListener("resize", update);
+      const onFocusIn = (e: Event) => {
+        if ((e.target as HTMLElement)?.matches("input, textarea, select")) {
+          setTimeout(update, 100);
+          setTimeout(update, 400);
+        }
+      };
+      const onFocusOut = () => setTimeout(update, 150);
+      document.addEventListener("focusin", onFocusIn);
+      document.addEventListener("focusout", onFocusOut);
+      return () => {
+        window.visualViewport?.removeEventListener("resize", update);
+        window.visualViewport?.removeEventListener("scroll", update);
+        window.removeEventListener("resize", update);
+        document.removeEventListener("focusin", onFocusIn);
+        document.removeEventListener("focusout", onFocusOut);
+      };
+    }
   }, []);
 
   const openGotPaidSheet = () => {
@@ -498,7 +530,7 @@ export default function Home() {
 
         {/* Floating Action Buttons — mobile only */}
         {isMainScreen && (
-          <div className="lg:hidden" style={{ position: "fixed", bottom: "calc(68px + env(safe-area-inset-bottom, 16px))", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
+          <div className="lg:hidden" style={{ position: "fixed", bottom: "max(90px, calc(60px + env(safe-area-inset-bottom, 0px)))", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
             {/* Got Paid $ button */}
             <button
               id="fab-paid"
