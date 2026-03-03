@@ -824,7 +824,7 @@ export default function Dashboard() {
                 border: active ? "none" : "1.5px solid #e5e7eb",
                 backgroundColor: active ? "#03045e" : "#ffffff",
                 color: active ? "#ffffff" : "#9ca3af",
-                fontSize: "13px",
+                fontSize: "14px",
                 fontWeight: active ? 600 : 400,
                 cursor: "pointer",
                 transition: "all 0.15s ease",
@@ -839,11 +839,11 @@ export default function Dashboard() {
       {/* Date Navigation */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px" }}>
         <div>
-          <h2 style={{ fontSize: "28px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>
+          <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>
             {getPeriodText()}
           </h2>
           {selectedPeriod === "quarterly" && (
-            <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
+            <div style={{ fontSize: "14px", color: "#9ca3af", marginTop: "2px" }}>
               {(() => {
                 const quarter = getCurrentQuarter(currentDate);
                 const year = currentDate.getFullYear();
@@ -858,7 +858,7 @@ export default function Dashboard() {
               })()}
             </div>
           )}
-          <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "4px" }}>
+          <div style={{ fontSize: "14px", color: "#9ca3af", marginTop: "4px" }}>
             {periodStats.totalGigs} total gigs &bull; {periodStats.completedGigs} completed
           </div>
         </div>
@@ -886,10 +886,10 @@ export default function Dashboard() {
         marginBottom: "12px",
         boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
       }}>
-        <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "6px" }}>
+        <div style={{ fontSize: "12px", fontWeight: 600, color: "#9ca3af", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "6px" }}>
           Total Income
         </div>
-        <div style={{ fontSize: "36px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
+        <div style={{ fontSize: "30px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
           ${periodStats.projectedEarnings.toFixed(2)}
         </div>
         {periodStats.completedGigs > 0 && periodStats.projectedEarnings > 0 && (
@@ -924,11 +924,11 @@ export default function Dashboard() {
         {/* Completed / Pending split */}
         <div style={{ display: "flex", gap: "12px" }}>
           <div style={{ flex: 1, backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px" }}>
-            <div style={{ fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Completed</div>
+            <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>Completed</div>
             <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>${periodStats.totalReceived.toFixed(2)}</div>
           </div>
           <div style={{ flex: 1, backgroundColor: "#fafafa", borderRadius: "10px", padding: "12px" }}>
-            <div style={{ fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Pending</div>
+            <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>Pending</div>
             <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>
               ${Math.max(0, periodStats.projectedEarnings - periodStats.totalReceived).toFixed(2)}
             </div>
@@ -939,7 +939,7 @@ export default function Dashboard() {
       {/* Hint text */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 2px" }}>
         <span style={{ fontSize: "16px" }}>💡</span>
-        <span style={{ fontSize: "13px", color: "#6b7280" }}>Tap on each card below to see detailed breakdowns</span>
+        <span style={{ fontSize: "12px", color: "#6b7280" }}>Tap on each card below to see detailed breakdowns</span>
       </div>
 
       {/* Full-width stacked metric cards */}
@@ -951,8 +951,8 @@ export default function Dashboard() {
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Taxable Income</div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.actualEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Taxable Income</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.actualEarnings.toFixed(2)}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>After reimbursements &bull; {periodStats.completedGigs} completed gig{periodStats.completedGigs !== 1 ? "s" : ""}</div>
           </div>
           <DollarSign size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -964,8 +964,8 @@ export default function Dashboard() {
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expected Earnings</div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.projectedEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expected Earnings</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.projectedEarnings.toFixed(2)}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>From {periodStats.totalGigs} total gig{periodStats.totalGigs !== 1 ? "s" : ""} (includes upcoming)</div>
           </div>
           <TrendingUp size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -977,8 +977,8 @@ export default function Dashboard() {
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Tax Estimate</div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.estimatedTax.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Tax Estimate</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.estimatedTax.toFixed(2)}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Estimated tax liability</div>
           </div>
           <FileText size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -990,8 +990,8 @@ export default function Dashboard() {
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expenses</div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expenses</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toFixed(2)}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Total tracked expenses</div>
           </div>
           <Receipt size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -1018,7 +1018,7 @@ export default function Dashboard() {
             border: "none",
             borderRadius: "100px",
             padding: "14px 20px",
-            fontSize: "15px",
+            fontSize: "14px",
             fontWeight: 700,
             cursor: isGeneratingPDF ? "not-allowed" : "pointer",
             opacity: isGeneratingPDF ? 0.7 : 1,
