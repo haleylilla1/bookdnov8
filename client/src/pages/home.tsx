@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import CalendarView from "@/components/calendar-view";
 import SimpleGigForm from "@/components/simple-gig-form";
@@ -24,109 +24,133 @@ const CYAN = "#00b4d8";
 const NAVY = "#03045e";
 const GREEN = "#10b981";
 
-// Tooltip tour steps
+// Tooltip tour steps (4 tooltip steps + 1 completion modal)
 const TOUR_STEPS = [
   {
     id: "add-gig",
-    emoji: "👋",
-    title: "Start here",
+    title: "Start here 👋",
     body: "This is where you add a gig. Log any job in under a minute.",
-    anchor: "fab-add",
-    position: "top-right",
+    // Tooltip sits above the + FAB, caret points down-right toward it
+    tooltipStyle: { bottom: "230px", right: "12px", maxWidth: "275px" } as CSSProperties,
+    caretSide: "bottom-right" as const,
   },
   {
     id: "got-paid",
-    emoji: "💚",
-    title: "Getting paid? Tap this",
+    title: "Getting paid? Tap this 💚",
     body: "Once a client pays you, hit this button. Bookd will handle the rest — taxes, income tracking, all of it.",
-    anchor: "fab-paid",
-    position: "top-right",
+    // Tooltip sits above the $ FAB
+    tooltipStyle: { bottom: "310px", right: "12px", maxWidth: "275px" } as CSSProperties,
+    caretSide: "bottom-right" as const,
   },
   {
     id: "dashboard",
-    emoji: "📊",
     title: "Your dashboard is your home base",
     body: "Tap any card for a detailed breakdown of your income, taxes owed, and expenses. Everything in one place.",
-    anchor: "dashboard-tab",
-    position: "top-center",
+    // Tooltip centered, mid-screen
+    tooltipStyle: { bottom: "240px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
+    caretSide: "bottom-center" as const,
   },
   {
     id: "profile",
-    emoji: "👤",
     title: "One last thing",
     body: "Head to your profile anytime to update your tax rate and address. Keeping this accurate means better estimates for you.",
-    anchor: "profile-tab",
-    position: "top-right",
+    // Tooltip above the bottom nav, right-aligned toward Profile tab
+    tooltipStyle: { bottom: "90px", right: "12px", maxWidth: "275px" } as CSSProperties,
+    caretSide: "bottom-right" as const,
   },
 ];
 
-function TourOverlay({ step, total, onNext, onSkip }: {
+const TOTAL_TOOLTIP_STEPS = TOUR_STEPS.length;
+
+function Caret({ side }: { side: "bottom-right" | "bottom-center" | "bottom-left" }) {
+  const base: CSSProperties = {
+    position: "absolute",
+    width: 0,
+    height: 0,
+    borderLeft: "10px solid transparent",
+    borderRight: "10px solid transparent",
+    borderTop: `12px solid ${NAVY}`,
+  };
+  if (side === "bottom-right") return <div style={{ ...base, bottom: "-12px", right: "24px" }} />;
+  if (side === "bottom-left") return <div style={{ ...base, bottom: "-12px", left: "24px" }} />;
+  return <div style={{ ...base, bottom: "-12px", left: "50%", transform: "translateX(-50%)" }} />;
+}
+
+function TourOverlay({ step, onNext, onSkip }: {
   step: number;
-  total: number;
   onNext: () => void;
   onSkip: () => void;
 }) {
-  const s = TOUR_STEPS[step];
-  const isLast = step === total - 1;
+  const isCompletion = step === TOTAL_TOOLTIP_STEPS;
 
-  // Position the coach mark per step anchor
-  const getCoachPosition = (): React.CSSProperties => {
-    if (s.anchor === "fab-add") {
-      return { position: "fixed", bottom: "190px", right: "12px", maxWidth: "270px" };
-    }
-    if (s.anchor === "fab-paid") {
-      return { position: "fixed", bottom: "250px", right: "12px", maxWidth: "270px" };
-    }
-    if (s.anchor === "dashboard-tab") {
-      return { position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" };
-    }
-    if (s.anchor === "profile-tab") {
-      return { position: "fixed", bottom: "100px", right: "12px", maxWidth: "270px" };
-    }
-    return { position: "fixed", bottom: "120px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" };
-  };
+  // Final "You're all set!" modal
+  if (isCompletion) {
+    return (
+      <div
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.82)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px" }}
+        onClick={onNext}
+      >
+        <div
+          style={{ backgroundColor: NAVY, borderRadius: "24px", border: `2.5px solid ${CYAN}`, padding: "32px 28px", textAlign: "center", maxWidth: "340px", width: "100%" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ fontSize: "28px", marginBottom: "16px" }}>🎉</div>
+          <div style={{ fontSize: "22px", fontWeight: 800, color: "#ffffff", marginBottom: "14px", lineHeight: 1.25 }}>
+            You're all set!
+          </div>
+          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.75)", lineHeight: 1.65, marginBottom: "10px" }}>
+            Bookd will track every gig, every payment, and every dollar you're owed — so you can stay focused on the work you love.
+          </p>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", marginBottom: "28px", fontStyle: "italic" }}>
+            Thanks for supporting this app. — Haley
+          </p>
+          <button
+            style={{ width: "100%", backgroundColor: CYAN, color: "#ffffff", border: "none", borderRadius: "100px", padding: "16px", fontSize: "16px", fontWeight: 700, cursor: "pointer", minHeight: "unset" }}
+            onClick={onNext}
+          >
+            Let's go
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const s = TOUR_STEPS[step];
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(3,4,94,0.72)",
-        zIndex: 10000,
-      }}
+      style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }}
       onClick={onNext}
     >
-      {/* Coach mark — dark navy pill card */}
+      {/* Tooltip card */}
       <div
         style={{
-          ...getCoachPosition(),
+          ...s.tooltipStyle,
+          position: "fixed",
           zIndex: 10001,
           backgroundColor: NAVY,
           borderRadius: "20px",
           border: `2.5px solid ${CYAN}`,
           padding: "18px 20px 16px",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Emoji + title row */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-          <span style={{ fontSize: "22px", lineHeight: 1 }}>{s.emoji}</span>
-          <span style={{ fontSize: "16px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
-            {s.title}
-          </span>
+        {/* Title */}
+        <div style={{ fontSize: "15px", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.3 }}>
+          {s.title}
         </div>
 
-        {/* Body text */}
-        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "16px", marginLeft: "32px" }}>
+        {/* Body */}
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "16px", margin: "0 0 16px 0" }}>
           {s.body}
         </p>
 
-        {/* Footer row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginLeft: "32px" }}>
+        {/* Footer */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {/* Dot indicators */}
           <div style={{ display: "flex", gap: "5px" }}>
-            {Array.from({ length: total }).map((_, i) => (
+            {Array.from({ length: TOTAL_TOOLTIP_STEPS }).map((_, i) => (
               <div
                 key={i}
                 style={{
@@ -139,36 +163,13 @@ function TourOverlay({ step, total, onNext, onSkip }: {
               />
             ))}
           </div>
-
-          {/* Buttons */}
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            {!isLast && (
-              <button
-                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: "12px", cursor: "pointer", padding: "4px 6px", minHeight: "unset" }}
-                onClick={onSkip}
-              >
-                Skip
-              </button>
-            )}
-            <button
-              style={{
-                backgroundColor: CYAN,
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "100px",
-                padding: "7px 18px",
-                fontSize: "13px",
-                fontWeight: 700,
-                cursor: "pointer",
-                minHeight: "unset",
-                letterSpacing: "0.01em",
-              }}
-              onClick={onNext}
-            >
-              {isLast ? "Done ✓" : "Next →"}
-            </button>
-          </div>
+          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", cursor: "pointer" }} onClick={onNext}>
+            tap to continue
+          </span>
         </div>
+
+        {/* Caret arrow pointing toward target element */}
+        <Caret side={s.caretSide} />
       </div>
     </div>
   );
@@ -277,10 +278,12 @@ export default function Home() {
 
   const handleTourNext = () => {
     if (tourStep === null) return;
-    // Navigate to dashboard for step 2 (dashboard card) 
-    if (tourStep === 1) setCurrentScreen("dashboard");
-    if (tourStep === TOUR_STEPS.length - 1) {
+    // Step 3 (profile) navigates to profile tab so user sees it highlighted
+    if (tourStep === 3) setCurrentScreen("profile");
+    // Step TOTAL_TOOLTIP_STEPS is the completion modal — clicking "Let's go" dismisses tour
+    if (tourStep >= TOTAL_TOOLTIP_STEPS) {
       setTourStep(null);
+      setCurrentScreen("dashboard");
     } else {
       setTourStep(tourStep + 1);
     }
@@ -319,7 +322,6 @@ export default function Home() {
       {tourStep !== null && (
         <TourOverlay
           step={tourStep}
-          total={TOUR_STEPS.length}
           onNext={handleTourNext}
           onSkip={handleTourSkip}
         />
