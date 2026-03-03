@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import CalendarView from "@/components/calendar-view";
 import SimpleGigForm from "@/components/simple-gig-form";
 import AddExpenseForm from "@/components/add-expense-form";
@@ -12,7 +12,9 @@ import LegalFooter from "@/components/legal-footer";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Briefcase, Receipt, ChevronRight } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import type { Gig } from "@shared/schema";
+import { Plus, Briefcase, Receipt, ChevronRight, Check } from "lucide-react";
 
 export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expense-form" | "settings";
 
@@ -179,6 +181,57 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  // Got Paid sheet state
+  const [showGotPaidSheet, setShowGotPaidSheet] = useState(false);
+  const [gotPaidSheetVisible, setGotPaidSheetVisible] = useState(false);
+  const [selectedPendingGigId, setSelectedPendingGigId] = useState<number | null>(null);
+  const [gotPaidAmount, setGotPaidAmount] = useState("");
+
+  const openGotPaidSheet = () => {
+    setShowGotPaidSheet(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setGotPaidSheetVisible(true)));
+  };
+
+  const closeGotPaidSheet = () => {
+    setGotPaidSheetVisible(false);
+    setTimeout(() => {
+      setShowGotPaidSheet(false);
+      setSelectedPendingGigId(null);
+      setGotPaidAmount("");
+    }, 320);
+  };
+
+  const { data: gigsData } = useQuery<{ gigs: Gig[] }>({
+    queryKey: ["/api/gigs"],
+    enabled: !!user,
+  });
+  const pendingGigs = (gigsData?.gigs ?? []).filter((g) => g.status === "pending");
+
+  const gotPaidMutation = useMutation({
+    mutationFn: async ({ gigId, totalReceived, taxPercentage }: { gigId: number; totalReceived: number; taxPercentage: number }) => {
+      const response = await apiRequest("POST", `/api/gigs/${gigId}/got-paid`, {
+        totalReceived,
+        mileage: 0,
+        parkingSpent: 0,
+        parkingReimbursed: 0,
+        otherExpenses: [],
+        otherReimbursed: 0,
+        paymentMethod: "Other",
+        taxPercentage,
+      });
+      if (!response.ok) throw new Error("Failed to process payment");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
+      closeGotPaidSheet();
+      toast({ title: "Payment confirmed!", description: "Gig marked as paid." });
+    },
+    onError: () => {
+      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
+    },
+  });
+
   const { data: userData } = useQuery<any>({
     queryKey: ["/api/user"],
     enabled: !!user,
@@ -343,6 +396,151 @@ export default function Home() {
           </div>
         )}
 
+        {/* Got Paid Bottom Sheet */}
+        {showGotPaidSheet && (
+          <div className="lg:hidden">
+            {/* Backdrop */}
+            <div
+              style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 55, transition: "opacity 320ms ease", opacity: gotPaidSheetVisible ? 1 : 0 }}
+              onClick={closeGotPaidSheet}
+            />
+            {/* Sheet */}
+            <div style={{
+              position: "fixed",
+              bottom: 0,
+              left: "50%",
+              transform: gotPaidSheetVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(100%)",
+              transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+              width: "100%",
+              maxWidth: "480px",
+              backgroundColor: "#ffffff",
+              borderRadius: "20px 20px 0 0",
+              zIndex: 56,
+              paddingBottom: "max(env(safe-area-inset-bottom, 24px), 24px)",
+              maxHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+            }}>
+              {/* Grabber */}
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "4px", flexShrink: 0 }}>
+                <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#e5e7eb" }} />
+              </div>
+              {/* Header */}
+              <div style={{ padding: "12px 20px 16px", flexShrink: 0 }}>
+                <div style={{ fontSize: "20px", fontWeight: 600, color: "#111111" }}>Mark as Paid</div>
+                <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Confirm payment received for this gig</div>
+              </div>
+              {/* Gig list */}
+              <div style={{ overflowY: "auto", flex: 1, padding: "0 16px" }}>
+                {pendingGigs.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "32px 0", color: "#9B9B9B", fontSize: "14px" }}>
+                    No pending gigs right now
+                  </div>
+                ) : (
+                  pendingGigs.map((gig) => {
+                    const isSelected = selectedPendingGigId === gig.id;
+                    return (
+                      <div
+                        key={gig.id}
+                        style={{
+                          backgroundColor: "#F9F9F9",
+                          borderRadius: "14px",
+                          padding: "16px",
+                          marginBottom: "10px",
+                          cursor: "pointer",
+                          border: isSelected ? `1.5px solid ${GREEN}` : "1.5px solid transparent",
+                          transition: "border-color 200ms ease",
+                        }}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedPendingGigId(null);
+                            setGotPaidAmount("");
+                          } else {
+                            setSelectedPendingGigId(gig.id);
+                            setGotPaidAmount(String(gig.expectedPay ?? "0"));
+                          }
+                        }}
+                      >
+                        {/* Gig summary */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div>
+                            <div style={{ fontSize: "15px", fontWeight: 600, color: "#111111" }}>{gig.gigType || gig.eventName}</div>
+                            <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "2px" }}>{gig.clientName}</div>
+                          </div>
+                          <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toFixed(2)}</div>
+                        </div>
+                        {/* Expanded: amount input + confirm */}
+                        {isSelected && (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <div style={{ height: "1px", backgroundColor: "#F0F0F0", margin: "14px 0" }} />
+                            <div style={{ fontSize: "13px", color: "#9B9B9B", marginBottom: "8px" }}>Amount received</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+                              <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111" }}>$</span>
+                              <input
+                                type="number"
+                                inputMode="decimal"
+                                value={gotPaidAmount}
+                                onChange={(e) => setGotPaidAmount(e.target.value)}
+                                onFocus={(e) => e.target.select()}
+                                style={{
+                                  fontSize: "22px",
+                                  fontWeight: 600,
+                                  color: "#111111",
+                                  border: "none",
+                                  borderBottom: "2px solid #F0F0F0",
+                                  outline: "none",
+                                  background: "transparent",
+                                  width: "100%",
+                                  padding: "4px 0",
+                                }}
+                              />
+                            </div>
+                            <button
+                              disabled={gotPaidMutation.isPending}
+                              onClick={() => {
+                                const amount = parseFloat(gotPaidAmount);
+                                if (isNaN(amount) || amount < 0) return;
+                                gotPaidMutation.mutate({
+                                  gigId: gig.id,
+                                  totalReceived: amount,
+                                  taxPercentage: gig.taxPercentage ?? 25,
+                                });
+                              }}
+                              style={{
+                                width: "100%",
+                                height: "52px",
+                                borderRadius: "999px",
+                                backgroundColor: gotPaidMutation.isPending ? "#9ca3af" : GREEN,
+                                color: "#ffffff",
+                                fontSize: "15px",
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: gotPaidMutation.isPending ? "not-allowed" : "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "6px",
+                                transition: "background-color 150ms ease",
+                              }}
+                            >
+                              {gotPaidMutation.isPending ? "Processing…" : (
+                                <>
+                                  <Check size={16} />
+                                  Confirm Payment
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Floating Action Buttons — mobile only */}
         {isMainScreen && (
           <div className="lg:hidden" style={{ position: "fixed", bottom: "80px", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
@@ -351,8 +549,7 @@ export default function Home() {
               id="fab-paid"
               onClick={() => {
                 setFabOpen(false);
-                setCurrentScreen("calendar");
-                toast({ title: "Tap a gig to mark it as paid", description: "Open any gig from your calendar to log a payment." });
+                openGotPaidSheet();
               }}
               style={{
                 width: "64px",
