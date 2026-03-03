@@ -16,7 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { editExpenseSchema, type ExpenseFormData } from "@/lib/form-schemas";
 import { useFormErrorHandler } from "@/hooks/use-form-error-handler";
-import { ChevronLeft, ChevronRight, Edit2, Pencil, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Pencil, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2, Car } from "lucide-react";
 import { AmountField, MerchantField, BusinessPurposeField, CategoryField, DateField } from "@/components/ui/form-field-wrapper";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig, User, Expense } from "@shared/schema";
@@ -918,52 +918,6 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
         <div style={{ fontSize: "30px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
           ${periodStats.projectedEarnings.toFixed(2)}
         </div>
-        {/* Stat tiles: Mileage Deductions + Expense Deductions */}
-        {(() => {
-          const expData = getExpensesBreakdown();
-          const totalMileageDollars = expData.reduce((sum, g) => sum + g.mileageDeduction, 0);
-          const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.70) : 0;
-          const totalExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
-          return (
-            <>
-              <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
-                {/* Tile 1: Mileage Deductions */}
-                <div style={{ flex: 1, backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "16px", marginBottom: "2px" }}>🚗</span>
-                  <span style={{ fontSize: "11px", fontWeight: 400, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Mileage Deductions</span>
-                  <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111", lineHeight: 1.2 }}>${totalMileageDollars.toFixed(2)}</span>
-                  {totalMileageDollars > 0 ? (
-                    <span style={{ fontSize: "11px", color: "#9B9B9B" }}>across {totalMiles} miles driven</span>
-                  ) : (
-                    <span
-                      style={{ fontSize: "11px", color: "#00b4d8", cursor: "pointer" }}
-                      onClick={() => onOpenAddGig?.()}
-                    >None logged yet — tap to add</span>
-                  )}
-                </div>
-                {/* Tile 2: Expense Deductions */}
-                <div style={{ flex: 1, backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "16px", marginBottom: "2px" }}>🧾</span>
-                  <span style={{ fontSize: "11px", fontWeight: 400, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Expense Deductions</span>
-                  <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111", lineHeight: 1.2 }}>${totalExpenseDollars.toFixed(2)}</span>
-                  {totalExpenseDollars > 0 ? (
-                    <span style={{ fontSize: "11px", color: "#9B9B9B" }}>logged this period</span>
-                  ) : (
-                    <span
-                      style={{ fontSize: "11px", color: "#00b4d8", cursor: "pointer" }}
-                      onClick={() => onOpenAddExpense?.()}
-                    >None logged yet — tap to add</span>
-                  )}
-                </div>
-              </div>
-              {/* Motivational line */}
-              <div style={{ fontSize: "13px", color: "#9B9B9B", textAlign: "center", marginBottom: "16px" }}>
-                Every mile and receipt adds up. Keep logging. 💰
-              </div>
-            </>
-          );
-        })()}
-
         {/* Completed / Pending split */}
         <div style={{ display: "flex", gap: "12px" }}>
           <div style={{ flex: 1, backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px" }}>
@@ -978,6 +932,47 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
           </div>
         </div>
       </div>
+
+      {/* YOUR SAVINGS THIS MONTH — flush section */}
+      {(() => {
+        const expData = getExpensesBreakdown();
+        const totalMileageDollars = expData.reduce((sum, g) => sum + g.mileageDeduction, 0);
+        const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.70) : 0;
+        const totalExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
+        return (
+          <div style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #F0F0F0", padding: "16px", marginBottom: "12px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.8px", marginBottom: "12px" }}>
+              Your Savings This Month
+            </div>
+            <div style={{ display: "flex", width: "100%" }}>
+              {/* Left: Mileage */}
+              <div style={{ flex: 1, paddingRight: "16px" }}>
+                <Car size={18} color="#00b4d8" />
+                <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Mileage</div>
+                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalMileageDollars.toFixed(2)}</div>
+                {totalMileageDollars > 0 ? (
+                  <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>{totalMiles} miles driven</div>
+                ) : (
+                  <div style={{ fontSize: "12px", color: "#00b4d8", marginTop: "2px", cursor: "pointer" }} onClick={() => onOpenAddGig?.()}>None logged yet</div>
+                )}
+              </div>
+              {/* Vertical divider */}
+              <div style={{ width: "1px", backgroundColor: "#F0F0F0", alignSelf: "stretch" }} />
+              {/* Right: Expenses */}
+              <div style={{ flex: 1, paddingLeft: "16px" }}>
+                <Receipt size={18} color="#00b4d8" />
+                <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Expenses</div>
+                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalExpenseDollars.toFixed(2)}</div>
+                {totalExpenseDollars > 0 ? (
+                  <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>logged this period</div>
+                ) : (
+                  <div style={{ fontSize: "12px", color: "#00b4d8", marginTop: "2px", cursor: "pointer" }} onClick={() => onOpenAddExpense?.()}>None logged yet</div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Hint text */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 2px" }}>
