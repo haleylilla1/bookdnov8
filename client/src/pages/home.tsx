@@ -404,6 +404,7 @@ export default function Home() {
                 /* Multi-step Got Paid flow */
                 <GotPaidSheet
                   gig={gotPaidSelectedGig}
+                  homeAddress={userData?.homeAddress || ""}
                   onBack={() => setGotPaidSelectedGig(null)}
                   onSuccess={() => {
                     queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });

@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Check } from "lucide-react";
+import { ChevronLeft, Check, Navigation, Loader2 } from "lucide-react";
 import { BUSINESS_EXPENSE_CATEGORIES } from "@shared/schema";
+import { AddressAutocomplete } from "@/components/address-autocomplete";
 import type { Gig } from "@shared/schema";
 
 const GREEN = "#10b981";
+const CYAN = "#00b4d8";
 const IRS_RATE = 0.70;
 
 const PAYMENT_METHODS = [
@@ -29,29 +31,41 @@ interface OtherExpense {
 
 interface GotPaidSheetProps {
   gig: Gig;
+  homeAddress?: string;
   onBack: () => void;
   onSuccess: () => void;
 }
 
-export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetProps) {
+export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: GotPaidSheetProps) {
   const [step, setStep] = useState(1);
   const { toast } = useToast();
 
+  // Step 1: Amount
   const [totalReceived, setTotalReceived] = useState(
     String(Number(gig.expectedPay ?? 0).toFixed(2))
   );
   const [paymentMethod, setPaymentMethod] = useState("other");
 
+  // Step 2: Expenses
   const [hasParking, setHasParking] = useState(false);
   const [parkingSpent, setParkingSpent] = useState("");
   const [parkingReimbursed, setParkingReimbursed] = useState("");
-
   const [hasOtherExpenses, setHasOtherExpenses] = useState(false);
   const [otherExpenses, setOtherExpenses] = useState<OtherExpense[]>([
     { businessPurpose: "", amount: "", category: "Supplies" },
   ]);
 
-  const [miles, setMiles] = useState(String(gig.mileage ?? 0));
+  // Step 3: Mileage
+  const [startingAddress, setStartingAddress] = useState(homeAddress || "");
+  const [startingAddressFormatted, setStartingAddressFormatted] = useState(homeAddress || "");
+  const [gigAddressValue, setGigAddressValue] = useState((gig as any).gigAddress || "");
+  const [gigAddressFormatted, setGigAddressFormatted] = useState((gig as any).gigAddress || "");
+  const [miles, setMiles] = useState(String((gig as any).mileage ?? 0));
+  const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
+  const [mileageAutoCalculated, setMileageAutoCalculated] = useState(false);
+  const [manualMilesOverride, setManualMilesOverride] = useState(false);
+
+  // Step 4: Tax
   const [taxPct, setTaxPct] = useState(String(gig.taxPercentage ?? 25));
 
   const mileageDeduction = parseFloat(miles || "0") * IRS_RATE;
@@ -69,6 +83,36 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
     : [];
   const totalOtherExpenses = validOtherExpenses.reduce((sum, e) => sum + e.amount, 0);
 
+  // Auto-calculate mileage when both addresses are filled (and not manually overridden)
+  const calculateMileage = async (origin: string, destination: string) => {
+    if (!origin || !destination || origin.length < 5 || destination.length < 5) return;
+    setIsCalculatingMileage(true);
+    try {
+      const res = await apiRequest("POST", "/api/calculate-distance", {
+        startAddress: origin,
+        endAddress: destination,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const calculated = Math.round((data.distance || 0) * 10) / 10;
+        setMiles(String(calculated));
+        setMileageAutoCalculated(true);
+        setManualMilesOverride(false);
+      }
+    } catch {
+      // Silently fail — user can enter miles manually
+    } finally {
+      setIsCalculatingMileage(false);
+    }
+  };
+
+  // Recalculate whenever either formatted address changes (and user hasn't overridden)
+  useEffect(() => {
+    if (!manualMilesOverride && startingAddressFormatted && gigAddressFormatted) {
+      calculateMileage(startingAddressFormatted, gigAddressFormatted);
+    }
+  }, [startingAddressFormatted, gigAddressFormatted]);
+
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", `/api/gigs/${gig.id}/got-paid`, {
@@ -80,6 +124,8 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
         otherReimbursed: 0,
         paymentMethod,
         taxPercentage: parseFloat(taxPct || "25"),
+        gigAddress: gigAddressFormatted || gigAddressValue || undefined,
+        startingAddress: startingAddressFormatted || startingAddress || undefined,
       });
       if (!response.ok) throw new Error("Failed to process payment");
       return response.json();
@@ -96,6 +142,7 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
     },
   });
 
+  // ─── Shared styles ────────────────────────────────────────────────────────
   const questionStyle: React.CSSProperties = {
     fontSize: "20px",
     fontWeight: 600,
@@ -169,6 +216,7 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
     </div>
   );
 
+  // ─── Step content ─────────────────────────────────────────────────────────
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -325,7 +373,7 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
                 ))}
                 <button
                   onClick={() => setOtherExpenses([...otherExpenses, { businessPurpose: "", amount: "", category: "Supplies" }])}
-                  style={{ background: "none", border: "none", color: "#00b4d8", fontSize: "13px", fontWeight: 600, cursor: "pointer", padding: "6px 0" }}
+                  style={{ background: "none", border: "none", color: CYAN, fontSize: "13px", fontWeight: 600, cursor: "pointer", padding: "6px 0" }}
                 >
                   + Add another expense
                 </button>
@@ -338,26 +386,81 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
         return (
           <div>
             <div style={questionStyle}>How far did you drive?</div>
-            <div style={subStyle}>Enter total miles for this gig</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "16px" }}>
-              <input
-                type="number"
-                inputMode="decimal"
-                value={miles}
-                onChange={(e) => setMiles(e.target.value)}
-                onFocus={(e) => e.target.select()}
-                style={{ ...inputStyle, fontSize: "40px", fontWeight: 700, flex: 1 }}
-                autoFocus
+            <div style={subStyle}>Enter your addresses and we'll calculate the mileage</div>
+
+            {/* Starting address */}
+            <div style={{ marginBottom: "18px", position: "relative", zIndex: 20 }}>
+              <AddressAutocomplete
+                label="Starting from"
+                placeholder="Your home or starting location"
+                value={startingAddress}
+                onChange={(display, formatted) => {
+                  setStartingAddress(display);
+                  setStartingAddressFormatted(formatted || display);
+                  setManualMilesOverride(false);
+                  setMileageAutoCalculated(false);
+                }}
               />
-              <span style={{ fontSize: "20px", color: "#9B9B9B", fontWeight: 500, flexShrink: 0 }}>miles</span>
             </div>
-            {parseFloat(miles || "0") > 0 && (
-              <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginBottom: "20px" }}>
-                <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 500 }}>
-                  That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2025 IRS rate
+
+            {/* Gig address */}
+            <div style={{ marginBottom: "20px", position: "relative", zIndex: 10 }}>
+              <AddressAutocomplete
+                label="Gig location"
+                placeholder="Where was the gig?"
+                value={gigAddressValue}
+                onChange={(display, formatted) => {
+                  setGigAddressValue(display);
+                  setGigAddressFormatted(formatted || display);
+                  setManualMilesOverride(false);
+                  setMileageAutoCalculated(false);
+                }}
+              />
+            </div>
+
+            {/* Calculated miles display */}
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{ ...labelStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span>Miles driven</span>
+                {isCalculatingMileage && (
+                  <span style={{ display: "flex", alignItems: "center", gap: "4px", color: CYAN, fontSize: "11px", textTransform: "none", letterSpacing: 0 }}>
+                    <Loader2 size={11} className="animate-spin" />
+                    Calculating…
+                  </span>
+                )}
+                {mileageAutoCalculated && !isCalculatingMileage && (
+                  <span style={{ display: "flex", alignItems: "center", gap: "4px", color: GREEN, fontSize: "11px", textTransform: "none", letterSpacing: 0 }}>
+                    <Navigation size={11} />
+                    Auto-calculated
+                  </span>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={miles}
+                  onChange={(e) => {
+                    setMiles(e.target.value);
+                    setManualMilesOverride(true);
+                    setMileageAutoCalculated(false);
+                  }}
+                  onFocus={(e) => e.target.select()}
+                  style={{ ...inputStyle, fontSize: "36px", fontWeight: 700, flex: 1 }}
+                />
+                <span style={{ fontSize: "18px", color: "#9B9B9B", fontWeight: 500, flexShrink: 0 }}>miles</span>
+              </div>
+            </div>
+
+            {/* Deduction preview */}
+            {parseFloat(miles || "0") > 0 && !isCalculatingMileage && (
+              <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px" }}>
+                <span style={{ fontSize: "13px", color: GREEN, fontWeight: 500 }}>
+                  That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2025 IRS rate (70¢/mile)
                 </span>
               </div>
             )}
+
             <button
               onClick={() => { setMiles("0"); setStep(4); }}
               style={{ background: "none", border: "none", color: "#9B9B9B", fontSize: "13px", cursor: "pointer", padding: "4px 0" }}
@@ -396,14 +499,18 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
         const received = parseFloat(totalReceived || "0");
         const tax = received * (parseFloat(taxPct || "0") / 100);
         const netParking = totalParkingSpent - totalParkingReimbursed;
+        const milesNum = parseFloat(miles || "0");
 
         const rows: { label: string; value: string; highlight?: boolean }[] = [
-          { label: "Gig", value: gig.gigType || gig.eventName || "—" },
+          { label: "Gig", value: (gig as any).gigType || gig.eventName || "—" },
           { label: "Client", value: gig.clientName || "—" },
           { label: "Amount received", value: `$${received.toFixed(2)}`, highlight: true },
           { label: "Payment method", value: PAYMENT_METHODS.find((m) => m.value === paymentMethod)?.label ?? paymentMethod },
-          ...(parseFloat(miles || "0") > 0
-            ? [{ label: "Mileage deduction", value: `$${mileageDeduction.toFixed(2)}` }]
+          ...(milesNum > 0
+            ? [
+                { label: "Miles driven", value: `${milesNum} mi` },
+                { label: "Mileage deduction", value: `$${(milesNum * IRS_RATE).toFixed(2)}` },
+              ]
             : []),
           ...(netParking > 0
             ? [{ label: "Net parking cost", value: `$${netParking.toFixed(2)}` }]
@@ -497,17 +604,17 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
       <div style={{ padding: "8px 20px 0", flexShrink: 0 }}>
         <button
           onClick={handleNext}
-          disabled={isPending}
+          disabled={isPending || (step === 3 && isCalculatingMileage)}
           style={{
             width: "100%",
             height: "52px",
             borderRadius: "999px",
-            backgroundColor: isPending ? "#9ca3af" : isLastStep ? GREEN : "#111111",
+            backgroundColor: isPending || (step === 3 && isCalculatingMileage) ? "#9ca3af" : isLastStep ? GREEN : "#111111",
             color: "#ffffff",
             fontSize: "15px",
             fontWeight: 600,
             border: "none",
-            cursor: isPending ? "not-allowed" : "pointer",
+            cursor: isPending || (step === 3 && isCalculatingMileage) ? "not-allowed" : "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -517,6 +624,8 @@ export default function GotPaidSheet({ gig, onBack, onSuccess }: GotPaidSheetPro
         >
           {isPending
             ? "Confirming…"
+            : step === 3 && isCalculatingMileage
+            ? <><Loader2 size={15} className="animate-spin" />Calculating…</>
             : isLastStep
             ? <><Check size={16} />Confirm Payment</>
             : "Next →"}
