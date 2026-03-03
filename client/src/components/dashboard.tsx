@@ -789,46 +789,6 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
     );
   }
 
-  // Show message when no gigs are found for this period
-  if (!summaryLoading && summaryData?.totalGigs === 0 && user) {
-    return (
-      <div className="p-4 text-center space-y-4">
-        {/* Date Navigation - so user can navigate away */}
-        <div className="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigatePeriod("prev")}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          
-          <div className="text-center">
-            <div className="font-semibold text-lg text-gray-900">{getPeriodText()}</div>
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigatePeriod("next")}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-        
-        <h2 className="text-xl font-semibold text-gray-600">No Gigs Found</h2>
-        <p className="text-gray-500">You don't have any gigs for this time period.</p>
-        <Button 
-          onClick={() => window.location.href = '/'}
-          variant="default"
-        >
-          Add a Gig
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: "16px", paddingBottom: "160px", width: "100%", backgroundColor: "#f5f5f7", minHeight: "100vh" }}>
@@ -1157,9 +1117,6 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
                 </div>
               </motion.div>
             ))}
-            {getProjectedEarningsBreakdown().length === 0 && (
-              <p className="text-center text-gray-500 py-4">No gigs found</p>
-            )}
           </motion.div>
         </DialogContent>
       </Dialog>
