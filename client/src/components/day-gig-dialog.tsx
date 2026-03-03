@@ -137,10 +137,9 @@ export default function DayGigDialog({
                         onEdit(gig);
                         onOpenChange(false);
                       }}
-                      style={{ flex: 1, backgroundColor: "#ffffff", border: "1px solid #E8E8E8", borderRadius: "10px", padding: "10px 0", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", fontSize: "13px", fontWeight: 600, color: NAVY }}
+                      style={{ width: "38px", height: "38px", backgroundColor: "#ffffff", border: "1px solid #E8E8E8", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                     >
-                      <Edit2 size={14} color={NAVY} strokeWidth={2.5} />
-                      Edit
+                      <Edit2 size={15} color={NAVY} strokeWidth={2} />
                     </button>
                     <button
                       onClick={() => {
@@ -155,10 +154,9 @@ export default function DayGigDialog({
                         onOpenChange(false);
                       }}
                       disabled={isDeleting}
-                      style={{ flex: 1, backgroundColor: "#fff0f0", border: "1px solid #fecaca", borderRadius: "10px", padding: "10px 0", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", fontSize: "13px", fontWeight: 600, color: "#ef4444" }}
+                      style={{ width: "38px", height: "38px", backgroundColor: "#fff0f0", border: "1px solid #fecaca", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                     >
-                      <Trash2 size={14} color="#ef4444" strokeWidth={2.5} />
-                      Delete
+                      <Trash2 size={15} color="#ef4444" strokeWidth={2} />
                     </button>
                   </div>
                 </div>
