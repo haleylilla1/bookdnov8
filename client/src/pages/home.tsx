@@ -270,15 +270,15 @@ export default function Home() {
     }
   }, [userData]);
 
-  // Auto-start tour once after onboarding — keyed to the logged-in user so it never fires twice
+  // Auto-start tour on page load if a previous session flagged it as pending
   useEffect(() => {
     if (!user) return;
     const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
     if (localStorage.getItem(tourKey) === "pending") {
       localStorage.setItem(tourKey, "done");
-      setTourStep(0);
+      setTimeout(() => setTourStep(0), 350);
     }
-  }, [user]);
+  }, [user?.id]);
 
   const markTourDone = () => {
     if (!user) return;
@@ -289,15 +289,13 @@ export default function Home() {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-    // Mark tour as pending so it fires on next render with the user object ready
+    // Always mark the tour key so the useEffect also catches page-refresh case
     if (user) {
       const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
-      if (!localStorage.getItem(tourKey)) {
-        localStorage.setItem(tourKey, "pending");
-      }
+      localStorage.setItem(tourKey, "pending");
     }
-    // Also attempt to start immediately in case user is already available
-    setTourStep(0);
+    // Small delay so the onboarding overlay fully unmounts before tour renders
+    setTimeout(() => setTourStep(0), 350);
   };
 
   const handleTourNext = () => {
