@@ -1,46 +1,213 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { User, Plus, X, Percent, Edit2, Play } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronRight, Plus, X, LogOut } from "lucide-react";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/lib/replit-auth";
 import type { User as UserType } from "@shared/schema";
 
+const NAVY = "#03045e";
+const CYAN = "#00b4d8";
+
+function SectionLabel({ label, action }: { label: string; action?: { text: string; onClick: () => void } }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 4px", marginBottom: "8px", marginTop: "4px" }}>
+      <span style={{ fontSize: "14px", fontWeight: 600, color: "#111827" }}>{label}</span>
+      {action && (
+        <button
+          onClick={action.onClick}
+          style={{ background: "none", border: "none", cursor: "pointer", color: CYAN, fontSize: "14px", fontWeight: 600, padding: "2px 0", display: "flex", alignItems: "center", gap: "3px" }}
+        >
+          <Plus size={14} color={CYAN} />
+          {action.text}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function SettingsCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ backgroundColor: "#ffffff", borderRadius: "14px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", marginBottom: "20px" }}>
+      {children}
+    </div>
+  );
+}
+
+function SettingsRow({
+  label,
+  value,
+  subtitle,
+  chevron,
+  onClick,
+  last,
+}: {
+  label: string;
+  value?: string;
+  subtitle?: string;
+  chevron?: boolean;
+  onClick?: () => void;
+  last?: boolean;
+}) {
+  return (
+    <>
+      <button
+        onClick={onClick}
+        disabled={!onClick}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "15px 16px",
+          background: "none",
+          border: "none",
+          cursor: onClick ? "pointer" : "default",
+          textAlign: "left",
+          minHeight: "unset",
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: "15px", fontWeight: 500, color: "#111827" }}>{label}</div>
+          {subtitle && <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>{subtitle}</div>}
+        </div>
+        {value && <span style={{ fontSize: "14px", color: "#9ca3af", marginLeft: "12px", flexShrink: 0 }}>{value}</span>}
+        {chevron && <ChevronRight size={16} color="#d1d5db" style={{ marginLeft: "8px", flexShrink: 0 }} />}
+      </button>
+      {!last && <div style={{ height: "1px", backgroundColor: "#f3f4f6", marginLeft: "16px" }} />}
+    </>
+  );
+}
+
+function EditSheet({
+  open,
+  onClose,
+  title,
+  children,
+  onSave,
+  saving,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  onSave: () => void;
+  saving?: boolean;
+}) {
+  if (!open) return null;
+  return (
+    <div>
+      <div
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 60 }}
+        onClick={onClose}
+      />
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%",
+        maxWidth: "480px",
+        backgroundColor: "#ffffff",
+        borderRadius: "20px 20px 0 0",
+        zIndex: 61,
+        paddingBottom: "env(safe-area-inset-bottom, 24px)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px" }}>
+          <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#e5e7eb" }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 12px" }}>
+          <span style={{ fontSize: "17px", fontWeight: 700, color: "#111827" }}>{title}</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: "4px" }}>
+            <X size={20} />
+          </button>
+        </div>
+        <div style={{ padding: "0 20px 20px" }}>
+          {children}
+          <button
+            onClick={onSave}
+            disabled={saving}
+            style={{
+              width: "100%",
+              padding: "14px",
+              backgroundColor: saving ? "#9ca3af" : NAVY,
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "12px",
+              fontSize: "15px",
+              fontWeight: 600,
+              cursor: saving ? "not-allowed" : "pointer",
+              marginTop: "16px",
+            }}
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SheetInput({ label, value, onChange, placeholder, type = "text" }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <div style={{ marginBottom: "14px" }}>
+      <label style={{ fontSize: "12px", fontWeight: 500, color: "#6b7280", display: "block", marginBottom: "6px" }}>{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          width: "100%",
+          height: "48px",
+          fontSize: "16px",
+          padding: "12px 14px",
+          border: "1.5px solid #e5e7eb",
+          borderRadius: "10px",
+          backgroundColor: "#fafafa",
+          color: "#111827",
+          outline: "none",
+          boxSizing: "border-box",
+        }}
+      />
+    </div>
+  );
+}
+
+type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | null;
+
 export default function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState("");
-  const [editedTaxPercentage, setEditedTaxPercentage] = useState("");
-  const [editedHomeAddress, setEditedHomeAddress] = useState("");
-  const [editedBusinessName, setEditedBusinessName] = useState("");
-  const [editedBusinessAddress, setEditedBusinessAddress] = useState("");
-  const [editedBusinessPhone, setEditedBusinessPhone] = useState("");
-  const [editedBusinessEmail, setEditedBusinessEmail] = useState("");
-  const [newGigType, setNewGigType] = useState("");
-  const [isAddingGigType, setIsAddingGigType] = useState(false);
-  const [newClientName, setNewClientName] = useState("");
-  const [isAddingClient, setIsAddingClient] = useState(false);
-  const [showOnboardingDemo, setShowOnboardingDemo] = useState(false);
-  
   const { toast } = useToast();
+  const { logout } = useAuth();
   const queryClient = useQueryClient();
+
+  const [editModal, setEditModal] = useState<EditModal>(null);
+  const [showOnboardingDemo, setShowOnboardingDemo] = useState(false);
+
+  // Field state for each edit modal
+  const [editName, setEditName] = useState("");
+  const [editOldPassword, setEditOldPassword] = useState("");
+  const [editNewPassword, setEditNewPassword] = useState("");
+  const [editConfirmPassword, setEditConfirmPassword] = useState("");
+  const [editTaxRate, setEditTaxRate] = useState("");
+  const [editHomeAddress, setEditHomeAddress] = useState("");
+  const [editBusinessName, setEditBusinessName] = useState("");
+  const [editBusinessAddress, setEditBusinessAddress] = useState("");
+  const [editBusinessPhone, setEditBusinessPhone] = useState("");
+  const [editBusinessEmail, setEditBusinessEmail] = useState("");
+  const [newGigType, setNewGigType] = useState("");
 
   const { data: user, refetch: refetchUser } = useQuery<UserType>({
     queryKey: ["/api/user"],
   });
-
-
-
-  // Initialize form fields when user data loads
-  useEffect(() => {
-    if (user && !isEditing) {
-      // Pre-populate form fields with current user data for better UX
-    }
-  }, [user, isEditing]);
 
   const updateUserMutation = useMutation({
     mutationFn: async (userData: Partial<UserType>) => {
@@ -48,632 +215,273 @@ export default function Profile() {
       return response.json();
     },
     onSuccess: async (data) => {
-      // Clear React Query cache for user data
       queryClient.removeQueries({ queryKey: ["/api/user"] });
-      
-      // Set the updated data directly in cache to ensure immediate UI update
       queryClient.setQueryData(["/api/user"], data);
-      
-      // Force immediate refetch from server
       await refetchUser();
-      
-      toast({
-        title: "Success",
-        description: "Successfully added to your profile!",
-      });
-      setIsEditing(false);
-      setNewGigType("");
-      setIsAddingGigType(false);
-      setNewClientName("");
-      setIsAddingClient(false);
+      toast({ title: "Saved", description: "Your profile has been updated." });
+      setEditModal(null);
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update profile.", variant: "destructive" });
     },
   });
 
-  const handleStartEdit = () => {
-    setIsEditing(true);
-    setEditedName(user?.name || "");
-    setEditedTaxPercentage(user?.defaultTaxPercentage?.toString() || "23");
-    setEditedHomeAddress(user?.homeAddress || "");
-    setEditedBusinessName(user?.businessName || "");
-    setEditedBusinessAddress(user?.businessAddress || "");
-    setEditedBusinessPhone(user?.businessPhone || "");
-    setEditedBusinessEmail(user?.businessEmail || "");
+  const openEdit = (modal: EditModal) => {
+    if (modal === "name") setEditName(user?.name || "");
+    if (modal === "taxRate") setEditTaxRate(String(user?.defaultTaxPercentage ?? 23));
+    if (modal === "homeAddress") setEditHomeAddress(user?.homeAddress || "");
+    if (modal === "businessInfo") {
+      setEditBusinessName(user?.businessName || "");
+      setEditBusinessAddress(user?.businessAddress || "");
+      setEditBusinessPhone(user?.businessPhone || "");
+      setEditBusinessEmail(user?.businessEmail || "");
+    }
+    if (modal === "password") {
+      setEditOldPassword("");
+      setEditNewPassword("");
+      setEditConfirmPassword("");
+    }
+    if (modal === "addGigType") setNewGigType("");
+    setEditModal(modal);
   };
 
-  const handleSave = () => {
-    const taxPercentage = parseInt(editedTaxPercentage);
-    if (isNaN(taxPercentage) || taxPercentage < 0 || taxPercentage > 100) {
-      toast({
-        title: "Invalid Tax Percentage",
-        description: "Please enter a valid percentage between 0 and 100.",
-        variant: "destructive",
-      });
+  const saveName = () => {
+    if (!editName.trim()) return;
+    updateUserMutation.mutate({ name: editName.trim() });
+  };
+
+  const savePassword = async () => {
+    if (!editNewPassword || editNewPassword !== editConfirmPassword) {
+      toast({ title: "Error", description: "Passwords don't match.", variant: "destructive" });
       return;
     }
+    try {
+      await apiRequest("POST", "/api/auth/change-password", {
+        oldPassword: editOldPassword,
+        newPassword: editNewPassword,
+      });
+      toast({ title: "Password updated", description: "Your password has been changed." });
+      setEditModal(null);
+    } catch {
+      toast({ title: "Error", description: "Failed to change password.", variant: "destructive" });
+    }
+  };
 
+  const saveTaxRate = () => {
+    const val = parseInt(editTaxRate);
+    if (isNaN(val) || val < 0 || val > 100) {
+      toast({ title: "Invalid", description: "Tax rate must be 0–100.", variant: "destructive" });
+      return;
+    }
+    updateUserMutation.mutate({ defaultTaxPercentage: val });
+  };
+
+  const saveHomeAddress = () => {
+    updateUserMutation.mutate({ homeAddress: editHomeAddress });
+  };
+
+  const saveBusinessInfo = () => {
     updateUserMutation.mutate({
-      name: editedName,
-      defaultTaxPercentage: taxPercentage,
-      homeAddress: editedHomeAddress,
-      businessName: editedBusinessName,
-      businessAddress: editedBusinessAddress,
-      businessPhone: editedBusinessPhone,
-      businessEmail: editedBusinessEmail,
+      businessName: editBusinessName,
+      businessAddress: editBusinessAddress,
+      businessPhone: editBusinessPhone,
+      businessEmail: editBusinessEmail,
     });
   };
 
   const handleAddGigType = () => {
-    if (!newGigType.trim()) {
-      toast({
-        title: "Missing Gig Type",
-        description: "Please enter a gig type name.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+    if (!newGigType.trim()) return;
     const currentTypes = user?.customGigTypes || [];
-    const trimmedType = newGigType.trim();
-    
-    if (currentTypes.includes(trimmedType)) {
-      toast({
-        title: "Duplicate Gig Type",
-        description: "This gig type already exists.",
-        variant: "destructive",
-      });
+    if (currentTypes.includes(newGigType.trim())) {
+      toast({ title: "Duplicate", description: "This gig type already exists.", variant: "destructive" });
       return;
     }
-
-    // Add new gig type to user's custom list
-    
-    updateUserMutation.mutate({
-      customGigTypes: [...currentTypes, trimmedType],
-    });
+    updateUserMutation.mutate({ customGigTypes: [...currentTypes, newGigType.trim()] });
   };
 
-  const handleRemoveGigType = (gigTypeToRemove: string) => {
+  const handleRemoveGigType = (gigType: string) => {
     const currentTypes = user?.customGigTypes || [];
-    updateUserMutation.mutate({
-      customGigTypes: currentTypes.filter(type => type !== gigTypeToRemove),
-    });
-  };
-
-  const handleAddClient = () => {
-    if (!newClientName.trim()) {
-      toast({
-        title: "Missing Client Name",
-        description: "Please enter a client name.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const currentClients = (user?.workPreferences as any)?.preferredClients || [];
-    const trimmedClient = newClientName.trim();
-    
-    if (currentClients.includes(trimmedClient)) {
-      toast({
-        title: "Duplicate Client",
-        description: "This client already exists.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Add new client to user's preferred list
-    const updatedPreferences = {
-      ...(user?.workPreferences || {}),
-      preferredClients: [...currentClients, trimmedClient]
-    };
-    
-    updateUserMutation.mutate({
-      workPreferences: updatedPreferences,
-    });
-  };
-
-  const handleRemoveClient = (clientToRemove: string) => {
-    const currentClients = (user?.workPreferences as any)?.preferredClients || [];
-    const updatedPreferences = {
-      ...(user?.workPreferences || {}),
-      preferredClients: currentClients.filter((client: string) => client !== clientToRemove)
-    };
-    
-    updateUserMutation.mutate({
-      workPreferences: updatedPreferences,
-    });
+    updateUserMutation.mutate({ customGigTypes: currentTypes.filter(t => t !== gigType) });
   };
 
   if (!user) {
     return (
-      <div className="p-4">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
+      <div style={{ padding: "16px", backgroundColor: "#f5f7f5", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ height: "80px", borderRadius: "14px", backgroundColor: "#e5e7eb", animation: "pulse 1.5s infinite" }} />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Onboarding Demo */}
-      <OnboardingFlow 
+    <div style={{ padding: "16px", paddingBottom: "120px", backgroundColor: "#f5f7f5", minHeight: "100vh" }}>
+      <OnboardingFlow
         isOpen={showOnboardingDemo}
         onComplete={() => setShowOnboardingDemo(false)}
         onClose={() => setShowOnboardingDemo(false)}
       />
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            <User className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600">Manage your account settings</p>
-          </div>
-        </div>
-        {user?.email === 'haleylilla@gmail.com' && (
-          <Button 
-            variant="outline" 
-            onClick={() => setShowOnboardingDemo(true)}
-            className="px-4 py-2 h-auto flex items-center gap-2 pl-[38px] pr-[38px] text-sm"
-          >
-            <Play className="w-4 h-4" />
-            Demo Onboarding
-          </Button>
-        )}
+      {/* Page Title */}
+      <div style={{ marginBottom: "24px", paddingTop: "4px" }}>
+        <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>Settings</h1>
+        <p style={{ fontSize: "14px", color: "#9ca3af", margin: "4px 0 0" }}>Manage your account and preferences</p>
       </div>
 
-      {/* Basic Information */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg">Basic Information</CardTitle>
-          {!isEditing && (
-            <Button variant="ghost" size="sm" onClick={handleStartEdit}>
-              <Edit2 className="w-4 h-4" />
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {isEditing ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  placeholder="Enter your name"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="homeAddress">Home Address</Label>
-                <Input
-                  id="homeAddress"
-                  value={editedHomeAddress}
-                  onChange={(e) => setEditedHomeAddress(e.target.value)}
-                  placeholder="Enter your home address"
-                />
-                <p className="text-sm text-gray-600">
-                  Used to calculate distances and mileage to gig locations.
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="taxPercentage">Default Tax Percentage</Label>
-                <div className="relative">
-                  <Input
-                    id="taxPercentage"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={editedTaxPercentage}
-                    onChange={(e) => setEditedTaxPercentage(e.target.value)}
-                    placeholder="23"
-                    className="pr-8"
-                  />
-                  <Percent className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-                <p className="text-sm text-gray-600">
-                  This percentage will be used as default for new gigs.
-                </p>
-              </div>
+      {/* Account Settings */}
+      <SectionLabel label="Account Settings" />
+      <SettingsCard>
+        <SettingsRow
+          label="Name"
+          value={user.name || "Not set"}
+          onClick={() => openEdit("name")}
+        />
+        <SettingsRow
+          label="Email"
+          value={user.email}
+        />
+        <SettingsRow
+          label="Change Password"
+          chevron
+          onClick={() => openEdit("password")}
+          last
+        />
+      </SettingsCard>
 
-              {/* Business Information Section */}
-              <div className="pt-4 border-t">
-                <h3 className="text-md font-semibold mb-4">Business Information</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  These details will be used for your tax reports.
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="businessName">Business Name</Label>
-                    <Input
-                      id="businessName"
-                      value={editedBusinessName}
-                      onChange={(e) => setEditedBusinessName(e.target.value)}
-                      placeholder="Your business or freelance name"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="businessAddress">Business Address</Label>
-                    <Input
-                      id="businessAddress"
-                      value={editedBusinessAddress}
-                      onChange={(e) => setEditedBusinessAddress(e.target.value)}
-                      placeholder="Business address for tax reports"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="businessPhone">Business Phone</Label>
-                      <Input
-                        id="businessPhone"
-                        value={editedBusinessPhone}
-                        onChange={(e) => setEditedBusinessPhone(e.target.value)}
-                        placeholder="(555) 123-4567"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="businessEmail">Business Email</Label>
-                      <Input
-                        id="businessEmail"
-                        type="email"
-                        value={editedBusinessEmail}
-                        onChange={(e) => setEditedBusinessEmail(e.target.value)}
-                        placeholder="business@example.com"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button onClick={handleSave} disabled={updateUserMutation.isPending}>
-                  {updateUserMutation.isPending ? "Saving..." : "Save Changes"}
-                </Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs text-gray-500">Name</Label>
-                    <p className="text-gray-900 font-medium">{user.name || "Not set"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-500">Default Tax Rate</Label>
-                    <p className="text-gray-900 font-medium">{user.defaultTaxPercentage || 23}%</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label className="text-xs text-gray-500">Home Address</Label>
-                  <p className="text-gray-900">{user.homeAddress || "Not set"}</p>
-                  {user.homeAddress && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Used for mileage calculations
-                    </p>
-                  )}
-                </div>
-
-                {/* Business Information Display */}
-                <div className="pt-4 border-t">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-gray-900">Business Information</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <Label className="text-xs text-gray-500">Business Name</Label>
-                      <p className="text-gray-900">{user.businessName || "Not set"}</p>
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-500">Business Address</Label>
-                      <p className="text-gray-900">{user.businessAddress || "Not set"}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs text-gray-500">Business Phone</Label>
-                        <p className="text-gray-900">{user.businessPhone || "Not set"}</p>
-                      </div>
-                      <div>
-                        <Label className="text-xs text-gray-500">Business Email</Label>
-                        <p className="text-gray-900">{user.businessEmail || "Not set"}</p>
-                      </div>
-                    </div>
-                    {(user.businessName || user.businessAddress || user.businessPhone || user.businessEmail) && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Used in tax reports
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+      {/* Tax & Business */}
+      <SectionLabel label="Tax & Business" />
+      <SettingsCard>
+        <SettingsRow
+          label="Default Tax Rate"
+          value={`${user.defaultTaxPercentage ?? 23}%`}
+          onClick={() => openEdit("taxRate")}
+        />
+        <SettingsRow
+          label="Home Address"
+          subtitle="Used for mileage calculations"
+          chevron
+          onClick={() => openEdit("homeAddress")}
+        />
+        <SettingsRow
+          label="Business Information"
+          subtitle="Name, address, phone"
+          chevron
+          onClick={() => openEdit("businessInfo")}
+          last
+        />
+      </SettingsCard>
 
       {/* Gig Types */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="text-lg">Your Gig Types</CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Custom gig types for faster entry when logging gigs
-            </p>
-          </div>
-          <Dialog open={isAddingGigType} onOpenChange={setIsAddingGigType}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="px-4 py-2 h-auto text-sm">
-                <Plus className="w-4 h-4" />
-                Add Type
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Gig Type</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Gig Type Name</label>
-                  <input
-                    type="text"
-                    value={newGigType}
-                    onChange={(e) => setNewGigType(e.target.value)}
-                    placeholder="e.g., Brand Ambassador, Event Staff..."
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleAddGigType();
-                      }
-                    }}
-                    disabled={updateUserMutation.isPending}
-                    style={{
-                      width: '100%',
-                      height: '48px',
-                      fontSize: '16px',
-                      padding: '12px 16px',
-                      border: '2px solid #d1d5db',
-                      borderRadius: '6px',
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={handleAddGigType} 
-                    disabled={!newGigType.trim() || updateUserMutation.isPending}
-                    className="flex-1"
-                  >
-                    {updateUserMutation.isPending ? "Adding..." : "Add Type"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setIsAddingGigType(false);
-                      setNewGigType("");
-                    }}
-                    disabled={updateUserMutation.isPending}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {user.customGigTypes && user.customGigTypes.length > 0 ? (
-            <div className="space-y-2">
-              {user.customGigTypes.map((gigType, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+      <SectionLabel label="Your Gig Types" action={{ text: "Add", onClick: () => openEdit("addGigType") }} />
+      <SettingsCard>
+        {user.customGigTypes && user.customGigTypes.length > 0 ? (
+          user.customGigTypes.map((gigType, index) => (
+            <div key={index}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
+                <span style={{ fontSize: "15px", fontWeight: 500, color: "#111827" }}>{gigType}</span>
+                <button
+                  onClick={() => handleRemoveGigType(gigType)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: "4px", display: "flex", alignItems: "center" }}
                 >
-                  <span className="font-medium text-gray-900">{gigType}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveGigType(gigType)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-6 h-6 text-gray-400" />
+                  <X size={16} />
+                </button>
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">No Gig Types Added</h4>
-              <p className="text-gray-600 mb-4">
-                Add your common gig types for faster entry when logging gigs.
-              </p>
-              <Button onClick={() => setIsAddingGigType(true)}>
-                <Plus className="w-4 h-4" />
-                Add Your First Gig Type
-              </Button>
+              {index < user.customGigTypes!.length - 1 && (
+                <div style={{ height: "1px", backgroundColor: "#f3f4f6", marginLeft: "16px" }} />
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Preferred Clients Management */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="text-lg">Preferred Clients</CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Manage your frequently used clients for faster gig entry.
-            </p>
+          ))
+        ) : (
+          <div style={{ padding: "24px 16px", textAlign: "center" }}>
+            <p style={{ fontSize: "14px", color: "#9ca3af", margin: 0 }}>No gig types added yet</p>
+            <button
+              onClick={() => openEdit("addGigType")}
+              style={{ marginTop: "12px", color: CYAN, background: "none", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}
+            >
+              + Add your first gig type
+            </button>
           </div>
-          <Dialog open={isAddingClient} onOpenChange={setIsAddingClient}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="px-4 py-2 h-auto text-sm">
-                <Plus className="w-4 h-4" />
-                Add Client
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add New Client</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="clientName">Client Name</Label>
-                  <Input
-                    id="clientName"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="Enter client name"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleAddClient();
-                      }
-                    }}
-                    disabled={updateUserMutation.isPending}
-                    style={{
-                      width: '100%',
-                      height: '48px',
-                      fontSize: '16px',
-                      padding: '12px 16px',
-                      border: '2px solid #d1d5db',
-                      borderRadius: '6px',
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={handleAddClient} 
-                    disabled={!newClientName.trim() || updateUserMutation.isPending}
-                    className="flex-1"
-                  >
-                    {updateUserMutation.isPending ? "Adding..." : "Add Client"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setIsAddingClient(false);
-                      setNewClientName("");
-                    }}
-                    disabled={updateUserMutation.isPending}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {(user.workPreferences as any)?.preferredClients && (user.workPreferences as any).preferredClients.length > 0 ? (
-            <div className="space-y-2">
-              {(user.workPreferences as any).preferredClients.map((client: string, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <span className="font-medium text-gray-900">{client}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveClient(client)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-6 h-6 text-gray-400" />
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">No Clients Added</h4>
-              <p className="text-gray-600 mb-4">
-                Add your regular clients for faster selection when creating gigs.
-              </p>
-              <Button onClick={() => setIsAddingClient(true)}>
-                <Plus className="w-4 h-4" />
-                Add Your First Client
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </SettingsCard>
 
-      
-
-      {/* Legal Documents Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Legal & Support</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium text-gray-900">Privacy Policy</span>
-              <a 
-                href="/privacy-policy" 
-                target="_blank"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                View →
-              </a>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium text-gray-900">Terms of Service</span>
-              <a 
-                href="/terms-of-service" 
-                target="_blank"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                View →
-              </a>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Demo Onboarding */}
-      {showOnboardingDemo && (
-        <OnboardingFlow
-          isOpen={showOnboardingDemo}
-          onComplete={() => setShowOnboardingDemo(false)}
-          onClose={() => setShowOnboardingDemo(false)}
+      {/* Sign Out */}
+      <SettingsCard>
+        <SettingsRow
+          label="Sign Out"
+          onClick={() => logout()}
+          last
         />
+      </SettingsCard>
+
+      {user?.email === 'haleylilla@gmail.com' && (
+        <div style={{ marginBottom: "16px" }}>
+          <button
+            onClick={() => setShowOnboardingDemo(true)}
+            style={{ width: "100%", padding: "14px", backgroundColor: "#ffffff", color: "#6b7280", border: "1px solid #e5e7eb", borderRadius: "14px", fontSize: "14px", cursor: "pointer" }}
+          >
+            Demo Onboarding
+          </button>
+        </div>
       )}
+
+      {/* Edit Name Sheet */}
+      <EditSheet open={editModal === "name"} onClose={() => setEditModal(null)} title="Edit Name" onSave={saveName} saving={updateUserMutation.isPending}>
+        <SheetInput label="Full Name" value={editName} onChange={setEditName} placeholder="Your full name" />
+      </EditSheet>
+
+      {/* Change Password Sheet */}
+      <EditSheet open={editModal === "password"} onClose={() => setEditModal(null)} title="Change Password" onSave={savePassword}>
+        <SheetInput label="Current Password" type="password" value={editOldPassword} onChange={setEditOldPassword} placeholder="Enter current password" />
+        <SheetInput label="New Password" type="password" value={editNewPassword} onChange={setEditNewPassword} placeholder="Enter new password" />
+        <SheetInput label="Confirm New Password" type="password" value={editConfirmPassword} onChange={setEditConfirmPassword} placeholder="Confirm new password" />
+      </EditSheet>
+
+      {/* Tax Rate Sheet */}
+      <EditSheet open={editModal === "taxRate"} onClose={() => setEditModal(null)} title="Default Tax Rate" onSave={saveTaxRate} saving={updateUserMutation.isPending}>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <div style={{ fontSize: "48px", fontWeight: 700, color: NAVY }}>{editTaxRate || 0}%</div>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={50}
+          step={1}
+          value={editTaxRate}
+          onChange={(e) => setEditTaxRate(e.target.value)}
+          style={{ width: "100%", accentColor: CYAN }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>
+          <span>0%</span>
+          <span>50%</span>
+        </div>
+        <div style={{ marginTop: "14px", padding: "12px", backgroundColor: "#fffbeb", borderRadius: "10px", border: "1px solid #fde68a" }}>
+          <p style={{ fontSize: "12px", color: "#92400e", margin: 0 }}>
+            ⚠️ This is your personal estimate. Bookd does not provide tax advice. Consult a tax professional for your accurate rate.
+          </p>
+        </div>
+      </EditSheet>
+
+      {/* Home Address Sheet */}
+      <EditSheet open={editModal === "homeAddress"} onClose={() => setEditModal(null)} title="Home Address" onSave={saveHomeAddress} saving={updateUserMutation.isPending}>
+        <SheetInput label="Home Address" value={editHomeAddress} onChange={setEditHomeAddress} placeholder="123 Main St, City, State 12345" />
+        <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "-6px" }}>Used as starting point for mileage calculations</p>
+      </EditSheet>
+
+      {/* Business Info Sheet */}
+      <EditSheet open={editModal === "businessInfo"} onClose={() => setEditModal(null)} title="Business Information" onSave={saveBusinessInfo} saving={updateUserMutation.isPending}>
+        <SheetInput label="Business Name" value={editBusinessName} onChange={setEditBusinessName} placeholder="Your business or freelance name" />
+        <SheetInput label="Business Address" value={editBusinessAddress} onChange={setEditBusinessAddress} placeholder="Business address" />
+        <SheetInput label="Business Phone" value={editBusinessPhone} onChange={setEditBusinessPhone} placeholder="(555) 123-4567" />
+        <SheetInput label="Business Email" type="email" value={editBusinessEmail} onChange={setEditBusinessEmail} placeholder="business@example.com" />
+        <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "-6px" }}>Used in your income reports and tax documents</p>
+      </EditSheet>
+
+      {/* Add Gig Type Sheet */}
+      <EditSheet open={editModal === "addGigType"} onClose={() => setEditModal(null)} title="Add Gig Type" onSave={handleAddGigType} saving={updateUserMutation.isPending}>
+        <SheetInput label="Gig Type Name" value={newGigType} onChange={setNewGigType} placeholder="e.g., Brand Ambassador, Photographer…" />
+      </EditSheet>
     </div>
   );
 }
