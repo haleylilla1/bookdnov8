@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft, TrendingUp, PiggyBank, Car } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
 import { sanitizeEmail, sanitizeText } from "@/utils/validation";
 
@@ -187,33 +187,53 @@ export default function AuthForm() {
 
         {/* WELCOME SCREEN */}
         {mode === "welcome" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0" }}>
-            <img src={logoImage} alt="bookd" style={{ height: "40px", objectFit: "contain", marginBottom: "48px" }} />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <img src={logoImage} alt="bookd" style={{ height: "36px", objectFit: "contain", marginBottom: "28px" }} />
 
-            <h1 style={{ fontSize: "28px", fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: "12px", lineHeight: 1.2 }}>
-              Welcome to Bookd
+            <h1 style={{ fontSize: "26px", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: "4px", lineHeight: 1.25 }}>
+              Welcome to the
             </h1>
-            <div style={{ textAlign: "center", marginBottom: "40px" }}>
-              <p style={{ fontSize: "16px", fontWeight: 700, color: NAVY, marginBottom: "10px" }}>
-                Hey, I'm Haley! 👋
-              </p>
-              <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.65, marginBottom: "12px" }}>
-                After six years as an independent gig-based creative — and one too many messy spreadsheets — I built Bookd because the tools out there just don't match our workflow.
-              </p>
-              <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.65, marginBottom: "14px" }}>
-                Inside, you'll track and project your income, know exactly what to set aside for taxes, and maximize deductions through mileage and expense tracking.
-              </p>
-              <p style={{ fontSize: "14px", fontWeight: 600, color: CYAN, lineHeight: 1.5 }}>
-                Thanks for downloading — let's go get bookd!
-              </p>
+            <h1 style={{ fontSize: "26px", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: "24px", lineHeight: 1.25 }}>
+              all-in-one freelancer <span style={{ color: CYAN }}>financial tool</span>
+            </h1>
+
+            <div style={{ width: "40px", height: "2px", backgroundColor: "#e5e7eb", marginBottom: "24px", borderRadius: "2px" }} />
+
+            <p style={{ fontSize: "15px", fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: "10px" }}>
+              Hey, I'm Haley! 👋
+            </p>
+            <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", lineHeight: 1.7, marginBottom: "24px" }}>
+              After six years as an independent gig-based creative — and one too many messy spreadsheets — I built <strong style={{ color: NAVY }}>Bookd</strong> because the tools out there just don't match our workflow.
+            </p>
+
+            <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+              {[
+                { icon: <TrendingUp size={18} color="#fff" />, title: "Track & project income", sub: "Know exactly where you stand" },
+                { icon: <PiggyBank size={18} color="#fff" />, title: "Smart tax set-asides", sub: "No more surprise tax bills" },
+                { icon: <Car size={18} color="#fff" />, title: "Mileage & expense tracking", sub: "Maximize every deduction" },
+              ].map(({ icon, title, sub }) => (
+                <div key={title} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", borderRadius: "14px", border: "1.5px solid #f0f0f0", backgroundColor: "#fafafa" }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: CYAN, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: NAVY }}>{title}</div>
+                    <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>{sub}</div>
+                  </div>
+                </div>
+              ))}
             </div>
+
+            <p style={{ fontSize: "13px", fontStyle: "italic", color: "#9B9B9B", textAlign: "center", marginBottom: "24px" }}>
+              Thanks for downloading — let's go get bookd!
+            </p>
 
             <button style={btnPrimary} onClick={() => setMode("register")}>
               Get started
             </button>
 
             <button
-              style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "20px", cursor: "pointer", padding: "8px" }}
+              style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "16px", cursor: "pointer", padding: "8px" }}
               onClick={() => setMode("login")}
             >
               Already have an account?{" "}
