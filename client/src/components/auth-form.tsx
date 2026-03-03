@@ -107,7 +107,11 @@ export default function AuthForm() {
       }
       return res.json();
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['/api/user'] }); },
+    onSuccess: (data: any) => {
+      const userData = data?.user ?? data;
+      if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    },
     onError: (e: any) => toast({ title: "Login failed", description: e.message === "Invalid credentials" ? "Wrong email or password." : e.message, variant: "destructive" }),
   });
 
@@ -131,7 +135,11 @@ export default function AuthForm() {
       }
       return res.json();
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['/api/user'] }); },
+    onSuccess: (data: any) => {
+      const userData = data?.user ?? data;
+      if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    },
     onError: (e: any) => toast({ title: "Sign up failed", description: e.message, variant: "destructive" }),
   });
 
