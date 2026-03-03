@@ -203,7 +203,7 @@ export default function AuthForm() {
               Hey, I'm Haley! 👋
             </p>
             <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", lineHeight: 1.7, marginBottom: "24px" }}>
-              After six years as an independent gig-based creative — and one too many messy spreadsheets — I built <strong style={{ color: NAVY }}>Bookd</strong> because the tools out there just don't match our workflow.
+              After six years of gig work and one too many messy spreadsheets, I built <strong style={{ color: NAVY }}>Bookd</strong> because nothing out there was made for us. Brand ambassadors, actors, creatives, dog walkers, mystery shoppers, dancers, tour guides — if you hustle gig to gig, this was built for you!
             </p>
 
             <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
