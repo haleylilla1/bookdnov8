@@ -182,7 +182,7 @@ function SheetInput({ label, value, onChange, placeholder, type = "text" }: {
   );
 }
 
-type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | null;
+type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | "addClient" | null;
 
 export default function Profile() {
   const { toast } = useToast();
@@ -204,6 +204,7 @@ export default function Profile() {
   const [editBusinessPhone, setEditBusinessPhone] = useState("");
   const [editBusinessEmail, setEditBusinessEmail] = useState("");
   const [newGigType, setNewGigType] = useState("");
+  const [newClientName, setNewClientName] = useState("");
 
   const { data: user, refetch: refetchUser } = useQuery<UserType>({
     queryKey: ["/api/user"],
@@ -242,6 +243,7 @@ export default function Profile() {
       setEditConfirmPassword("");
     }
     if (modal === "addGigType") setNewGigType("");
+    if (modal === "addClient") setNewClientName("");
     setEditModal(modal);
   };
 
@@ -302,6 +304,25 @@ export default function Profile() {
   const handleRemoveGigType = (gigType: string) => {
     const currentTypes = user?.customGigTypes || [];
     updateUserMutation.mutate({ customGigTypes: currentTypes.filter(t => t !== gigType) });
+  };
+
+  const preferredClients: string[] = (user?.workPreferences as any)?.preferredClients || [];
+
+  const handleAddClient = () => {
+    if (!newClientName.trim()) return;
+    if (preferredClients.includes(newClientName.trim())) {
+      toast({ title: "Duplicate", description: "This client already exists.", variant: "destructive" });
+      return;
+    }
+    updateUserMutation.mutate({
+      workPreferences: { ...(user?.workPreferences as any || {}), preferredClients: [...preferredClients, newClientName.trim()] },
+    });
+  };
+
+  const handleRemoveClient = (client: string) => {
+    updateUserMutation.mutate({
+      workPreferences: { ...(user?.workPreferences as any || {}), preferredClients: preferredClients.filter(c => c !== client) },
+    });
   };
 
   if (!user) {
@@ -406,6 +427,39 @@ export default function Profile() {
         )}
       </SettingsCard>
 
+      {/* Preferred Clients */}
+      <SectionLabel label="Preferred Clients" action={{ text: "Add", onClick: () => openEdit("addClient") }} />
+      <SettingsCard>
+        {preferredClients.length > 0 ? (
+          preferredClients.map((client, index) => (
+            <div key={index}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
+                <span style={{ fontSize: "15px", fontWeight: 500, color: "#111827" }}>{client}</span>
+                <button
+                  onClick={() => handleRemoveClient(client)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: "4px", display: "flex", alignItems: "center" }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              {index < preferredClients.length - 1 && (
+                <div style={{ height: "1px", backgroundColor: "#f3f4f6", marginLeft: "16px" }} />
+              )}
+            </div>
+          ))
+        ) : (
+          <div style={{ padding: "24px 16px", textAlign: "center" }}>
+            <p style={{ fontSize: "14px", color: "#9ca3af", margin: 0 }}>No clients added yet</p>
+            <button
+              onClick={() => openEdit("addClient")}
+              style={{ marginTop: "12px", color: CYAN, background: "none", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}
+            >
+              + Add your first client
+            </button>
+          </div>
+        )}
+      </SettingsCard>
+
       {/* Sign Out */}
       <SettingsCard>
         <SettingsRow
@@ -481,6 +535,11 @@ export default function Profile() {
       {/* Add Gig Type Sheet */}
       <EditSheet open={editModal === "addGigType"} onClose={() => setEditModal(null)} title="Add Gig Type" onSave={handleAddGigType} saving={updateUserMutation.isPending}>
         <SheetInput label="Gig Type Name" value={newGigType} onChange={setNewGigType} placeholder="e.g., Brand Ambassador, Photographer…" />
+      </EditSheet>
+
+      {/* Add Client Sheet */}
+      <EditSheet open={editModal === "addClient"} onClose={() => setEditModal(null)} title="Add Client" onSave={handleAddClient} saving={updateUserMutation.isPending}>
+        <SheetInput label="Client Name" value={newClientName} onChange={setNewClientName} placeholder="e.g., ABC Agency, John Smith…" />
       </EditSheet>
     </div>
   );
