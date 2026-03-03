@@ -1,0 +1,38 @@
+Please restyle the gig cards to exactly match my Figma design. The cards are currently too large. Here are the precise specs — do not deviate from any measurement:
+CARD CONTAINER
+Background: #FFFFFF
+Border: 1px solid #F0F0F0
+Border radius: 12px
+Padding: 14px 16px
+Margin bottom: 8px
+No drop shadow
+Width: 100% minus 32px total horizontal page margin (16px each side)
+ROW 1 — Gig name + Status pill + Three dot menu
+Display: flex, justify-content space-between, align-items center
+Height: auto, no fixed height
+Gig name: 15px, font-weight 600, color #111111
+Status pill: border 1px solid, border-radius 999px, padding 3px 10px, font-size 11px, font-weight 500, no background fill
+Upcoming pill: border color #9B9B9B, text color #9B9B9B
+Pending Payment pill: border color #F5A623, text color #F5A623
+Completed: no pill, replaced by small green checkmark + 'Paid' text
+Three dot menu ⋮: color #C0C0C0, font-size 16px, margin-left 6px
+ROW 2 — Date + Client name
+Display: flex, justify-content space-between, align-items center
+Margin top: 4px
+Date: 12px, font-weight 400, color #9B9B9B
+Client name: 12px, font-weight 400, color #9B9B9B, text-align right
+DIVIDER
+1px solid #F5F5F5, margin top 10px, margin bottom 10px
+ROW 3 — Amount + CTA
+Display: flex, justify-content space-between, align-items center
+Amount: 17px, font-weight 600, color #111111
+CTA by status:
+Upcoming — text only, 'Edit', 13px, font-weight 500, color #9B9B9B, no button shape, no border, no background
+Pending Payment — filled pill button, background #111111, text white, font-size 13px, font-weight 600, padding 8px 18px, border-radius 999px, text reads 'Got Paid'
+Completed — no CTA at all, row 3 just shows the amount with nothing on the right
+CRITICAL — what is making the cards too big right now
+Do not add any min-height to the card or any of its rows
+Do not add padding greater than 14px top and bottom
+Do not add margin greater than 8px between cards
+The card height should be determined entirely by its content, never by a fixed or minimum height value
+Remove any existing min-height or fixed height declarations on the card container and all child rows

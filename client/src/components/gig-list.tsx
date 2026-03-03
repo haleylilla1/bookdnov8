@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Calendar, MoreVertical } from "lucide-react";
+import { Calendar, MoreVertical, Check } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Gig } from "@shared/schema";
 
@@ -17,40 +17,27 @@ interface GigListProps {
   isDeleting: boolean;
 }
 
-const NAVY = "#03045e";
-const AMBER = "#d97706";
-
-function statusBadgeStyle(status: string): React.CSSProperties {
-  const base: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    borderRadius: "100px",
-    padding: "3px 9px",
-    fontSize: "10px",
-    fontWeight: 500,
-    border: "1.5px solid",
-    background: "transparent",
-    whiteSpace: "nowrap",
-  };
-  switch (status) {
-    case "completed":
-      return { ...base, borderColor: "#10b981", color: "#10b981" };
-    case "pending_payment":
-    case "pending payment":
-      return { ...base, borderColor: AMBER, color: AMBER };
-    default:
-      return { ...base, borderColor: "#6b7280", color: "#374151" };
+function StatusPill({ status }: { status: string }) {
+  if (status === "completed") {
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 500, color: "#10b981" }}>
+        <Check size={12} strokeWidth={2.5} />
+        Paid
+      </span>
+    );
   }
-}
-
-function statusLabel(status: string) {
-  switch (status) {
-    case "completed": return "Completed";
-    case "pending_payment":
-    case "pending payment": return "Pending Payment";
-    case "upcoming": return "Upcoming";
-    default: return status;
+  if (status === "pending_payment" || status === "pending payment") {
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "999px", padding: "3px 10px", fontSize: "11px", fontWeight: 500, border: "1px solid #F5A623", color: "#F5A623", background: "transparent", whiteSpace: "nowrap" }}>
+        Pending Payment
+      </span>
+    );
   }
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "999px", padding: "3px 10px", fontSize: "11px", fontWeight: 500, border: "1px solid #9B9B9B", color: "#9B9B9B", background: "transparent", whiteSpace: "nowrap" }}>
+      Upcoming
+    </span>
+  );
 }
 
 function GigCard({
@@ -80,28 +67,34 @@ function GigCard({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
-  const isPending =
-    gig.status === "pending payment" || gig.status === "pending_payment";
+  const isPending = gig.status === "pending payment" || gig.status === "pending_payment";
   const isCompleted = gig.status === "completed";
+  const isUpcoming = !isPending && !isCompleted;
 
   const dateStr = gig.isMultiDay
     ? `${formatDate(gig.startDate!)} – ${formatDate(gig.endDate!)}`
     : formatDate(gig.date);
 
   return (
-    <div style={{ background: "#fff", borderRadius: "14px", padding: "16px 18px", marginBottom: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+    <div style={{
+      background: "#FFFFFF",
+      border: "1px solid #F0F0F0",
+      borderRadius: "12px",
+      padding: "14px 16px",
+      marginBottom: "8px",
+    }}>
 
-      {/* Row 1: gig name (left) + status badge + three-dot menu (right) */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: "12px" }}>
-        <p style={{ fontWeight: 600, fontSize: "15px", color: "#111827", margin: 0, lineHeight: 1.25, flex: 1, minWidth: 0 }}>
+      {/* Row 1: gig name + status pill + three-dot menu */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontWeight: 600, fontSize: "15px", color: "#111111", margin: 0, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: "8px" }}>
           {gig.eventName}
         </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={statusBadgeStyle(gig.status)}>{statusLabel(gig.status)}</span>
-          <div ref={menuRef} style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <StatusPill status={gig.status} />
+          <div ref={menuRef} style={{ position: "relative", marginLeft: "6px" }}>
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#9ca3af", display: "flex", alignItems: "center" }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#C0C0C0", display: "flex", alignItems: "center" }}
             >
               <MoreVertical size={16} />
             </button>
@@ -131,42 +124,40 @@ function GigCard({
         </div>
       </div>
 
-      {/* Row 2: date (left) + client/agency (right) — same row, 12px gray */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-        <span style={{ fontSize: "12px", color: "#9ca3af" }}>{dateStr}</span>
+      {/* Row 2: date (left) + client name (right) */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
+        <span style={{ fontSize: "12px", fontWeight: 400, color: "#9B9B9B" }}>{dateStr}</span>
         {gig.clientName && (
-          <span style={{ fontSize: "12px", color: "#9ca3af" }}>{gig.clientName}</span>
+          <span style={{ fontSize: "12px", fontWeight: 400, color: "#9B9B9B", textAlign: "right" }}>{gig.clientName}</span>
         )}
       </div>
 
-      {/* Row 3: amount + action — separated by top border with 14px padding above */}
-      <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontWeight: 600, fontSize: "17px", color: "#111827", margin: 0 }}>
+      {/* Divider */}
+      <div style={{ borderTop: "1px solid #F5F5F5", marginTop: "10px", marginBottom: "10px" }} />
+
+      {/* Row 3: amount + CTA */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontWeight: 600, fontSize: "17px", color: "#111111", margin: 0 }}>
           {gig.expectedPay ? formatCurrency(parseFloat(gig.expectedPay)) : "—"}
         </p>
 
-        {isPending ? (
+        {isPending && (
           <button
             onClick={() => onGotPaid(gig)}
-            style={{ background: NAVY, color: "#fff", border: "none", borderRadius: "100px", padding: "6px 12px", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}
+            style={{ background: "#111111", color: "#fff", border: "none", borderRadius: "999px", padding: "8px 18px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}
           >
             Got Paid
           </button>
-        ) : !isCompleted ? (
-          <button
-            onClick={() => onGotPaid(gig)}
-            style={{ background: NAVY, color: "#fff", border: "none", borderRadius: "100px", padding: "6px 12px", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}
-          >
-            Got Paid
-          </button>
-        ) : (
+        )}
+        {isUpcoming && (
           <button
             onClick={() => onEdit(gig)}
-            style={{ background: "none", border: "none", color: "#6b7280", fontSize: "13px", fontWeight: 500, cursor: "pointer", padding: "4px 0" }}
+            style={{ background: "none", border: "none", color: "#9B9B9B", fontSize: "13px", fontWeight: 500, cursor: "pointer", padding: 0 }}
           >
             Edit
           </button>
         )}
+        {/* Completed: no CTA */}
       </div>
     </div>
   );
