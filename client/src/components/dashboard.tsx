@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,7 @@ const getCurrentQuarter = (date: Date): number => {
 };
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("monthly");
   const [editingGoal, setEditingGoal] = useState<"monthly" | "quarterly" | "annual" | null>(null);
   const [goalAmount, setGoalAmount] = useState("");
@@ -916,7 +918,7 @@ export default function Dashboard() {
           return (
             <>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#6b7280" }}>Completed {Math.round(pct)}%</span>
+                <span style={{ fontSize: "12px", color: "#111111" }}>Completed {Math.round(pct)}%</span>
               </div>
               <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "#f3f4f6", marginBottom: "16px", overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${pct}%`, borderRadius: "3px", backgroundColor: "#00b4d8", transition: "width 0.4s ease" }} />
@@ -943,7 +945,7 @@ export default function Dashboard() {
       {/* Hint text */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 2px" }}>
         <span style={{ fontSize: "16px" }}>💡</span>
-        <span style={{ fontSize: "12px", color: "#6b7280" }}>Tap on each card below to see detailed breakdowns</span>
+        <span style={{ fontSize: "12px", color: "#111111" }}>Tap on each card below to see detailed breakdowns</span>
       </div>
 
       {/* Full-width stacked metric cards */}
@@ -1044,8 +1046,8 @@ export default function Dashboard() {
       <Dialog open={showEarningsBreakdown} onOpenChange={setShowEarningsBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Actual Earnings Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Actual Earnings Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View detailed breakdown of completed gigs and their actual earnings.
             </DialogDescription>
           </DialogHeader>
@@ -1053,27 +1055,27 @@ export default function Dashboard() {
             {getActualEarningsBreakdown().map((gig, index) => {
               const mileageDeduction = (gig.mileage || 0) * 0.70;
               return (
-                <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                    <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                    <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                    <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                     <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
                       {gig.isMultiDay
                         ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
                         : parseGigDate(gig.date).toLocaleDateString()}
                     </p>
                   </div>
-                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                     {gig.gigType}
                   </span>
                   {mileageDeduction > 0 && (
-                    <div style={{ marginTop: "10px", borderTop: "1px solid #f3f4f6", paddingTop: "8px" }}>
+                    <div style={{ marginTop: "10px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
-                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${mileageDeduction.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${mileageDeduction.toFixed(2)}</span>
                       </div>
                     </div>
                   )}
@@ -1091,20 +1093,20 @@ export default function Dashboard() {
       <Dialog open={showProjectedBreakdown} onOpenChange={setShowProjectedBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Projected Earnings Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Projected Earnings Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View detailed breakdown of all gigs including completed and upcoming.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getProjectedEarningsBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                   <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
                     {gig.isMultiDay
                       ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
@@ -1112,7 +1114,7 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                     {gig.gigType}
                   </span>
                   <span style={{ fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", backgroundColor: gig.status === "completed" ? "#d1fae5" : "#e0f2fe", color: gig.status === "completed" ? "#065f46" : "#0369a1" }}>
@@ -1132,26 +1134,26 @@ export default function Dashboard() {
       <Dialog open={showTaxBreakdown} onOpenChange={setShowTaxBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Tax Estimate Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Tax Estimate Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View detailed tax calculations for each gig based on income and tax rates.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTaxBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                   <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{parseGigDate(gig.date).toLocaleDateString()}</p>
                 </div>
                 <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 10px 0" }}>
                   Gross Income: ${gig.taxableIncome.toFixed(2)} × {gig.taxRate}%
                 </p>
-                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                   {gig.gigType}
                 </span>
               </div>
@@ -1161,14 +1163,25 @@ export default function Dashboard() {
             )}
             
             {/* Legal Disclaimer */}
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
-              <p className="text-xs text-amber-900 font-semibold mb-1">⚠️ Tax Disclaimer</p>
-              <p className="text-xs text-amber-800 leading-relaxed">
+            <div style={{ backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "12px", padding: "16px", marginTop: "6px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "6px" }}>
+                <span style={{ fontSize: "16px", flexShrink: 0 }}>⚠️</span>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "#B45309", margin: 0 }}>Tax Disclaimer</p>
+              </div>
+              <p style={{ fontSize: "13px", color: "#B45309", lineHeight: 1.6, margin: 0 }}>
                 Tax estimates are calculated using your personal tax rate setting. Bookd does not provide tax advice. 
                 These estimates are for informational purposes only. Please consult with a qualified tax professional 
                 for accurate tax planning and filing guidance.
               </p>
             </div>
+
+            {/* Update Tax Rate Button */}
+            <button
+              onClick={() => { setShowTaxBreakdown(false); setLocation("/profile"); }}
+              style={{ display: "block", width: "100%", height: "52px", backgroundColor: "#03045e", color: "#ffffff", fontSize: "15px", fontWeight: 600, borderRadius: "9999px", border: "none", cursor: "pointer", marginTop: "20px", marginBottom: "8px" }}
+            >
+              Update Tax Rate in Profile ›
+            </button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1177,23 +1190,23 @@ export default function Dashboard() {
       <Dialog open={showTipsBreakdown} onOpenChange={setShowTipsBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Tips Earned Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Tips Earned Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View detailed breakdown of tips earned from completed gigs.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTipsBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                   <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{parseGigDate(gig.date).toLocaleDateString()}</p>
                 </div>
-                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                   {gig.gigType}
                 </span>
               </div>
@@ -1209,18 +1222,18 @@ export default function Dashboard() {
       <Dialog open={showExpensesBreakdown} onOpenChange={setShowExpensesBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Expenses Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Expenses Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View detailed breakdown of expenses including parking, other costs, and mileage deductions.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getExpensesBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                     <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
                       <Pencil size={14} />
                     </button>
@@ -1230,34 +1243,34 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                   <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
                     {gig.isMultiDay
                       ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
                       : parseGigDate(gig.date).toLocaleDateString()}
                   </p>
                 </div>
-                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "0" }}>
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "6px" }}>
                   {gig.gigType}
                 </span>
                 {(gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0) && (
-                  <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <div style={{ borderTop: "1px solid #F0F0F0", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
                     {gig.parkingExpense > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Parking</span>
-                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#111111" }}>Parking</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toFixed(2)}</span>
                       </div>
                     )}
                     {gig.otherExpenses > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Other Expenses</span>
-                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#111111" }}>Other Expenses</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toFixed(2)}</span>
                       </div>
                     )}
                     {gig.mileageDeduction > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
-                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toFixed(2)}</span>
                       </div>
                     )}
                   </div>
@@ -1275,8 +1288,8 @@ export default function Dashboard() {
       <Dialog open={showNewExpensesBreakdown} onOpenChange={setShowNewExpensesBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>All Expenses Breakdown</DialogTitle>
-            <DialogDescription>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>All Expenses Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
               View all expenses including standalone expenses and gig-related costs.
             </DialogDescription>
           </DialogHeader>
@@ -1287,11 +1300,11 @@ export default function Dashboard() {
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Standalone Expenses</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getNewExpensesBreakdown().map((item, index) => (
-                    <div key={`${item.type}-${item.id}-${index}`} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                    <div key={`${item.type}-${item.id}-${index}`} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                        <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0, flex: 1 }}>{item.merchant}</p>
+                        <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, flex: 1 }}>{item.merchant}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>
+                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>
                             {item.isReimbursement ? "-" : ""}${Math.abs(item.displayAmount).toFixed(2)}
                           </p>
                           {!item.isReimbursement && (
@@ -1315,19 +1328,19 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                        <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{item.businessPurpose}</p>
+                        <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{item.businessPurpose}</p>
                         <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{new Date(item.date).toLocaleDateString()}</p>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ display: "inline-block", backgroundColor: item.isReimbursement ? "#d1fae5" : "#00b4d8", color: item.isReimbursement ? "#065f46" : "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                        <span style={{ display: "inline-block", backgroundColor: item.isReimbursement ? "#d1fae5" : "#00b4d8", color: item.isReimbursement ? "#065f46" : "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                           {item.isReimbursement ? "Reimbursement" : item.category || "Expense"}
                         </span>
                       </div>
                       {!item.isReimbursement && item.parsedReimbursedAmount > 0 && (
-                        <div style={{ marginTop: "8px", borderTop: "1px solid #f3f4f6", paddingTop: "8px" }}>
+                        <div style={{ marginTop: "8px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <span style={{ fontSize: "13px", color: "#6b7280" }}>Net out-of-pocket</span>
-                            <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>${(item.amount - item.parsedReimbursedAmount).toFixed(2)}</span>
+                            <span style={{ fontSize: "13px", color: "#111111" }}>Net out-of-pocket</span>
+                            <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>${(item.amount - item.parsedReimbursedAmount).toFixed(2)}</span>
                           </div>
                         </div>
                       )}
@@ -1343,11 +1356,11 @@ export default function Dashboard() {
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Gig-Related Expenses</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getExpensesBreakdown().map((gig, index) => (
-                    <div key={`gig-${gig.id}`} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                    <div key={`gig-${gig.id}`} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                        <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                        <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                           <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
                             <Pencil size={14} />
                           </button>
@@ -1357,34 +1370,34 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                        <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                        <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                         <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
                           {gig.isMultiDay
                             ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
                             : parseGigDate(gig.date).toLocaleDateString()}
                         </p>
                       </div>
-                      <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "0" }}>
+                      <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "6px" }}>
                         {gig.gigType}
                       </span>
                       {(gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0) && (
-                        <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <div style={{ borderTop: "1px solid #F0F0F0", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
                           {gig.parkingExpense > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Parking</span>
-                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#111111" }}>Parking</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toFixed(2)}</span>
                             </div>
                           )}
                           {gig.otherExpenses > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Other Expenses</span>
-                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#111111" }}>Other Expenses</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toFixed(2)}</span>
                             </div>
                           )}
                           {gig.mileageDeduction > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
-                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toFixed(2)}</span>
                             </div>
                           )}
                         </div>

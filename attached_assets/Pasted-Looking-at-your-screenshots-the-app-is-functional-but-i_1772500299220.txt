@@ -1,0 +1,72 @@
+Looking at your screenshots, the app is functional but it needs visual refinement to match the clean Figma spec. Here's exactly what to send to Replit:
+
+"The taxable income breakdown and tax estimate breakdown sheets are functional but need visual refinement. Here is exactly how I want them to look:
+OVERALL SHEET STYLE
+Background: pure white #FFFFFF
+Top corners: 24px border radius
+Handle/grabber pill at top center: 4px tall, 36px wide, #E0E0E0
+Header title: 22px, Bold, #111111
+Header sub-label: 13px, Regular, #9B9B9B, max width 280px
+Close button: top right, circular, #F5F5F5 background, X icon in #111111, 32x32px
+Padding: 24px horizontal throughout
+
+GIG CARDS
+Background: #F9F9F9
+Border radius: 14px
+Border: none — no visible border, just the background color change
+Padding: 16px
+Margin between cards: 10px
+No drop shadows
+Top row of each card:
+
+Gig name: 16px, SemiBold, #111111, left aligned
+Dollar amount: 16px, SemiBold, #111111, right aligned
+
+Second row:
+
+Client name: 13px, Regular, #9B9B9B, left aligned
+Date: 13px, Regular, #9B9B9B, right aligned
+
+Third row (tax estimate sheet only):
+
+Gross income calculation: 12px, Regular, #9B9B9B — 'Gross Income: $1500.00 × 30.07%'
+
+Category pill:
+
+Background: brand cyan/teal accent color
+Text: white, 11px, SemiBold
+Padding: 4px 12px, corner radius 999px
+Sits on its own row with 6px margin top
+
+Deduction rows (taxable income sheet only):
+
+Label on left: 13px, Regular, #111111 — 'Mileage (15 mi)'
+Amount on right: 13px, SemiBold, brand green — '-$10.05'
+Subtle 1px #F0F0F0 divider above each deduction row
+8px padding top on each deduction row
+
+
+THE NOTE / DISCLAIMER CARD
+Background: #FFFBEB (very light warm yellow)
+Border: 1px solid #FDE68A
+Border radius: 12px
+Padding: 16px
+Icon: ⚠️ or ⓘ to the left of the title, 16px
+Title: 13px, SemiBold, #B45309 (amber dark)
+Body text: 13px, Regular, #B45309, line height 1.6
+Margin top: 16px
+
+BOTTOM BUTTON (tax estimate sheet only)
+'Update Tax Rate in Profile ›'
+Background: #03045E (your brand navy)
+Text: white, 15px, SemiBold, centered
+Height: 52px
+Corner radius: 999px full pill
+Full width minus 24px margin each side
+Margin top: 20px, margin bottom: 24px
+
+TYPOGRAPHY CLEANUP ACROSS BOTH SHEETS
+All dollar amounts that represent deductions or tax owed should be in brand teal/cyan, not default black
+All negative deduction amounts should be brand green
+No text should feel cramped — minimum 1.5 line height on all body text
+Remove any grey card borders that are currently showing — cards should feel like floating tiles, not boxed containers"
