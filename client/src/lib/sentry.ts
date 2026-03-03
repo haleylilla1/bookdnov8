@@ -18,7 +18,7 @@ export function initSentry() {
     environment: import.meta.env.MODE, // 'development' or 'production'
     
     // Performance Monitoring
-    tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0, // 10% in prod, 100% in dev
+    tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 0.0, // 10% in prod, off in dev
     
     // Enable PII data collection (IP addresses, user agent, etc.)
     sendDefaultPii: true,
@@ -28,9 +28,13 @@ export function initSentry() {
     
     // Error filtering
     beforeSend(event) {
-      // Send all events in development for testing
+      // Drop errors that are just Replit's "couldn't reach this app" 502 HTML page
+      const msg = event.exception?.values?.[0]?.value ?? '';
+      if (msg.includes('<!DOCTYPE') || msg.includes("couldn't reach this app")) {
+        return null;
+      }
+      // In development, log but don't spam Sentry with every noise event
       if (import.meta.env.MODE === 'development') {
-        console.log('Sentry: Sending error event', event);
         return event;
       }
       return event;
