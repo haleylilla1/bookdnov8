@@ -263,16 +263,40 @@ export default function Home() {
     enabled: !!user,
   });
 
+  // Show onboarding if user hasn't completed it yet
   useEffect(() => {
     if (userData && typeof userData === "object" && "onboardingCompleted" in userData && !userData.onboardingCompleted) {
       setShowOnboarding(true);
     }
   }, [userData]);
 
+  // Auto-start tour once after onboarding — keyed to the logged-in user so it never fires twice
+  useEffect(() => {
+    if (!user) return;
+    const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
+    if (localStorage.getItem(tourKey) === "pending") {
+      localStorage.setItem(tourKey, "done");
+      setTourStep(0);
+    }
+  }, [user]);
+
+  const markTourDone = () => {
+    if (!user) return;
+    const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
+    localStorage.setItem(tourKey, "done");
+  };
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-    // Start tooltip tour
+    // Mark tour as pending so it fires on next render with the user object ready
+    if (user) {
+      const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
+      if (!localStorage.getItem(tourKey)) {
+        localStorage.setItem(tourKey, "pending");
+      }
+    }
+    // Also attempt to start immediately in case user is already available
     setTourStep(0);
   };
 
@@ -280,8 +304,9 @@ export default function Home() {
     if (tourStep === null) return;
     // Step 3 (profile) navigates to profile tab so user sees it highlighted
     if (tourStep === 3) setCurrentScreen("profile");
-    // Step TOTAL_TOOLTIP_STEPS is the completion modal — clicking "Let's go" dismisses tour
+    // Step TOTAL_TOOLTIP_STEPS is the completion modal — "Let's go" dismisses tour
     if (tourStep >= TOTAL_TOOLTIP_STEPS) {
+      markTourDone();
       setTourStep(null);
       setCurrentScreen("dashboard");
     } else {
@@ -290,6 +315,7 @@ export default function Home() {
   };
 
   const handleTourSkip = () => {
+    markTourDone();
     setTourStep(null);
   };
 
