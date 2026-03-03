@@ -206,6 +206,7 @@ export default function Home() {
     enabled: !!user,
   });
   const pendingGigs = (gigsData?.gigs ?? []).filter((g) => g.status === "pending");
+  const upcomingGigs = (gigsData?.gigs ?? []).filter((g) => g.status === "upcoming");
 
   const gotPaidMutation = useMutation({
     mutationFn: async ({ gigId, totalReceived, taxPercentage }: { gigId: number; totalReceived: number; taxPercentage: number }) => {
@@ -433,9 +434,110 @@ export default function Home() {
               {/* Gig list */}
               <div style={{ overflowY: "auto", flex: 1, padding: "0 16px" }}>
                 {pendingGigs.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "32px 0", color: "#9B9B9B", fontSize: "14px" }}>
-                    No pending gigs right now
-                  </div>
+                  <>
+                    <div style={{ textAlign: "center", padding: "20px 0 16px", color: "#9B9B9B", fontSize: "14px" }}>
+                      No pending gigs right now
+                    </div>
+                    {upcomingGigs.length > 0 && (
+                      <>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
+                          <div style={{ flex: 1, height: "1px", backgroundColor: "#F0F0F0" }} />
+                          <span style={{ fontSize: "11px", fontWeight: 600, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.6px", whiteSpace: "nowrap" as const }}>Your upcoming gigs</span>
+                          <div style={{ flex: 1, height: "1px", backgroundColor: "#F0F0F0" }} />
+                        </div>
+                        {upcomingGigs.map((gig) => {
+                          const isSelected = selectedPendingGigId === gig.id;
+                          return (
+                            <div
+                              key={gig.id}
+                              style={{
+                                backgroundColor: "#F9F9F9",
+                                borderRadius: "14px",
+                                padding: "16px",
+                                marginBottom: "10px",
+                                cursor: "pointer",
+                                border: isSelected ? `1.5px solid ${GREEN}` : "1.5px solid transparent",
+                                transition: "border-color 200ms ease",
+                              }}
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedPendingGigId(null);
+                                  setGotPaidAmount("");
+                                } else {
+                                  setSelectedPendingGigId(gig.id);
+                                  setGotPaidAmount(String(gig.expectedPay ?? "0"));
+                                }
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                <div>
+                                  <div style={{ fontSize: "15px", fontWeight: 600, color: "#111111" }}>{gig.gigType || gig.eventName}</div>
+                                  <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "2px" }}>{gig.clientName}</div>
+                                </div>
+                                <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toFixed(2)}</div>
+                              </div>
+                              {isSelected && (
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <div style={{ height: "1px", backgroundColor: "#F0F0F0", margin: "14px 0" }} />
+                                  <div style={{ fontSize: "13px", color: "#9B9B9B", marginBottom: "8px" }}>Amount received</div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+                                    <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111" }}>$</span>
+                                    <input
+                                      type="number"
+                                      inputMode="decimal"
+                                      value={gotPaidAmount}
+                                      onChange={(e) => setGotPaidAmount(e.target.value)}
+                                      onFocus={(e) => e.target.select()}
+                                      style={{
+                                        fontSize: "22px",
+                                        fontWeight: 600,
+                                        color: "#111111",
+                                        border: "none",
+                                        borderBottom: "2px solid #F0F0F0",
+                                        outline: "none",
+                                        background: "transparent",
+                                        width: "100%",
+                                        padding: "4px 0",
+                                      }}
+                                    />
+                                  </div>
+                                  <button
+                                    disabled={gotPaidMutation.isPending}
+                                    onClick={() => {
+                                      const amount = parseFloat(gotPaidAmount);
+                                      if (isNaN(amount) || amount < 0) return;
+                                      gotPaidMutation.mutate({
+                                        gigId: gig.id,
+                                        totalReceived: amount,
+                                        taxPercentage: gig.taxPercentage ?? 25,
+                                      });
+                                    }}
+                                    style={{
+                                      width: "100%",
+                                      height: "52px",
+                                      borderRadius: "999px",
+                                      backgroundColor: gotPaidMutation.isPending ? "#9ca3af" : GREEN,
+                                      color: "#ffffff",
+                                      fontSize: "15px",
+                                      fontWeight: 600,
+                                      border: "none",
+                                      cursor: gotPaidMutation.isPending ? "not-allowed" : "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: "6px",
+                                    }}
+                                  >
+                                    {gotPaidMutation.isPending ? "Processing…" : (<><Check size={16} />Confirm Payment</>)}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
+                  </>
                 ) : (
                   pendingGigs.map((gig) => {
                     const isSelected = selectedPendingGigId === gig.id;
