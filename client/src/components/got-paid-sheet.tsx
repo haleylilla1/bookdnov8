@@ -71,9 +71,10 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
   const [isRoundTripPerDay, setIsRoundTripPerDay] = useState(false);
 
   // Step 4: Tax
-  const profileRate = defaultTaxPercentage ?? (gig.taxPercentage ?? 25);
+  const profileRate = defaultTaxPercentage ?? (gig.taxPercentage ?? 28);
   const [taxTreatment, setTaxTreatment] = useState<"default" | "custom" | "w2">("default");
   const [taxPct, setTaxPct] = useState(String(profileRate));
+  const [customRateError, setCustomRateError] = useState("");
 
   const effectiveTaxRate =
     taxTreatment === "w2" ? 0 :
@@ -153,7 +154,7 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
         otherExpenses: validOtherExpenses,
         otherReimbursed: 0,
         paymentMethod,
-        taxPercentage: effectiveTaxRate,
+        taxPercentage: Math.round(effectiveTaxRate),
         taxRateUsed: effectiveTaxRate,
         taxTreatment,
         isW2: taxTreatment === "w2",
@@ -565,14 +566,17 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
                     type="number"
                     inputMode="decimal"
                     value={taxPct}
-                    onChange={(e) => setTaxPct(e.target.value)}
+                    onChange={(e) => { setTaxPct(e.target.value); setCustomRateError(""); }}
                     onFocus={(e) => e.target.select()}
-                    style={{ ...inputStyle, fontSize: "40px", fontWeight: 700, flex: 1 }}
+                    style={{ ...inputStyle, fontSize: "40px", fontWeight: 700, flex: 1, borderColor: customRateError ? "#EF4444" : undefined }}
                     autoFocus
                     placeholder="0"
                   />
                   <span style={{ fontSize: "28px", fontWeight: 600, color: "#9B9B9B" }}>%</span>
                 </div>
+                {customRateError && (
+                  <div style={{ fontSize: "13px", color: "#EF4444", marginTop: "6px" }}>{customRateError}</div>
+                )}
               </div>
             )}
 
@@ -646,6 +650,14 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
   };
 
   const handleNext = () => {
+    if (step === 4 && taxTreatment === "custom") {
+      const val = parseFloat(taxPct || "0");
+      if (!taxPct || val <= 0) {
+        setCustomRateError("Please enter a valid tax rate");
+        return;
+      }
+      setCustomRateError("");
+    }
     if (step < STEPS.length) setStep(step + 1);
     else mutate();
   };

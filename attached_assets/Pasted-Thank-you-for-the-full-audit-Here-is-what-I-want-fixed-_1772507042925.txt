@@ -1,0 +1,16 @@
+Thank you for the full audit. Here is what I want fixed, in priority order. Do not move to the next item until the current one is confirmed done.
+FIX 1 — CRITICAL: Decimal tax rate crashing on integer column
+This is the most urgent fix. In got-paid-sheet.tsx:156, before sending taxPercentage, round the effectiveTaxRate to the nearest integer so it never hits the integer column as a decimal. Use Math.round(effectiveTaxRate) for taxPercentage only. The taxRateUsed field should still store the full decimal — 28.5 should be saved as 28.5 in taxRateUsed even though taxPercentage sends 29. This preserves accuracy in the new field while keeping the legacy field safe.
+FIX 2 — IMPORTANT: Dashboard Tax Estimate dialog reading wrong field
+In dashboard.tsx:681–683, replace gig.taxPercentage with gig.taxRateUsed wherever the Tax Estimate Breakdown dialog displays the rate. If taxRateUsed is null for older gigs, fall back to gig.taxPercentage, then to the user's profile default. The fallback chain should be: taxRateUsed → taxPercentage → user.defaultTaxPercentage. This ensures the dialog always shows the rate that was actually applied.
+FIX 3 — IMPORTANT: W2 summary line missing when period has only W2 gigs
+In professional-html-generator.ts around line 406–409, move the 'X W2 gigs excluded from tax calculations' note outside of the taxableGigs.length > 0 block so it renders independently whenever w2Gigs.length > 0, regardless of whether there are any 1099 gigs in the same period.
+FIX 4 — MINOR: Inconsistent fallback tax rate
+dashboard.tsx:683 falls back to 23 while the Got Paid sheet falls back to 25. Please standardize both to fall back to the user's profile defaultTaxPercentage first, then 28 as the absolute last resort. Update both locations to use the same fallback chain so the number is never inconsistent across the app.
+FIX 5 — MINOR: Empty custom rate input saves as 0%
+In got-paid-sheet.tsx, add a simple validation check on the custom rate input. If the user has selected the custom option and the input is empty or zero when they tap confirm, show a small inline error message beneath the input that reads 'Please enter a valid tax rate' and prevent the confirmation from going through. Do not let a blank input save as 0% since that is indistinguishable from a W2 gig in the calculations.
+DO NOT FIX — items I am leaving as is
+The dashboard hot-reload crash at line 886 — this is pre-existing and self-recovers, leave it for a dedicated session
+The 366 existing gigs with null taxRateUsed — the fallback chain handles these correctly, no action needed
+The IRS mileage rate hardcoded at 0.70 — this is correct and expected
+Please fix items 1 through 5 in order, confirm each one before moving to the next, and show me the exact lines changed for each fix.

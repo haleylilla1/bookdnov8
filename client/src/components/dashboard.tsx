@@ -678,9 +678,11 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
     
     return groupedGigs.map(gig => {
       const income = safeParseFloat(gig.actualPay) + safeParseFloat(gig.tips);
-      const taxRate = (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
-        ? gig.taxPercentage 
-        : (user?.defaultTaxPercentage || 23);
+      const taxRate = ((gig as any).taxRateUsed !== null && (gig as any).taxRateUsed !== undefined)
+        ? Number((gig as any).taxRateUsed)
+        : (gig.taxPercentage !== null && gig.taxPercentage !== undefined)
+          ? gig.taxPercentage
+          : (user?.defaultTaxPercentage || 28);
       const estimatedTax = income * (taxRate / 100);
       
       return {

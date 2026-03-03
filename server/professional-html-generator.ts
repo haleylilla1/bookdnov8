@@ -403,14 +403,14 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         </tr>
                     </tbody>
                 </table>
-                ${w2Gigs.length > 0 ? `
-                <p style="font-size: 12px; color: #555; margin-top: 8px; font-style: italic;">
-                    ${w2Gigs.length} W2 gig${w2Gigs.length > 1 ? 's' : ''} excluded from tax calculations — taxes were withheld by employer
-                </p>` : ''}
             </div>
             ` : `
             <p style="text-align: center; color: #555; margin: 30px 0;">No 1099 gigs for this period.</p>
             `}
+            ${w2Gigs.length > 0 ? `
+            <p style="font-size: 12px; color: #555; margin-top: 8px; font-style: italic;">
+                ${w2Gigs.length} W2 gig${w2Gigs.length > 1 ? 's' : ''} excluded from tax calculations — taxes were withheld by employer
+            </p>` : ''}
 
             ${w2Gigs.length > 0 ? `
             <div style="margin: 30px 0;">
