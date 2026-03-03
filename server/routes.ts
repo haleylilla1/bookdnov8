@@ -1043,7 +1043,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reimbursedOther: actualOtherReimbursed.toString(),
         unreimbursedParking: unreimbursedParking.toString(),
         unreimbursedOther: unreimbursedOther.toString(),
-        mileage: mileage || 0, // Save calculated mileage
+        mileage: Math.round(mileage || 0), // Save calculated mileage (integer column)
         gotPaidDate: new Date(),
         paymentMethod: paymentMethod || null,
         taxPercentage: taxPercentage || 25,
