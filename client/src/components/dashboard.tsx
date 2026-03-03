@@ -837,15 +837,11 @@ export default function Dashboard() {
       </div>
 
       {/* Date Navigation */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-        <button
-          onClick={() => navigatePeriod("prev")}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#6b7280", display: "flex", alignItems: "center" }}
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>{getPeriodText()}</div>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px" }}>
+        <div>
+          <h2 style={{ fontSize: "28px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>
+            {getPeriodText()}
+          </h2>
           {selectedPeriod === "quarterly" && (
             <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
               {(() => {
@@ -862,16 +858,24 @@ export default function Dashboard() {
               })()}
             </div>
           )}
-          <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
-            {periodStats.totalGigs} gigs &bull; {periodStats.completedGigs} completed
+          <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "4px" }}>
+            {periodStats.totalGigs} total gigs &bull; {periodStats.completedGigs} completed
           </div>
         </div>
-        <button
-          onClick={() => navigatePeriod("next")}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#6b7280", display: "flex", alignItems: "center" }}
-        >
-          <ChevronRight size={20} />
-        </button>
+        <div style={{ display: "flex", gap: "4px", paddingTop: "6px" }}>
+          <button
+            onClick={() => navigatePeriod("prev")}
+            style={{ background: "none", border: "1.5px solid #e5e7eb", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => navigatePeriod("next")}
+            style={{ background: "none", border: "1.5px solid #e5e7eb", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Total Income Hero Card */}
@@ -932,80 +936,78 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 2×2 Metric Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "12px" }}>
+      {/* Hint text */}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 2px" }}>
+        <span style={{ fontSize: "16px" }}>💡</span>
+        <span style={{ fontSize: "13px", color: "#6b7280" }}>Tap on each card below to see detailed breakdowns</span>
+      </div>
+
+      {/* Full-width stacked metric cards */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+
         {/* Taxable Income */}
         <div
           onClick={() => setShowEarningsBreakdown(true)}
-          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
-            <DollarSign size={16} color="#6b7280" />
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Taxable Income</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.actualEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>After reimbursements &bull; {periodStats.completedGigs} completed gig{periodStats.completedGigs !== 1 ? "s" : ""}</div>
           </div>
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Taxable Income</div>
-          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.actualEarnings.toFixed(2)}</div>
-          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{periodStats.completedGigs} gigs paid</div>
+          <DollarSign size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Expected Earnings */}
         <div
           onClick={() => setShowProjectedBreakdown(true)}
-          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
-            <TrendingUp size={16} color="#6b7280" />
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expected Earnings</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.projectedEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>From {periodStats.totalGigs} total gig{periodStats.totalGigs !== 1 ? "s" : ""} (includes upcoming)</div>
           </div>
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Expected</div>
-          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.projectedEarnings.toFixed(2)}</div>
-          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{periodStats.totalGigs} total gigs</div>
+          <TrendingUp size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Tax Estimate */}
         <div
           onClick={() => setShowTaxBreakdown(true)}
-          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
-            <Calculator size={16} color="#6b7280" />
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Tax Estimate</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.estimatedTax.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Estimated tax liability</div>
           </div>
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Tax Estimate</div>
-          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.estimatedTax.toFixed(2)}</div>
-          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>Set aside now</div>
+          <FileText size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Expenses */}
         <div
           onClick={() => setShowNewExpensesBreakdown(true)}
-          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
-          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
-            <Receipt size={16} color="#6b7280" />
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expenses</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toFixed(2)}</div>
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Total tracked expenses</div>
           </div>
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Expenses</div>
-          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.totalExpenses.toFixed(2)}</div>
-          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{currentPeriodExpenses.length} tracked</div>
+          <Receipt size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
         </div>
       </div>
 
       {/* Report CTA Card */}
       <div style={{
         backgroundColor: "#03045e",
-        borderRadius: "16px",
-        padding: "20px",
+        borderRadius: "20px",
+        padding: "22px 20px 20px",
         marginBottom: "16px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "12px",
       }}>
-        <div>
-          <div style={{ fontSize: "15px", fontWeight: 700, color: "#ffffff", marginBottom: "4px" }}>
-            {selectedPeriod === "monthly" ? "Monthly" : selectedPeriod === "quarterly" ? "Quarterly" : "Annual"} Income Report
-          </div>
-          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>
-            Earnings, expenses & tax details
-          </div>
-        </div>
+        <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5, marginBottom: "16px" }}>
+          Generate a comprehensive income report with earnings, expenses, and tax details
+        </p>
         <button
           onClick={handleViewIncomeReport}
           disabled={isGeneratingPDF}
@@ -1014,89 +1016,25 @@ export default function Dashboard() {
             backgroundColor: "#00b4d8",
             color: "#ffffff",
             border: "none",
-            borderRadius: "10px",
-            padding: "10px 16px",
-            fontSize: "13px",
-            fontWeight: 600,
+            borderRadius: "100px",
+            padding: "14px 20px",
+            fontSize: "15px",
+            fontWeight: 700,
             cursor: isGeneratingPDF ? "not-allowed" : "pointer",
             opacity: isGeneratingPDF ? 0.7 : 1,
-            whiteSpace: "nowrap",
+            width: "100%",
             display: "flex",
             alignItems: "center",
-            gap: "6px",
-            flexShrink: 0,
+            justifyContent: "center",
+            gap: "8px",
           }}
         >
-          <FileText size={14} />
-          {isGeneratingPDF ? "Loading…" : "Download"}
+          <FileText size={16} />
+          {isGeneratingPDF ? "Loading…" : `Download ${selectedPeriod === "monthly" ? "Monthly" : selectedPeriod === "quarterly" ? "Quarterly" : "Annual"} Report`}
         </button>
       </div>
 
-      {/* Goal Section */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              {selectedPeriod === "monthly" ? "Monthly" : 
-               selectedPeriod === "quarterly" ? "Quarterly" : "Annual"} Goal
-            </h3>
-            {!editingGoal && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => startEditingGoal(selectedPeriod)}
-              >
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit Goal
-              </Button>
-            )}
-          </div>
-
-          {editingGoal === selectedPeriod ? (
-            <div className="flex gap-2">
-              <CurrencyInput
-                placeholder="Enter goal amount"
-                value={goalAmount}
-                onChange={(value) => setGoalAmount(value)}
-                className="flex-1"
-              />
-              <Button onClick={handleSaveGoal} disabled={updateGoalMutation.isPending}>
-                <Save className="w-4 h-4 mr-2" />
-                Save
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setEditingGoal(null)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <div>
-              {currentGoal?.goalAmount ? (
-                <>
-                  <div className="text-2xl font-bold mb-2">
-                    ${parseFloat(currentGoal.goalAmount).toFixed(2)}
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${Math.min(100, (periodStats.actualEarnings / parseFloat(currentGoal.goalAmount)) * 100)}%`
-                      }}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2">
-                    {((periodStats.actualEarnings / parseFloat(currentGoal.goalAmount)) * 100).toFixed(1)}% achieved
-                  </p>
-                </>
-              ) : (
-                <p className="text-gray-500">No goal set for this period</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Goal Section - hidden from main dashboard view */}
 
       {/* Earnings Breakdown Modal */}
       <Dialog open={showEarningsBreakdown} onOpenChange={setShowEarningsBreakdown}>
