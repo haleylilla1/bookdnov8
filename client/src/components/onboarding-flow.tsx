@@ -34,6 +34,7 @@ interface SetupData {
   taxRate: number | "custom";
   customTax: string;
   gigTypes: string[];
+  otherJobType: string;
 }
 
 function ProgressDots({ total, current }: { total: number; current: number }) {
@@ -62,6 +63,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     taxRate: 30,
     customTax: "",
     gigTypes: [],
+    otherJobType: "",
   });
   const [showDone, setShowDone] = useState(false);
 
@@ -91,10 +93,13 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
   const handleSaveAndComplete = async () => {
     const taxValue = data.taxRate === "custom" ? parseInt(data.customTax) || 30 : data.taxRate;
+    const resolvedGigTypes = data.gigTypes.map((t) =>
+      t === "Other" && data.otherJobType.trim() ? data.otherJobType.trim() : t
+    );
     await saveMutation.mutateAsync({
       homeAddress: data.homeAddress,
       defaultTaxPercentage: taxValue,
-      gigTypes: data.gigTypes,
+      gigTypes: resolvedGigTypes,
     });
     setShowDone(true);
   };
@@ -296,16 +301,19 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           </div>
 
           {data.taxRate === "custom" && (
-            <div style={{ marginBottom: "16px" }}>
+            <div style={{ marginBottom: "200px" }}>
               <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Enter your tax rate</label>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   type="number"
+                  inputMode="numeric"
                   min="0"
                   max="60"
                   placeholder="e.g. 25"
+                  autoFocus
                   value={data.customTax}
                   onChange={(e) => setData({ ...data, customTax: e.target.value })}
+                  onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
                   style={{
                     width: "100px",
                     height: "48px",
@@ -371,7 +379,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
             Select all that apply. This helps us tailor your experience.
           </p>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "28px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "16px" }}>
             {GIG_TYPES.map((type) => {
               const selected = data.gigTypes.includes(type);
               return (
@@ -395,6 +403,31 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
               );
             })}
           </div>
+
+          {data.gigTypes.includes("Other") && (
+            <div style={{ marginBottom: "20px" }}>
+              <input
+                type="text"
+                placeholder="What do you do? (e.g. Hair Stylist)"
+                value={data.otherJobType}
+                autoFocus
+                onChange={(e) => setData({ ...data, otherJobType: e.target.value })}
+                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
+                style={{
+                  width: "100%",
+                  height: "48px",
+                  fontSize: "16px",
+                  padding: "0 14px",
+                  border: `1.5px solid ${CYAN}`,
+                  borderRadius: "12px",
+                  backgroundColor: "#ffffff",
+                  color: "#111827",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+          )}
 
           <div style={{ flex: 1 }} />
 
