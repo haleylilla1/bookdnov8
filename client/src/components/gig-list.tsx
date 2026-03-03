@@ -168,7 +168,7 @@ function GigCard({
             style={{
               background: NAVY, color: "#fff",
               border: "none", borderRadius: "100px",
-              padding: "8px 18px", fontSize: "14px", fontWeight: 600,
+              padding: "6px 14px", fontSize: "13px", fontWeight: 600,
               cursor: "pointer",
             }}
           >
@@ -180,7 +180,7 @@ function GigCard({
             style={{
               background: NAVY, color: "#fff",
               border: "none", borderRadius: "100px",
-              padding: "8px 18px", fontSize: "14px", fontWeight: 600,
+              padding: "6px 14px", fontSize: "13px", fontWeight: 600,
               cursor: "pointer",
             }}
           >
