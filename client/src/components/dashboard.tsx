@@ -404,16 +404,16 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
   const periodStats = useMemo(() => {
     if (summaryData) {
       return {
-        actualEarnings: summaryData.actualEarnings,
-        projectedEarnings: summaryData.projectedEarnings,
-        totalTips: summaryData.totalTips,
-        totalExpenses: summaryData.totalExpenses,
-        estimatedTax: summaryData.estimatedTax,
-        completedGigs: summaryData.completedGigs,
-        upcomingGigs: summaryData.upcomingGigs,
-        totalGigs: summaryData.totalGigs,
-        totalReceived: summaryData.totalReceived,
-        businessDeductions: summaryData.businessDeductions
+        actualEarnings: summaryData.actualEarnings ?? 0,
+        projectedEarnings: summaryData.projectedEarnings ?? 0,
+        totalTips: summaryData.totalTips ?? 0,
+        totalExpenses: summaryData.totalExpenses ?? 0,
+        estimatedTax: summaryData.estimatedTax ?? 0,
+        completedGigs: summaryData.completedGigs ?? 0,
+        upcomingGigs: summaryData.upcomingGigs ?? 0,
+        totalGigs: summaryData.totalGigs ?? 0,
+        totalReceived: summaryData.totalReceived ?? 0,
+        businessDeductions: summaryData.businessDeductions ?? 0
       };
     }
     
