@@ -270,32 +270,25 @@ export default function Home() {
     }
   }, [userData]);
 
-  // Auto-start tour on page load if a previous session flagged it as pending
-  useEffect(() => {
-    if (!user) return;
-    const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
-    if (localStorage.getItem(tourKey) === "pending") {
-      localStorage.setItem(tourKey, "done");
-      setTimeout(() => setTourStep(0), 350);
-    }
-  }, [user?.id]);
+  const tourKey = user ? `bookd_tour_seen_${user.id ?? user.username ?? "user"}` : null;
 
   const markTourDone = () => {
-    if (!user) return;
-    const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
-    localStorage.setItem(tourKey, "done");
+    if (tourKey) localStorage.setItem(tourKey, "done");
+  };
+
+  const startTour = () => {
+    setTimeout(() => setTourStep(0), 300);
   };
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-    // Always mark the tour key so the useEffect also catches page-refresh case
-    if (user) {
-      const tourKey = `bookd_tour_seen_${user.id ?? user.username ?? "user"}`;
+    // Only mark "pending" for brand-new users who have never seen the tour
+    if (tourKey && !localStorage.getItem(tourKey)) {
       localStorage.setItem(tourKey, "pending");
     }
-    // Small delay so the onboarding overlay fully unmounts before tour renders
-    setTimeout(() => setTourStep(0), 350);
+    // Explicitly fire the tour — 300ms lets the onboarding overlay fully unmount first
+    startTour();
   };
 
   const handleTourNext = () => {
@@ -324,7 +317,7 @@ export default function Home() {
         openGotPaidSheet();
       }} />;
       case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
-      case "profile": return <Profile />;
+      case "profile": return <Profile onDemoComplete={startTour} />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
       case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
       default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;

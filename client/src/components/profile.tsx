@@ -184,7 +184,7 @@ function SheetInput({ label, value, onChange, placeholder, type = "text" }: {
 
 type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | "addClient" | null;
 
-export default function Profile() {
+export default function Profile({ onDemoComplete }: { onDemoComplete?: () => void }) {
   const { toast } = useToast();
   const { logout } = useAuth();
   const queryClient = useQueryClient();
@@ -341,7 +341,10 @@ export default function Profile() {
     <div style={{ padding: "16px", paddingBottom: "120px", backgroundColor: "#f5f7f5", minHeight: "100vh" }}>
       <OnboardingFlow
         isOpen={showOnboardingDemo}
-        onComplete={() => setShowOnboardingDemo(false)}
+        onComplete={() => {
+          setShowOnboardingDemo(false);
+          onDemoComplete?.();
+        }}
         onClose={() => setShowOnboardingDemo(false)}
       />
 
