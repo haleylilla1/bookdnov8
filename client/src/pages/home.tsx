@@ -115,9 +115,7 @@ function TourOverlay({ step, onNext, onSkip }: {
   const s = TOUR_STEPS[step];
 
   return (
-    // Non-blocking overlay — pointer-events: none lets the real buttons be tapped
-    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.55)", zIndex: 10000, pointerEvents: "none" }}>
-      {/* Tooltip card — pointer-events: auto so it stays visible and interactive */}
+    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={onNext}>
       <div
         style={{
           ...s.tooltipStyle,
@@ -128,8 +126,8 @@ function TourOverlay({ step, onNext, onSkip }: {
           border: `2.5px solid ${CYAN}`,
           padding: "18px 20px 16px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
-          pointerEvents: "auto",
         }}
+        onClick={(e) => { e.stopPropagation(); onNext(); }}
       >
         {/* Title */}
         <div style={{ fontSize: "15px", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.3 }}>
@@ -157,8 +155,8 @@ function TourOverlay({ step, onNext, onSkip }: {
               />
             ))}
           </div>
-          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
-            tap the button below ↓
+          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
+            tap to continue
           </span>
         </div>
 
@@ -559,7 +557,6 @@ export default function Home() {
                 onClick={() => {
                   setFabOpen(false);
                   openGotPaidSheet();
-                  if (tourStep === 1) handleTourNext();
                 }}
                 style={{
                   width: "64px",
@@ -585,7 +582,7 @@ export default function Home() {
               {/* + button */}
               <button
                 id="fab-toggle"
-                onClick={() => { setFabOpen(!fabOpen); if (tourStep === 0) handleTourNext(); }}
+                onClick={() => setFabOpen(!fabOpen)}
                 style={{
                   width: "64px",
                   height: "64px",
