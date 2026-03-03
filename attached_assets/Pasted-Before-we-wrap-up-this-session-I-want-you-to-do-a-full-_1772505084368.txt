@@ -1,0 +1,33 @@
+Before we wrap up this session, I want you to do a full codebase audit. Please go through every file and do the following three things:
+1. Find and remove duplicate code
+Look for any logic, functions, or components that exist more than once and do the same thing. Specifically check for:
+
+Any Got Paid mutation or handler that was duplicated when we built the new bottom sheet — make sure there is only one
+Any duplicate breakdown calculation functions — getActualEarningsBreakdown, getTaxBreakdown, getExpensesBreakdown, etc. should each exist exactly once
+Any duplicate component definitions — if there are two versions of the gig card, the bottom sheet, or the savings section, consolidate them into one
+Any unused imports at the top of files that were added during our UI changes and never cleaned up
+Any commented out code blocks that are no longer needed
+
+2. Scan for potential bugs
+Look specifically for:
+
+Any animation that runs on every render instead of only when the component mounts — this will cause performance issues
+Any state that is being set inside a useEffect without proper dependency arrays — this can cause infinite re-render loops
+Any place where we are dividing by zero — specifically in the mileage calculation where miles driven could be zero
+Any hardcoded values that should be pulling from the database instead — like tax rates or mileage rates that might have been accidentally hardcoded during a UI change
+Any place where the first-launch flag for onboarding could fail and show the coach marks to returning users
+Any bottom sheet that could get stuck open if the user navigates away mid-flow
+Any API call that is missing error handling — if it fails silently the user will see broken UI with no explanation
+
+3. Report back before changing anything
+Do not delete or modify a single line of code yet. First give me a full report of everything you found organized like this:
+Duplicates found:
+
+List each one with the file name and line number
+
+Potential bugs found:
+
+List each one with the file name, line number, and a one sentence explanation of why it is a problem
+
+Then wait for me to review the list and tell you which ones to fix before touching anything.
+This is important — I want to see the full picture before any changes are made.
