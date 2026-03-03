@@ -252,7 +252,9 @@ export default function Home() {
     queryKey: ["/api/gigs"],
     enabled: !!user,
   });
-  const pendingGigs = (gigsData?.gigs ?? []).filter((g) => g.status === "pending");
+  const pendingGigs = (gigsData?.gigs ?? []).filter((g) =>
+    g.status === "pending" || g.status === "pending payment" || g.status === "pending_payment"
+  );
   const upcomingGigs = (gigsData?.gigs ?? []).filter((g) => g.status === "upcoming");
 
   const { data: userData } = useQuery<any>({
@@ -290,7 +292,10 @@ export default function Home() {
 
   const renderScreen = () => {
     switch (currentScreen) {
-      case "calendar": return <CalendarView />;
+      case "calendar": return <CalendarView onGotPaid={(gig) => {
+        setGotPaidSelectedGig(gig);
+        openGotPaidSheet();
+      }} />;
       case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
       case "profile": return <Profile />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;

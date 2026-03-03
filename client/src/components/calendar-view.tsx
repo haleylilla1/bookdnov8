@@ -49,7 +49,7 @@ const getGigStatusColor = (status: string) => {
 // Helper to get month key for tracking loaded months
 const getMonthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-export default function CalendarView() {
+export default function CalendarView({ onGotPaid }: { onGotPaid?: (gig: Gig) => void } = {}) {
   const [editingGig, setEditingGig] = useState<(Gig & { isMultiDay?: boolean | null; startDate?: string | null; endDate?: string | null; gigIds?: number[] }) | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -472,36 +472,34 @@ export default function CalendarView() {
 
   // Handle "Got Paid" workflow
   const handleGotPaid = (gig: Gig) => {
-    // For multi-day gigs, we need to find the complete gig group
+    let resolvedGig: Gig = gig;
+
     if (gig.isMultiDay && (gig as any).gigIds && (gig as any).gigIds.length > 1) {
-      // Use the grouped gig that includes all related IDs
-      setGotPaidGig(gig);
+      resolvedGig = gig;
     } else if ((gig as any).multiDayGroupId) {
-      // If it's part of a multi-day group but not grouped yet, find all related gigs
-      const relatedGigs = gigs.filter(g => 
+      const relatedGigs = gigs.filter(g =>
         (g as any).multiDayGroupId === (gig as any).multiDayGroupId ||
-        (g.eventName === gig.eventName && 
-         g.clientName === gig.clientName && 
+        (g.eventName === gig.eventName &&
+         g.clientName === gig.clientName &&
          g.gigType === gig.gigType)
       );
-      
       if (relatedGigs.length > 1) {
-        // Create a multi-day gig object with all related IDs
-        const multiDayGig = {
+        resolvedGig = {
           ...gig,
           isMultiDay: true,
           startDate: relatedGigs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0].date,
           endDate: relatedGigs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0].date,
-          gigIds: relatedGigs.map(g => g.id)
-        };
-        setGotPaidGig(multiDayGig);
-      } else {
-        setGotPaidGig(gig);
+          gigIds: relatedGigs.map(g => g.id),
+        } as any;
       }
-    } else {
-      setGotPaidGig(gig);
     }
-    setShowGotPaidDialog(true);
+
+    if (onGotPaid) {
+      onGotPaid(resolvedGig);
+    } else {
+      setGotPaidGig(resolvedGig);
+      setShowGotPaidDialog(true);
+    }
   };
 
   // Mutation for "Got Paid" workflow
