@@ -14,7 +14,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { editExpenseSchema, type ExpenseFormData } from "@/lib/form-schemas";
 import { useFormErrorHandler } from "@/hooks/use-form-error-handler";
-import { ChevronLeft, ChevronRight, Edit2, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Pencil, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2 } from "lucide-react";
 import { AmountField, MerchantField, BusinessPurposeField, CategoryField, DateField } from "@/components/ui/form-field-wrapper";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig, User, Expense } from "@shared/schema";
@@ -1049,29 +1049,37 @@ export default function Dashboard() {
               View detailed breakdown of completed gigs and their actual earnings.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            {getActualEarningsBreakdown().map((gig, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                    <p className="text-sm text-gray-600">{gig.clientName}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {getActualEarningsBreakdown().map((gig, index) => {
+              const mileageDeduction = (gig.mileage || 0) * 0.70;
+              return (
+                <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                    <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-green-600">${gig.amount.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">
-                      {gig.isMultiDay 
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                    <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                      {gig.isMultiDay
                         ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
-                        : parseGigDate(gig.date).toLocaleDateString()
-                      }
+                        : parseGigDate(gig.date).toLocaleDateString()}
                     </p>
                   </div>
+                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                    {gig.gigType}
+                  </span>
+                  {mileageDeduction > 0 && (
+                    <div style={{ marginTop: "10px", borderTop: "1px solid #f3f4f6", paddingTop: "8px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
+                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${mileageDeduction.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <Badge variant="secondary" className="text-xs">
-                  {gig.gigType}
-                </Badge>
-              </div>
-            ))}
+              );
+            })}
             {getActualEarningsBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No completed gigs yet</p>
             )}
@@ -1088,36 +1096,28 @@ export default function Dashboard() {
               View detailed breakdown of all gigs including completed and upcoming.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getProjectedEarningsBreakdown().map((gig, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                    <p className="text-sm text-gray-600">{gig.clientName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-semibold ${gig.status === "completed" ? "text-green-600" : "text-blue-600"}`}>
-                      ${gig.amount.toFixed(2)}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {gig.isMultiDay 
-                        ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
-                        : parseGigDate(gig.date).toLocaleDateString()
-                      }
-                    </p>
-                  </div>
+              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between items-center">
-                  <Badge variant="secondary" className="text-xs">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                    {gig.isMultiDay
+                      ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
+                      : parseGigDate(gig.date).toLocaleDateString()}
+                  </p>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
                     {gig.gigType}
-                  </Badge>
-                  <Badge 
-                    variant={gig.status === "completed" ? "default" : "outline"}
-                    className="text-xs"
-                  >
+                  </span>
+                  <span style={{ fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", backgroundColor: gig.status === "completed" ? "#d1fae5" : "#e0f2fe", color: gig.status === "completed" ? "#065f46" : "#0369a1" }}>
                     {gig.status}
-                  </Badge>
+                  </span>
                 </div>
               </div>
             ))}
@@ -1137,27 +1137,23 @@ export default function Dashboard() {
               View detailed tax calculations for each gig based on income and tax rates.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTaxBreakdown().map((gig, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                    <p className="text-sm text-gray-600">{gig.clientName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-red-600">${gig.amount.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">
-                      {parseGigDate(gig.date).toLocaleDateString()}
-                    </p>
-                  </div>
+              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
-                <div className="text-xs text-gray-600 mb-2">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{parseGigDate(gig.date).toLocaleDateString()}</p>
+                </div>
+                <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 10px 0" }}>
                   Gross Income: ${gig.taxableIncome.toFixed(2)} × {gig.taxRate}%
-                </div>
-                <Badge variant="secondary" className="text-xs">
+                </p>
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
                   {gig.gigType}
-                </Badge>
+                </span>
               </div>
             ))}
             {getTaxBreakdown().length === 0 && (
@@ -1186,24 +1182,20 @@ export default function Dashboard() {
               View detailed breakdown of tips earned from completed gigs.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTipsBreakdown().map((gig, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                    <p className="text-sm text-gray-600">{gig.clientName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-purple-600">${gig.amount.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">
-                      {parseGigDate(gig.date).toLocaleDateString()}
-                    </p>
-                  </div>
+              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{parseGigDate(gig.date).toLocaleDateString()}</p>
+                </div>
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
                   {gig.gigType}
-                </Badge>
+                </span>
               </div>
             ))}
             {getTipsBreakdown().length === 0 && (
@@ -1222,84 +1214,54 @@ export default function Dashboard() {
               View detailed breakdown of expenses including parking, other costs, and mileage deductions.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getExpensesBreakdown().map((gig, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                    <p className="text-sm text-gray-600">{gig.clientName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-orange-600">${gig.amount.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">
-                      {gig.isMultiDay 
-                        ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
-                        : parseGigDate(gig.date).toLocaleDateString()
-                      }
-                    </p>
+              <div key={index} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                    <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => clearGigExpenses(gig.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#ef4444", display: "flex" }}>
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </div>
-                <div className="text-xs text-gray-600 mb-2 space-y-1">
-                  {gig.parkingExpense > 0 && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span>Parking:</span>
-                        <span className="text-blue-600">${gig.parkingExpense.toFixed(2)}</span>
-                      </div>
-                      {safeParseFloat(gig.reimbursedParking) > 0 && (
-                        <div className="flex justify-between ml-2">
-                          <span className="italic">- Reimbursed:</span>
-                          <span className="text-green-600">-${safeParseFloat(gig.reimbursedParking).toFixed(2)}</span>
-                        </div>
-                      )}
-                      {safeParseFloat(gig.reimbursedParking) > 0 && (
-                        <div className="flex justify-between ml-2 font-medium">
-                          <span>Net Cost:</span>
-                          <span className={`${
-                            (gig.parkingExpense - safeParseFloat(gig.reimbursedParking)) < 0 
-                              ? 'text-green-600' 
-                              : 'text-orange-600'
-                          }`}>
-                            ${Math.max(0, gig.parkingExpense - safeParseFloat(gig.reimbursedParking)).toFixed(2)}
-                            {(gig.parkingExpense - safeParseFloat(gig.reimbursedParking)) < 0 && ' (Over-reimbursed)'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {gig.otherExpenses > 0 && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span>Other:</span>
-                        <span className="text-blue-600">${gig.otherExpenses.toFixed(2)}</span>
-                      </div>
-                      {safeParseFloat(gig.reimbursedOther) > 0 && (
-                        <div className="flex justify-between ml-2">
-                          <span className="italic">- Reimbursed:</span>
-                          <span className="text-green-600">-${safeParseFloat(gig.reimbursedOther).toFixed(2)}</span>
-                        </div>
-                      )}
-                      {safeParseFloat(gig.reimbursedOther) > 0 && (
-                        <div className="flex justify-between ml-2 font-medium">
-                          <span>Net Cost:</span>
-                          <span className={`${
-                            (gig.otherExpenses - safeParseFloat(gig.reimbursedOther)) < 0 
-                              ? 'text-green-600' 
-                              : 'text-orange-600'
-                          }`}>
-                            ${Math.max(0, gig.otherExpenses - safeParseFloat(gig.reimbursedOther)).toFixed(2)}
-                            {(gig.otherExpenses - safeParseFloat(gig.reimbursedOther)) < 0 && ' (Over-reimbursed)'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {gig.mileageDeduction > 0 && <div>Mileage: ${gig.mileageDeduction.toFixed(2)} ({gig.mileage} mi)</div>}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                    {gig.isMultiDay
+                      ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
+                      : parseGigDate(gig.date).toLocaleDateString()}
+                  </p>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "0" }}>
                   {gig.gigType}
-                </Badge>
+                </span>
+                {(gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0) && (
+                  <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    {gig.parkingExpense > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Parking</span>
+                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {gig.otherExpenses > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Other Expenses</span>
+                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {gig.mileageDeduction > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
+                        <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
             {getExpensesBreakdown().length === 0 && (
@@ -1318,73 +1280,55 @@ export default function Dashboard() {
               View all expenses including standalone expenses and gig-related costs.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {/* Standalone Expenses Section */}
             {getNewExpensesBreakdown().length > 0 && (
               <div>
-                <h4 className="font-medium text-sm text-gray-700 mb-2">Standalone Expenses</h4>
-                <div className="space-y-3">
+                <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Standalone Expenses</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getNewExpensesBreakdown().map((item, index) => (
-                    <div key={`${item.type}-${item.id}-${index}`} className={`border rounded-lg p-3 ${
-                      item.isReimbursement ? 'bg-green-50 border-green-200' : 'bg-blue-50'
-                    }`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <p className="font-medium">{item.merchant}</p>
-                          <p className="text-sm text-gray-600">{item.businessPurpose}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className={`font-semibold ${
-                            item.isReimbursement ? 'text-green-600' : 'text-blue-600'
-                          }`}>
-                            {item.isReimbursement ? '-' : ''}${Math.abs(item.displayAmount).toFixed(2)}
+                    <div key={`${item.type}-${item.id}-${index}`} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                        <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0, flex: 1 }}>{item.merchant}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>
+                            {item.isReimbursement ? "-" : ""}${Math.abs(item.displayAmount).toFixed(2)}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(item.date).toLocaleDateString()}
-                          </p>
+                          {!item.isReimbursement && (
+                            <>
+                              <button
+                                onClick={() => setEditingExpense({ ...item, amount: typeof item.amount === "number" ? item.amount.toString() : item.amount })}
+                                disabled={updateExpenseMutation.isPending}
+                                style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => deleteExpenseMutation.mutate(item.id)}
+                                disabled={deleteExpenseMutation.isPending}
+                                style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#ef4444", display: "flex" }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
                         </div>
-                        {!item.isReimbursement && (
-                          <div className="flex gap-1 ml-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => setEditingExpense({
-                                ...item,
-                                amount: typeof item.amount === 'number' ? item.amount.toString() : item.amount
-                              })}
-                              disabled={updateExpenseMutation.isPending}
-                              className="h-8 w-8"
-                            >
-                              <Edit2 className="w-4 h-4 text-blue-500" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => deleteExpenseMutation.mutate(item.id)}
-                              disabled={deleteExpenseMutation.isPending}
-                              className="h-8 w-8"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                            </Button>
-                          </div>
-                        )}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <Badge variant="outline" className={`text-xs ${
-                          item.isReimbursement ? 'bg-green-100 text-green-700' : ''
-                        }`}>
-                          {item.isReimbursement ? 'Client Reimbursement' : 'Standalone Expense'}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
-                          {item.category}
-                        </Badge>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                        <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{item.businessPurpose}</p>
+                        <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{new Date(item.date).toLocaleDateString()}</p>
                       </div>
-                      {/* Show net impact for expenses with reimbursements */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ display: "inline-block", backgroundColor: item.isReimbursement ? "#d1fae5" : "#00b4d8", color: item.isReimbursement ? "#065f46" : "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px" }}>
+                          {item.isReimbursement ? "Reimbursement" : item.category || "Expense"}
+                        </span>
+                      </div>
                       {!item.isReimbursement && item.parsedReimbursedAmount > 0 && (
-                        <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                          <span className="text-gray-600">
-                            Net out-of-pocket: ${(item.amount - item.parsedReimbursedAmount).toFixed(2)}
-                          </span>
+                        <div style={{ marginTop: "8px", borderTop: "1px solid #f3f4f6", paddingTop: "8px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: "13px", color: "#6b7280" }}>Net out-of-pocket</span>
+                            <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>${(item.amount - item.parsedReimbursedAmount).toFixed(2)}</span>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1396,103 +1340,55 @@ export default function Dashboard() {
             {/* Gig-Related Expenses Section */}
             {getExpensesBreakdown().length > 0 && (
               <div>
-                <h4 className="font-medium text-sm text-gray-700 mb-2">Gig-Related Expenses</h4>
-                <div className="space-y-3">
+                <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Gig-Related Expenses</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getExpensesBreakdown().map((gig, index) => (
-                    <div key={`gig-${gig.id}`} className="border rounded-lg p-3 bg-orange-50">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <p className="font-medium">{gig.eventName || "Unnamed Gig"}</p>
-                          <p className="text-sm text-gray-600">{gig.clientName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-orange-600">${gig.amount.toFixed(2)}</p>
-                          <p className="text-xs text-gray-500">
-                            {gig.isMultiDay 
-                              ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
-                              : parseGigDate(gig.date).toLocaleDateString()
-                            }
-                          </p>
-                        </div>
-                        <div className="flex gap-1 ml-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setEditingGigExpense(gig)}
-                            className="h-8 w-8"
-                          >
-                            <Edit2 className="w-4 h-4 text-orange-500" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => clearGigExpenses(gig.id)}
-                            className="h-8 w-8"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
+                    <div key={`gig-${gig.id}`} style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                        <p style={{ fontSize: "15px", fontWeight: 600, color: "#111827", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <p style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                          <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
+                            <Pencil size={14} />
+                          </button>
+                          <button onClick={() => clearGigExpenses(gig.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#ef4444", display: "flex" }}>
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-600 mb-2 space-y-1">
-                        {gig.parkingExpense > 0 && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between">
-                              <span>Parking:</span>
-                              <span className="text-blue-600">${gig.parkingExpense.toFixed(2)}</span>
-                            </div>
-                            {safeParseFloat(gig.reimbursedParking) > 0 && (
-                              <div className="flex justify-between ml-2">
-                                <span className="italic">- Reimbursed:</span>
-                                <span className="text-green-600">-${safeParseFloat(gig.reimbursedParking).toFixed(2)}</span>
-                              </div>
-                            )}
-                            {safeParseFloat(gig.reimbursedParking) > 0 && (
-                              <div className="flex justify-between ml-2 font-medium">
-                                <span>Net Cost:</span>
-                                <span className={`${
-                                  (gig.parkingExpense - safeParseFloat(gig.reimbursedParking)) < 0 
-                                    ? 'text-green-600' 
-                                    : 'text-orange-600'
-                                }`}>
-                                  ${Math.max(0, gig.parkingExpense - safeParseFloat(gig.reimbursedParking)).toFixed(2)}
-                                  {(gig.parkingExpense - safeParseFloat(gig.reimbursedParking)) < 0 && ' (Over-reimbursed)'}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {gig.otherExpenses > 0 && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between">
-                              <span>Other:</span>
-                              <span className="text-blue-600">${gig.otherExpenses.toFixed(2)}</span>
-                            </div>
-                            {safeParseFloat(gig.reimbursedOther) > 0 && (
-                              <div className="flex justify-between ml-2">
-                                <span className="italic">- Reimbursed:</span>
-                                <span className="text-green-600">-${safeParseFloat(gig.reimbursedOther).toFixed(2)}</span>
-                              </div>
-                            )}
-                            {safeParseFloat(gig.reimbursedOther) > 0 && (
-                              <div className="flex justify-between ml-2 font-medium">
-                                <span>Net Cost:</span>
-                                <span className={`${
-                                  (gig.otherExpenses - safeParseFloat(gig.reimbursedOther)) < 0 
-                                    ? 'text-green-600' 
-                                    : 'text-orange-600'
-                                }`}>
-                                  ${Math.max(0, gig.otherExpenses - safeParseFloat(gig.reimbursedOther)).toFixed(2)}
-                                  {(gig.otherExpenses - safeParseFloat(gig.reimbursedOther)) < 0 && ' (Over-reimbursed)'}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {gig.mileageDeduction > 0 && <div>Mileage: ${gig.mileageDeduction.toFixed(2)} ({gig.mileage} mi)</div>}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                        <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>{gig.clientName}</p>
+                        <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                          {gig.isMultiDay
+                            ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
+                            : parseGigDate(gig.date).toLocaleDateString()}
+                        </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
+                      <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 500, borderRadius: "9999px", padding: "3px 10px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "0" }}>
                         {gig.gigType}
-                      </Badge>
+                      </span>
+                      {(gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0) && (
+                        <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          {gig.parkingExpense > 0 && (
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Parking</span>
+                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                            </div>
+                          )}
+                          {gig.otherExpenses > 0 && (
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Other Expenses</span>
+                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                            </div>
+                          )}
+                          {gig.mileageDeduction > 0 && (
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ fontSize: "13px", color: "#6b7280" }}>Mileage ({gig.mileage} mi)</span>
+                              <span style={{ fontSize: "13px", color: "#00b4d8", fontWeight: 500 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
