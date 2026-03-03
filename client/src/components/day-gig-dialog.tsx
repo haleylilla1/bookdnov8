@@ -1,9 +1,17 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Calendar, DollarSign, Edit2, Trash2 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
 import type { Gig } from "@shared/schema";
+
+const CYAN = "#00b4d8";
+const GREEN = "#10b981";
+const NAVY = "#03045e";
+
+function statusPill(status: string) {
+  const s = status?.toLowerCase() ?? "";
+  if (s === "completed") return { bg: "#d1fae5", color: "#065f46", label: "Completed" };
+  if (s === "upcoming") return { bg: "#e0f2fe", color: "#0369a1", label: "Upcoming" };
+  return { bg: "#fff7ed", color: "#c2410c", label: "Pending Payment" };
+}
 
 interface DayGigDialogProps {
   open: boolean;
@@ -28,153 +36,132 @@ export default function DayGigDialog({
   onDelete,
   isDeleting,
 }: DayGigDialogProps) {
+  const dateLabel = selectedDate?.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent style={{ maxWidth: "480px", borderRadius: "24px", padding: "24px", border: "none" }}>
         <DialogHeader>
-          <DialogTitle>
-            Gigs for {selectedDate?.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+          <DialogTitle style={{ fontSize: "20px", fontWeight: 700, color: "#111111" }}>
+            {dateLabel}
           </DialogTitle>
-          <DialogDescription>
-            View and manage all gigs scheduled for this date.
+          <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "2px" }}>
+            {gigs.length === 0
+              ? "No gigs scheduled for this date."
+              : `${gigs.length} gig${gigs.length > 1 ? "s" : ""} scheduled`}
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-96 overflow-y-auto">
-          {gigs.length > 0 ? (
-            <div className="space-y-3">
-              {gigs.map((gig: Gig, index: number) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="font-semibold text-lg text-gray-900">
-                        {gig.eventName}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {gig.clientName} • {gig.gigType}
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Badge 
-                        variant={
-                          gig.status === 'completed' ? 'default' : 
-                          gig.status === 'upcoming' ? 'secondary' : 
-                          'outline'
-                        }
-                        className="w-fit"
-                      >
-                        {gig.status}
-                      </Badge>
-                      
-                      <div className="flex flex-col gap-2">
-                        {gig.status !== 'completed' && (
-                          <div className="flex justify-center">
-                            <Button
-                              variant="default"
-                              onClick={() => {
-                                onGotPaid(gig);
-                                onOpenChange(false);
-                              }}
-                              className="bg-green-600 hover:bg-green-700 text-white !px-[12px] !py-[7px] !h-auto !text-[12px] !min-h-0"
-                            >
-                              <DollarSign className="h-3.5 w-3.5 mr-0.5" />
-                              Got Paid
-                            </Button>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              onEdit(gig);
-                              onOpenChange(false);
-                            }}
-                            className="flex items-center justify-center"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              const groupedGig = groupedGigs.find(g => 
-                                g.id === gig.id || (g.gigIds && g.gigIds.includes(gig.id))
-                              );
-                              
-                              if (groupedGig?.isMultiDay && groupedGig.gigIds) {
-                                onDelete(gig.id, groupedGig.gigIds);
-                              } else {
-                                onDelete(gig.id);
-                              }
-                              onOpenChange(false);
-                            }}
-                            disabled={isDeleting}
-                            className="flex items-center justify-center text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Expected Pay:</span>
-                      <div className="font-medium text-green-600">
-                        {formatCurrency(parseFloat(gig.expectedPay || "0"))}
-                      </div>
-                    </div>
-                    
-                    {gig.status === 'completed' && gig.actualPay && (
-                      <div>
-                        <span className="text-gray-600">Actual Pay:</span>
-                        <div className="font-medium text-green-600">
-                          {formatCurrency(parseFloat(gig.actualPay))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {gig.tips && parseFloat(gig.tips) > 0 && (
-                      <div>
-                        <span className="text-gray-600">Tips:</span>
-                        <div className="font-medium text-green-600">
-                          {formatCurrency(parseFloat(gig.tips))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {gig.duties && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <span className="text-gray-600 text-sm">Duties:</span>
-                      <div className="text-sm text-gray-900 mt-1">
-                        {gig.duties}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {gig.notes && (
-                    <div className="mt-2">
-                      <span className="text-gray-600 text-sm">Notes:</span>
-                      <div className="text-sm text-gray-900 mt-1">
-                        {gig.notes}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "4px", maxHeight: "60vh", overflowY: "auto" }}>
+          {gigs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "32px 0", color: "#9B9B9B" }}>
+              <Calendar style={{ width: "40px", height: "40px", margin: "0 auto 12px", opacity: 0.3 }} />
+              <p style={{ fontSize: "14px", margin: 0 }}>No gigs found for this date</p>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No gigs found for this date</p>
-            </div>
+            gigs.map((gig: Gig, index: number) => {
+              const pill = statusPill(gig.status ?? "");
+              const pay = gig.status === "completed" && gig.actualPay
+                ? parseFloat(gig.actualPay)
+                : parseFloat(gig.expectedPay || "0");
+              const mileageDeduction = (gig.mileage || 0) * 0.70;
+              const isCompleted = gig.status === "completed";
+
+              return (
+                <div
+                  key={index}
+                  style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}
+                >
+                  {/* Row 1: name + pay */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, flex: 1, paddingRight: "8px" }}>
+                      {gig.eventName || "Unnamed Gig"}
+                    </p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, whiteSpace: "nowrap" }}>
+                      ${pay.toFixed(2)}
+                    </p>
+                  </div>
+
+                  {/* Row 2: client + status badge */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
+                    <span style={{ fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "3px 10px", backgroundColor: pill.bg, color: pill.color, whiteSpace: "nowrap" }}>
+                      {pill.label}
+                    </span>
+                  </div>
+
+                  {/* Row 3: gig type pill */}
+                  <span style={{ display: "inline-block", backgroundColor: CYAN, color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px" }}>
+                    {gig.gigType || "Gig"}
+                  </span>
+
+                  {/* Mileage deduction */}
+                  {mileageDeduction > 0 && (
+                    <div style={{ marginTop: "10px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
+                        <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>-${mileageDeduction.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tips */}
+                  {gig.tips && parseFloat(gig.tips) > 0 && (
+                    <div style={{ marginTop: "6px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: "13px", color: "#111111" }}>Tips</span>
+                      <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>+${parseFloat(gig.tips).toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  {/* Action row */}
+                  <div style={{ marginTop: "14px", borderTop: "1px solid #F0F0F0", paddingTop: "12px", display: "flex", gap: "8px", alignItems: "center" }}>
+                    {!isCompleted && (
+                      <button
+                        onClick={() => {
+                          onGotPaid(gig);
+                          onOpenChange(false);
+                        }}
+                        style={{ flex: 1, backgroundColor: GREEN, color: "#ffffff", border: "none", borderRadius: "10px", padding: "10px 0", fontSize: "14px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                      >
+                        <DollarSign size={15} strokeWidth={2.5} />
+                        Got Paid
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        onEdit(gig);
+                        onOpenChange(false);
+                      }}
+                      style={{ width: "42px", height: "42px", backgroundColor: "#ffffff", border: "1px solid #E8E8E8", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                    >
+                      <Edit2 size={16} color={NAVY} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const groupedGig = groupedGigs.find(g =>
+                          g.id === gig.id || (g.gigIds && g.gigIds.includes(gig.id))
+                        );
+                        if (groupedGig?.isMultiDay && groupedGig.gigIds) {
+                          onDelete(gig.id, groupedGig.gigIds);
+                        } else {
+                          onDelete(gig.id);
+                        }
+                        onOpenChange(false);
+                      }}
+                      disabled={isDeleting}
+                      style={{ width: "42px", height: "42px", backgroundColor: "#fff0f0", border: "1px solid #fecaca", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                    >
+                      <Trash2 size={16} color="#ef4444" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       </DialogContent>
