@@ -193,9 +193,20 @@ export default function AuthForm() {
             <h1 style={{ fontSize: "28px", fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: "12px", lineHeight: 1.2 }}>
               Welcome to Bookd
             </h1>
-            <p style={{ fontSize: "15px", color: "#6b7280", textAlign: "center", marginBottom: "40px", lineHeight: 1.6 }}>
-              Hey, I'm Haley! After six years as an independent gig-based creative — and one too many frustrated calls from my 71-year-old CPA — I built Bookd because the tools out there just don't match our workflow. Inside, you'll track and project your income, know exactly what to set aside for taxes, and maximize deductions through mileage and expense tracking. Thanks for downloading — let's go get bookd!
-            </p>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <p style={{ fontSize: "16px", fontWeight: 700, color: NAVY, marginBottom: "10px" }}>
+                Hey, I'm Haley! 👋
+              </p>
+              <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.65, marginBottom: "12px" }}>
+                After six years as an independent gig-based creative — and one too many messy spreadsheets — I built Bookd because the tools out there just don't match our workflow.
+              </p>
+              <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.65, marginBottom: "14px" }}>
+                Inside, you'll track and project your income, know exactly what to set aside for taxes, and maximize deductions through mileage and expense tracking.
+              </p>
+              <p style={{ fontSize: "14px", fontWeight: 600, color: CYAN, lineHeight: 1.5 }}>
+                Thanks for downloading — let's go get bookd!
+              </p>
+            </div>
 
             <button style={btnPrimary} onClick={() => setMode("register")}>
               Get started
