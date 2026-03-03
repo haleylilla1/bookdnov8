@@ -1,0 +1,27 @@
+Send this to Replit:
+
+"I want the green $ Got Paid button to open a bottom sheet that slides up from the bottom, exactly the same way the + add gig button does. Then that bottom sheet needs to connect to the existing Got Paid screen/flow that is already built. Here is exactly what I want:
+STEP 1 — The bottom sheet behavior
+When the user taps the green $ button, a bottom sheet slides up from the bottom identically to the + button sheet. Same animation spec: translateY(100%) to translateY(0) over 320ms ease out spring. Same dark overlay behind it at 50% opacity. Same grabber pill at the top center. Tapping the overlay dismisses it.
+STEP 2 — What is inside the Got Paid bottom sheet
+This sheet should be slightly taller than the add gig sheet since it has more content. It should show a summary of the gig the user is marking as paid, then confirm the action.
+Header:
+Title: 'Mark as Paid' in 20px, SemiBold, #111111
+Sub-label: 'Confirm payment received for this gig' in 13px, Regular, #9B9B9B
+Gig summary card inside the sheet:
+Show the gig name, client, and expected amount in the same card style we already built — #F9F9F9 background, 14px border radius, 16px padding
+Payment confirmation row:
+Label: 'Amount received' in 13px, Regular, #9B9B9B
+Input field: pre-populated with the expected gig amount, editable in case the actual payment differs
+Font: 17px, SemiBold, #111111
+Primary button:
+Text: 'Confirm Payment ✓'
+Background: #10B981 (brand green)
+Text: white, 15px, SemiBold
+Height: 52px, full width minus 24px margin each side
+Border radius: 999px
+Margin bottom: 24px
+STEP 3 — Connect to existing Got Paid flow
+When the user taps 'Confirm Payment' in the sheet it should trigger exactly the same backend action that the existing Got Paid screen already calls. Do not rebuild the logic — just connect the confirm button in this new sheet to the same mutation or API call that the existing flow uses. The sheet then dismisses and the gig card updates its status to Completed.
+IMPORTANT
+Please show me what the existing Got Paid mutation or API call is before writing any new code so I can confirm you are connecting to the right thing and not duplicating logic
