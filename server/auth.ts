@@ -406,7 +406,10 @@ export function getUserId(req: AuthenticatedRequest): number {
 // Authentication middleware - ONE WAY TO DO THINGS
 export async function requireAuth(req: any, res: Response, next: NextFunction): Promise<void> {
   try {
-    const sessionId = req.cookies?.sessionId;
+    // Accept session from cookie OR Authorization header (for browsers that block cookies)
+    const authHeader = req.headers.authorization;
+    const sessionId = req.cookies?.sessionId ||
+      (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null);
     
     if (!sessionId) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -511,6 +514,7 @@ export function setupAuthRoutes(app: Express): void {
       });
 
       res.status(201).json({
+        sessionId,
         user: {
           id: user.id,
           email: user.email,
@@ -579,6 +583,7 @@ export function setupAuthRoutes(app: Express): void {
       });
 
       res.json({
+        sessionId,
         user: {
           id: user.id,
           email: user.email,
@@ -594,7 +599,9 @@ export function setupAuthRoutes(app: Express): void {
   // LOGOUT
   app.post('/api/logout', async (req: Request, res: Response) => {
     try {
-      const sessionId = req.cookies?.sessionId;
+      const authHeader = (req as any).headers.authorization;
+      const sessionId = req.cookies?.sessionId ||
+        (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null);
       
       if (sessionId) {
         await Auth.destroySession(sessionId);

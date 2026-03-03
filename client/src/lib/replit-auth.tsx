@@ -89,11 +89,13 @@ export function useAuth() {
       await logoutRevenueCatUser().catch(err => {
         console.error('Failed to logout RevenueCat user:', err);
       });
+      localStorage.removeItem('bookd_session');
       queryClient.clear();
       window.location.href = '/';
     },
     onError: () => {
       // Force logout even if API call fails
+      localStorage.removeItem('bookd_session');
       queryClient.clear();
       window.location.href = '/';
     },
@@ -150,8 +152,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default {
-  useAuth,
-  AuthGuard,
-  AuthProvider
-};

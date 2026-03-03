@@ -108,6 +108,7 @@ export default function AuthForm() {
       return res.json();
     },
     onSuccess: (data: any) => {
+      if (data?.sessionId) localStorage.setItem('bookd_session', data.sessionId);
       const userData = data?.user ?? data;
       if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
@@ -136,6 +137,7 @@ export default function AuthForm() {
       return res.json();
     },
     onSuccess: (data: any) => {
+      if (data?.sessionId) localStorage.setItem('bookd_session', data.sessionId);
       const userData = data?.user ?? data;
       if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
