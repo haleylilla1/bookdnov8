@@ -47,14 +47,21 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
   );
   const [paymentMethod, setPaymentMethod] = useState("other");
 
-  // Step 2: Expenses
-  const [hasParking, setHasParking] = useState(false);
-  const [parkingSpent, setParkingSpent] = useState("");
-  const [parkingReimbursed, setParkingReimbursed] = useState("");
-  const [hasOtherExpenses, setHasOtherExpenses] = useState(false);
-  const [otherExpenses, setOtherExpenses] = useState<OtherExpense[]>([
-    { businessPurpose: "", amount: "", category: "Supplies" },
-  ]);
+  // Step 2: Expenses — pre-fill from any existing data on the gig
+  const _existingParking = Number((gig as any).parkingExpense ?? 0);
+  const _existingParkingReimbursed = Number((gig as any).reimbursedParking ?? 0);
+  const _existingOther = Number((gig as any).otherExpenses ?? 0);
+  const _existingOtherDesc = (gig as any).otherExpenseDescription || "";
+
+  const [hasParking, setHasParking] = useState(_existingParking > 0);
+  const [parkingSpent, setParkingSpent] = useState(_existingParking > 0 ? _existingParking.toFixed(2) : "");
+  const [parkingReimbursed, setParkingReimbursed] = useState(_existingParkingReimbursed > 0 ? _existingParkingReimbursed.toFixed(2) : "");
+  const [hasOtherExpenses, setHasOtherExpenses] = useState(_existingOther > 0);
+  const [otherExpenses, setOtherExpenses] = useState<OtherExpense[]>(
+    _existingOther > 0
+      ? [{ businessPurpose: _existingOtherDesc, amount: _existingOther.toFixed(2), category: "Supplies" }]
+      : [{ businessPurpose: "", amount: "", category: "Supplies" }]
+  );
 
   // Step 3: Mileage — addresses
   const [startingAddress, setStartingAddress] = useState(homeAddress || "");
