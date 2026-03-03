@@ -345,7 +345,7 @@ export default function Home() {
 
         {/* Floating Action Buttons — mobile only */}
         {isMainScreen && (
-          <div className="lg:hidden" style={{ position: "fixed", bottom: "88px", right: "16px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "10px", zIndex: 40 }}>
+          <div className="lg:hidden" style={{ position: "fixed", bottom: "80px", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
             {/* Got Paid $ button */}
             <button
               id="fab-paid"
@@ -355,20 +355,21 @@ export default function Home() {
                 toast({ title: "Tap a gig to mark it as paid", description: "Open any gig from your calendar to log a payment." });
               }}
               style={{
-                width: "52px",
-                height: "52px",
+                width: "64px",
+                height: "64px",
                 borderRadius: "50%",
                 border: "none",
                 backgroundColor: GREEN,
                 color: "#ffffff",
-                fontSize: "22px",
-                fontWeight: 700,
+                fontSize: "36px",
+                fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
                 flexShrink: 0,
+                lineHeight: 1,
               }}
             >
               $
@@ -379,8 +380,8 @@ export default function Home() {
               id="fab-toggle"
               onClick={() => setFabOpen(!fabOpen)}
               style={{
-                width: "52px",
-                height: "52px",
+                width: "64px",
+                height: "64px",
                 borderRadius: "50%",
                 border: "none",
                 backgroundColor: NAVY,
@@ -393,7 +394,7 @@ export default function Home() {
                 flexShrink: 0,
               }}
             >
-              <Plus size={24} />
+              <Plus size={36} strokeWidth={1.5} />
             </button>
           </div>
         )}
