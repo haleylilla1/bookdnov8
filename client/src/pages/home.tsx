@@ -264,7 +264,7 @@ export default function Home() {
           <div className="lg:hidden">
             {/* Backdrop */}
             <div
-              style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 48 }}
+              style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 55 }}
               onClick={() => setFabOpen(false)}
             />
             {/* Sheet */}
@@ -277,8 +277,8 @@ export default function Home() {
               maxWidth: "480px",
               backgroundColor: "#ffffff",
               borderRadius: "20px 20px 0 0",
-              zIndex: 49,
-              paddingBottom: "env(safe-area-inset-bottom, 20px)",
+              zIndex: 56,
+              paddingBottom: "max(env(safe-area-inset-bottom, 16px), 16px)",
             }}>
               {/* Handle */}
               <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "8px" }}>
