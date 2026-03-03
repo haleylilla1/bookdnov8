@@ -25,8 +25,8 @@ function statusBadgeStyle(status: string): React.CSSProperties {
     display: "inline-flex",
     alignItems: "center",
     borderRadius: "100px",
-    padding: "3px 10px",
-    fontSize: "12px",
+    padding: "3px 9px",
+    fontSize: "10px",
     fontWeight: 500,
     border: "1.5px solid",
     background: "transparent",
@@ -89,36 +89,21 @@ function GigCard({
     : formatDate(gig.date);
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: "14px",
-        padding: "16px 16px 14px",
-        marginBottom: "12px",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
-      }}
-    >
-      {/* Top row: name + badge + menu */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: "17px", color: "#111827", margin: 0, lineHeight: 1.2 }}>
-            {gig.eventName}
-          </p>
-          <p style={{ fontSize: "13px", color: "#9ca3af", margin: "4px 0 0", lineHeight: 1.3 }}>
-            {dateStr}
-          </p>
-        </div>
+    <div style={{ background: "#fff", borderRadius: "14px", padding: "16px 18px", marginBottom: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, paddingTop: 2 }}>
+      {/* Row 1: gig name (left) + status badge + three-dot menu (right) */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: "12px" }}>
+        <p style={{ fontWeight: 600, fontSize: "15px", color: "#111827", margin: 0, lineHeight: 1.25, flex: 1, minWidth: 0 }}>
+          {gig.eventName}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <span style={statusBadgeStyle(gig.status)}>{statusLabel(gig.status)}</span>
-
-          {/* Three-dot menu */}
           <div ref={menuRef} style={{ position: "relative" }}>
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#9ca3af", display: "flex", alignItems: "center" }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#9ca3af", display: "flex", alignItems: "center" }}
             >
-              <MoreVertical size={18} />
+              <MoreVertical size={16} />
             </button>
             {menuOpen && (
               <div style={{
@@ -146,50 +131,38 @@ function GigCard({
         </div>
       </div>
 
-      {/* Client name right-aligned */}
-      {gig.clientName && (
-        <div style={{ textAlign: "right", fontSize: "13px", color: "#6b7280", marginTop: "2px" }}>
-          {gig.clientName}
-        </div>
-      )}
+      {/* Row 2: date (left) + client/agency (right) — same row, 12px gray */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+        <span style={{ fontSize: "12px", color: "#9ca3af" }}>{dateStr}</span>
+        {gig.clientName && (
+          <span style={{ fontSize: "12px", color: "#9ca3af" }}>{gig.clientName}</span>
+        )}
+      </div>
 
-      {/* Divider */}
-      <div style={{ height: "1px", background: "#f3f4f6", margin: "12px 0" }} />
-
-      {/* Bottom row: amount + action */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontWeight: 700, fontSize: "22px", color: "#111827", margin: 0 }}>
+      {/* Row 3: amount + action — separated by top border with 14px padding above */}
+      <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontWeight: 600, fontSize: "17px", color: "#111827", margin: 0 }}>
           {gig.expectedPay ? formatCurrency(parseFloat(gig.expectedPay)) : "—"}
         </p>
 
         {isPending ? (
           <button
             onClick={() => onGotPaid(gig)}
-            style={{
-              background: NAVY, color: "#fff",
-              border: "none", borderRadius: "100px",
-              padding: "6px 14px", fontSize: "13px", fontWeight: 600,
-              cursor: "pointer",
-            }}
+            style={{ background: NAVY, color: "#fff", border: "none", borderRadius: "100px", padding: "6px 12px", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}
           >
             Got Paid
           </button>
         ) : !isCompleted ? (
           <button
             onClick={() => onGotPaid(gig)}
-            style={{
-              background: NAVY, color: "#fff",
-              border: "none", borderRadius: "100px",
-              padding: "6px 14px", fontSize: "13px", fontWeight: 600,
-              cursor: "pointer",
-            }}
+            style={{ background: NAVY, color: "#fff", border: "none", borderRadius: "100px", padding: "6px 12px", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}
           >
             Got Paid
           </button>
         ) : (
           <button
             onClick={() => onEdit(gig)}
-            style={{ background: "none", border: "none", color: "#6b7280", fontSize: "14px", fontWeight: 500, cursor: "pointer", padding: "4px 0" }}
+            style={{ background: "none", border: "none", color: "#6b7280", fontSize: "13px", fontWeight: 500, cursor: "pointer", padding: "4px 0" }}
           >
             Edit
           </button>
