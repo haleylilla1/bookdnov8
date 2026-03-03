@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Check, Navigation, Loader2 } from "lucide-react";
+import { ChevronLeft, Check, Navigation, Loader2, RotateCcw } from "lucide-react";
 import { BUSINESS_EXPENSE_CATEGORIES } from "@shared/schema";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 import type { Gig } from "@shared/schema";
@@ -55,19 +55,40 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
     { businessPurpose: "", amount: "", category: "Supplies" },
   ]);
 
-  // Step 3: Mileage
+  // Step 3: Mileage — addresses
   const [startingAddress, setStartingAddress] = useState(homeAddress || "");
   const [startingAddressFormatted, setStartingAddressFormatted] = useState(homeAddress || "");
-  const [gigAddressValue, setGigAddressValue] = useState((gig as any).gigAddress || "");
+  const [gigAddressDisplay, setGigAddressDisplay] = useState((gig as any).gigAddress || "");
   const [gigAddressFormatted, setGigAddressFormatted] = useState((gig as any).gigAddress || "");
-  const [miles, setMiles] = useState(String((gig as any).mileage ?? 0));
+
+  // Step 3: Mileage — calculation
+  const [baseOnewayMiles, setBaseOnewayMiles] = useState<number | null>(null);
+  const [miles, setMiles] = useState(String(Number((gig as any).mileage ?? 0)));
   const [isCalculatingMileage, setIsCalculatingMileage] = useState(false);
   const [mileageAutoCalculated, setMileageAutoCalculated] = useState(false);
-  const [manualMilesOverride, setManualMilesOverride] = useState(false);
+  const [isRoundTrip, setIsRoundTrip] = useState(false);
+  const [isRoundTripPerDay, setIsRoundTripPerDay] = useState(false);
 
   // Step 4: Tax
   const [taxPct, setTaxPct] = useState(String(gig.taxPercentage ?? 25));
 
+  // Multi-day info
+  const gigStartDate = (gig as any).startDate;
+  const gigEndDate = (gig as any).endDate;
+  const gigDays = gigStartDate && gigEndDate
+    ? Math.max(1, Math.round((new Date(gigEndDate).getTime() - new Date(gigStartDate).getTime()) / (1000 * 60 * 60 * 24)) + 1)
+    : 1;
+  const isMultiDayGig = gigDays > 1;
+
+  // Recompute miles from base whenever round trip toggles change
+  useEffect(() => {
+    if (baseOnewayMiles === null) return;
+    const multiplier = (isRoundTrip ? 2 : 1) * (isRoundTripPerDay ? gigDays : 1);
+    const computed = Math.round(baseOnewayMiles * multiplier * 10) / 10;
+    setMiles(String(computed));
+  }, [baseOnewayMiles, isRoundTrip, isRoundTripPerDay, gigDays]);
+
+  // Derived values
   const mileageDeduction = parseFloat(miles || "0") * IRS_RATE;
   const totalParkingSpent = hasParking ? parseFloat(parkingSpent || "0") : 0;
   const totalParkingReimbursed = hasParking ? parseFloat(parkingReimbursed || "0") : 0;
@@ -83,35 +104,36 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
     : [];
   const totalOtherExpenses = validOtherExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // Auto-calculate mileage when both addresses are filled (and not manually overridden)
-  const calculateMileage = async (origin: string, destination: string) => {
-    if (!origin || !destination || origin.length < 5 || destination.length < 5) return;
+  const canCalculate =
+    (startingAddressFormatted || startingAddress).length >= 5 &&
+    (gigAddressFormatted || gigAddressDisplay).length >= 5;
+
+  const handleCalculateMileage = async () => {
+    const origin = startingAddressFormatted || startingAddress;
+    const destination = gigAddressFormatted || gigAddressDisplay;
+    if (!canCalculate) return;
     setIsCalculatingMileage(true);
     try {
       const res = await apiRequest("POST", "/api/calculate-distance", {
         startAddress: origin,
         endAddress: destination,
+        roundTrip: false, // Always fetch one-way; we apply multipliers client-side
       });
       if (res.ok) {
         const data = await res.json();
-        const calculated = Math.round((data.distance || 0) * 10) / 10;
-        setMiles(String(calculated));
+        const oneway = Math.round((data.distanceMiles || 0) * 10) / 10;
+        setBaseOnewayMiles(oneway);
         setMileageAutoCalculated(true);
-        setManualMilesOverride(false);
+        // miles will be set by the useEffect above
+      } else {
+        toast({ title: "Couldn't calculate mileage", description: "Enter miles manually below.", variant: "destructive" });
       }
     } catch {
-      // Silently fail — user can enter miles manually
+      toast({ title: "Couldn't calculate mileage", description: "Enter miles manually below.", variant: "destructive" });
     } finally {
       setIsCalculatingMileage(false);
     }
   };
-
-  // Recalculate whenever either formatted address changes (and user hasn't overridden)
-  useEffect(() => {
-    if (!manualMilesOverride && startingAddressFormatted && gigAddressFormatted) {
-      calculateMileage(startingAddressFormatted, gigAddressFormatted);
-    }
-  }, [startingAddressFormatted, gigAddressFormatted]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -124,7 +146,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
         otherReimbursed: 0,
         paymentMethod,
         taxPercentage: parseFloat(taxPct || "25"),
-        gigAddress: gigAddressFormatted || gigAddressValue || undefined,
+        gigAddress: gigAddressFormatted || gigAddressDisplay || undefined,
         startingAddress: startingAddressFormatted || startingAddress || undefined,
       });
       if (!response.ok) throw new Error("Failed to process payment");
@@ -134,11 +156,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
       onSuccess();
     },
     onError: () => {
-      toast({
-        title: "Something went wrong",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     },
   });
 
@@ -150,13 +168,11 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
     lineHeight: 1.3,
     marginBottom: "6px",
   };
-
   const subStyle: React.CSSProperties = {
     fontSize: "13px",
     color: "#9B9B9B",
     marginBottom: "24px",
   };
-
   const labelStyle: React.CSSProperties = {
     fontSize: "12px",
     color: "#9B9B9B",
@@ -165,7 +181,6 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
     letterSpacing: "0.4px",
     fontWeight: 500,
   };
-
   const inputStyle: React.CSSProperties = {
     width: "100%",
     fontSize: "17px",
@@ -177,12 +192,11 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
     background: "transparent",
     padding: "8px 0",
   };
-
   const toggleRowStyle: React.CSSProperties = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "16px 0",
+    padding: "14px 0",
     borderBottom: "1px solid #F0F0F0",
     cursor: "pointer",
   };
@@ -198,21 +212,20 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
         position: "relative",
         flexShrink: 0,
         transition: "background-color 200ms ease",
+        cursor: "pointer",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: "3px",
-          left: on ? "21px" : "3px",
-          width: "20px",
-          height: "20px",
-          borderRadius: "50%",
-          backgroundColor: "#ffffff",
-          transition: "left 200ms ease",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-        }}
-      />
+      <div style={{
+        position: "absolute",
+        top: "3px",
+        left: on ? "21px" : "3px",
+        width: "20px",
+        height: "20px",
+        borderRadius: "50%",
+        backgroundColor: "#ffffff",
+        transition: "left 200ms ease",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+      }} />
     </div>
   );
 
@@ -269,28 +282,14 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                   <div style={labelStyle}>Amount spent</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{ color: "#9B9B9B", fontSize: "16px" }}>$</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      value={parkingSpent}
-                      onChange={(e) => setParkingSpent(e.target.value)}
-                      style={inputStyle}
-                      placeholder="0.00"
-                    />
+                    <input type="number" inputMode="decimal" value={parkingSpent} onChange={(e) => setParkingSpent(e.target.value)} style={inputStyle} placeholder="0.00" />
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={labelStyle}>Reimbursed</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{ color: "#9B9B9B", fontSize: "16px" }}>$</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      value={parkingReimbursed}
-                      onChange={(e) => setParkingReimbursed(e.target.value)}
-                      style={inputStyle}
-                      placeholder="0.00"
-                    />
+                    <input type="number" inputMode="decimal" value={parkingReimbursed} onChange={(e) => setParkingReimbursed(e.target.value)} style={inputStyle} placeholder="0.00" />
                   </div>
                 </div>
               </div>
@@ -307,21 +306,14 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
             {hasOtherExpenses && (
               <div style={{ paddingTop: "14px" }}>
                 {otherExpenses.map((exp, i) => (
-                  <div
-                    key={i}
-                    style={{ backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "14px", marginBottom: "10px" }}
-                  >
+                  <div key={i} style={{ backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "14px", marginBottom: "10px" }}>
                     <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
                       <div style={{ flex: 2 }}>
                         <div style={labelStyle}>Description</div>
                         <input
                           type="text"
                           value={exp.businessPurpose}
-                          onChange={(e) => {
-                            const updated = [...otherExpenses];
-                            updated[i] = { ...updated[i], businessPurpose: e.target.value };
-                            setOtherExpenses(updated);
-                          }}
+                          onChange={(e) => { const u = [...otherExpenses]; u[i] = { ...u[i], businessPurpose: e.target.value }; setOtherExpenses(u); }}
                           style={inputStyle}
                           placeholder="e.g. Studio supplies"
                         />
@@ -334,11 +326,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                             type="number"
                             inputMode="decimal"
                             value={exp.amount}
-                            onChange={(e) => {
-                              const updated = [...otherExpenses];
-                              updated[i] = { ...updated[i], amount: e.target.value };
-                              setOtherExpenses(updated);
-                            }}
+                            onChange={(e) => { const u = [...otherExpenses]; u[i] = { ...u[i], amount: e.target.value }; setOtherExpenses(u); }}
                             style={inputStyle}
                             placeholder="0.00"
                           />
@@ -349,11 +337,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                       <div style={labelStyle}>Category</div>
                       <select
                         value={exp.category}
-                        onChange={(e) => {
-                          const updated = [...otherExpenses];
-                          updated[i] = { ...updated[i], category: e.target.value };
-                          setOtherExpenses(updated);
-                        }}
+                        onChange={(e) => { const u = [...otherExpenses]; u[i] = { ...u[i], category: e.target.value }; setOtherExpenses(u); }}
                         style={{ ...inputStyle, fontSize: "14px", cursor: "pointer" }}
                       >
                         {BUSINESS_EXPENSE_CATEGORIES.map((c) => (
@@ -362,10 +346,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                       </select>
                     </div>
                     {otherExpenses.length > 1 && (
-                      <button
-                        onClick={() => setOtherExpenses(otherExpenses.filter((_, idx) => idx !== i))}
-                        style={{ background: "none", border: "none", color: "#ef4444", fontSize: "12px", cursor: "pointer", marginTop: "10px", padding: 0 }}
-                      >
+                      <button onClick={() => setOtherExpenses(otherExpenses.filter((_, idx) => idx !== i))} style={{ background: "none", border: "none", color: "#ef4444", fontSize: "12px", cursor: "pointer", marginTop: "10px", padding: 0 }}>
                         Remove
                       </button>
                     )}
@@ -386,7 +367,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
         return (
           <div>
             <div style={questionStyle}>How far did you drive?</div>
-            <div style={subStyle}>Enter your addresses and we'll calculate the mileage</div>
+            <div style={subStyle}>Enter your addresses and tap Calculate</div>
 
             {/* Starting address */}
             <div style={{ marginBottom: "18px", position: "relative", zIndex: 20 }}>
@@ -397,37 +378,83 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                 onChange={(display, formatted) => {
                   setStartingAddress(display);
                   setStartingAddressFormatted(formatted || display);
-                  setManualMilesOverride(false);
                   setMileageAutoCalculated(false);
                 }}
               />
             </div>
 
             {/* Gig address */}
-            <div style={{ marginBottom: "20px", position: "relative", zIndex: 10 }}>
+            <div style={{ marginBottom: "16px", position: "relative", zIndex: 10 }}>
               <AddressAutocomplete
                 label="Gig location"
                 placeholder="Where was the gig?"
-                value={gigAddressValue}
+                value={gigAddressDisplay}
                 onChange={(display, formatted) => {
-                  setGigAddressValue(display);
+                  setGigAddressDisplay(display);
                   setGigAddressFormatted(formatted || display);
-                  setManualMilesOverride(false);
                   setMileageAutoCalculated(false);
                 }}
               />
             </div>
 
-            {/* Calculated miles display */}
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{ ...labelStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span>Miles driven</span>
-                {isCalculatingMileage && (
-                  <span style={{ display: "flex", alignItems: "center", gap: "4px", color: CYAN, fontSize: "11px", textTransform: "none", letterSpacing: 0 }}>
-                    <Loader2 size={11} className="animate-spin" />
-                    Calculating…
-                  </span>
-                )}
+            {/* Calculate button */}
+            <button
+              onClick={handleCalculateMileage}
+              disabled={!canCalculate || isCalculatingMileage}
+              style={{
+                width: "100%",
+                height: "44px",
+                borderRadius: "10px",
+                border: `1.5px solid ${canCalculate && !isCalculatingMileage ? CYAN : "#E5E7EB"}`,
+                backgroundColor: "transparent",
+                color: canCalculate && !isCalculatingMileage ? CYAN : "#9B9B9B",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: canCalculate && !isCalculatingMileage ? "pointer" : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                marginBottom: "20px",
+                transition: "all 150ms ease",
+              }}
+            >
+              {isCalculatingMileage
+                ? <><Loader2 size={14} className="animate-spin" />Calculating…</>
+                : <><RotateCcw size={14} />Calculate miles</>}
+            </button>
+
+            {/* Round trip toggles */}
+            <div style={toggleRowStyle} onClick={() => setIsRoundTrip(!isRoundTrip)}>
+              <div>
+                <div style={{ fontSize: "15px", fontWeight: 500, color: "#111111" }}>Round trip</div>
+                <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>
+                  {isRoundTrip && baseOnewayMiles !== null
+                    ? `${baseOnewayMiles} mi each way × 2`
+                    : "Double the distance for the return drive"}
+                </div>
+              </div>
+              <Toggle on={isRoundTrip} onToggle={() => setIsRoundTrip(!isRoundTrip)} />
+            </div>
+
+            {isMultiDayGig && (
+              <div style={toggleRowStyle} onClick={() => setIsRoundTripPerDay(!isRoundTripPerDay)}>
+                <div>
+                  <div style={{ fontSize: "15px", fontWeight: 500, color: "#111111" }}>Round trip per day</div>
+                  <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>
+                    {isRoundTripPerDay && baseOnewayMiles !== null
+                      ? `${baseOnewayMiles} mi × ${isRoundTrip ? "2" : "1"} × ${gigDays} days`
+                      : `Multiply miles across all ${gigDays} days`}
+                  </div>
+                </div>
+                <Toggle on={isRoundTripPerDay} onToggle={() => setIsRoundTripPerDay(!isRoundTripPerDay)} />
+              </div>
+            )}
+
+            {/* Miles field */}
+            <div style={{ marginTop: "16px" }}>
+              <div style={{ ...labelStyle, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span>Total miles</span>
                 {mileageAutoCalculated && !isCalculatingMileage && (
                   <span style={{ display: "flex", alignItems: "center", gap: "4px", color: GREEN, fontSize: "11px", textTransform: "none", letterSpacing: 0 }}>
                     <Navigation size={11} />
@@ -435,26 +462,26 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
                   </span>
                 )}
               </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
                 <input
                   type="number"
                   inputMode="decimal"
                   value={miles}
                   onChange={(e) => {
                     setMiles(e.target.value);
-                    setManualMilesOverride(true);
+                    setBaseOnewayMiles(null);
                     setMileageAutoCalculated(false);
                   }}
                   onFocus={(e) => e.target.select()}
-                  style={{ ...inputStyle, fontSize: "36px", fontWeight: 700, flex: 1 }}
+                  style={{ ...inputStyle, fontSize: "34px", fontWeight: 700, flex: 1 }}
                 />
-                <span style={{ fontSize: "18px", color: "#9B9B9B", fontWeight: 500, flexShrink: 0 }}>miles</span>
+                <span style={{ fontSize: "16px", color: "#9B9B9B", fontWeight: 500, flexShrink: 0 }}>miles</span>
               </div>
             </div>
 
             {/* Deduction preview */}
             {parseFloat(miles || "0") > 0 && !isCalculatingMileage && (
-              <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px" }}>
+              <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginTop: "14px", marginBottom: "12px" }}>
                 <span style={{ fontSize: "13px", color: GREEN, fontWeight: 500 }}>
                   That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2025 IRS rate (70¢/mile)
                 </span>
@@ -462,8 +489,8 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
             )}
 
             <button
-              onClick={() => { setMiles("0"); setStep(4); }}
-              style={{ background: "none", border: "none", color: "#9B9B9B", fontSize: "13px", cursor: "pointer", padding: "4px 0" }}
+              onClick={() => { setMiles("0"); setBaseOnewayMiles(null); setMileageAutoCalculated(false); setStep(4); }}
+              style={{ background: "none", border: "none", color: "#9B9B9B", fontSize: "13px", cursor: "pointer", padding: "4px 0", marginTop: "4px" }}
             >
               Skip — I didn't drive
             </button>
@@ -508,7 +535,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
           { label: "Payment method", value: PAYMENT_METHODS.find((m) => m.value === paymentMethod)?.label ?? paymentMethod },
           ...(milesNum > 0
             ? [
-                { label: "Miles driven", value: `${milesNum} mi` },
+                { label: "Miles driven", value: `${milesNum} mi${isRoundTrip ? " (round trip)" : ""}${isRoundTripPerDay && isMultiDayGig ? ` × ${gigDays} days` : ""}` },
                 { label: "Mileage deduction", value: `$${(milesNum * IRS_RATE).toFixed(2)}` },
               ]
             : []),
@@ -529,13 +556,7 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
             {rows.map(({ label, value, highlight }) => (
               <div
                 key={label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "13px 0",
-                  borderBottom: "1px solid #F0F0F0",
-                }}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid #F0F0F0" }}
               >
                 <span style={{ fontSize: "14px", color: "#9B9B9B" }}>{label}</span>
                 <span style={{ fontSize: "14px", fontWeight: highlight ? 600 : 500, color: "#111111" }}>{value}</span>
@@ -551,26 +572,21 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
   };
 
   const handleNext = () => {
-    if (step < STEPS.length) {
-      setStep(step + 1);
-    } else {
-      mutate();
-    }
+    if (step < STEPS.length) setStep(step + 1);
+    else mutate();
   };
 
   const handleBack = () => {
-    if (step === 1) {
-      onBack();
-    } else {
-      setStep(step - 1);
-    }
+    if (step === 1) onBack();
+    else setStep(step - 1);
   };
 
   const isLastStep = step === STEPS.length;
+  const nextDisabled = isPending || (step === 3 && isCalculatingMileage);
 
   return (
     <>
-      {/* Step header: back arrow + progress dots */}
+      {/* Progress header */}
       <div style={{ display: "flex", alignItems: "center", padding: "4px 20px 14px", flexShrink: 0 }}>
         <button
           onClick={handleBack}
@@ -604,17 +620,17 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
       <div style={{ padding: "8px 20px 0", flexShrink: 0 }}>
         <button
           onClick={handleNext}
-          disabled={isPending || (step === 3 && isCalculatingMileage)}
+          disabled={nextDisabled}
           style={{
             width: "100%",
             height: "52px",
             borderRadius: "999px",
-            backgroundColor: isPending || (step === 3 && isCalculatingMileage) ? "#9ca3af" : isLastStep ? GREEN : "#111111",
+            backgroundColor: nextDisabled ? "#9ca3af" : isLastStep ? GREEN : "#111111",
             color: "#ffffff",
             fontSize: "15px",
             fontWeight: 600,
             border: "none",
-            cursor: isPending || (step === 3 && isCalculatingMileage) ? "not-allowed" : "pointer",
+            cursor: nextDisabled ? "not-allowed" : "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -622,12 +638,8 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
             transition: "background-color 150ms ease",
           }}
         >
-          {isPending
-            ? "Confirming…"
-            : step === 3 && isCalculatingMileage
-            ? <><Loader2 size={15} className="animate-spin" />Calculating…</>
-            : isLastStep
-            ? <><Check size={16} />Confirm Payment</>
+          {isPending ? "Confirming…"
+            : isLastStep ? <><Check size={16} />Confirm Payment</>
             : "Next →"}
         </button>
       </div>
