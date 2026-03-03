@@ -1,4 +1,4 @@
-import { Calendar, PieChart, User } from "lucide-react";
+import { TrendingUp, Calendar, User } from "lucide-react";
 import type { Screen } from "@/pages/home";
 
 const NAVY = "#03045e";
@@ -11,8 +11,8 @@ interface BottomNavigationProps {
 
 export default function BottomNavigation({ currentScreen, onScreenChange }: BottomNavigationProps) {
   const navItems = [
+    { id: "dashboard" as const, label: "Dashboard", icon: TrendingUp },
     { id: "calendar" as const, label: "Calendar", icon: Calendar },
-    { id: "dashboard" as const, label: "Dashboard", icon: PieChart },
     { id: "profile" as const, label: "Profile", icon: User },
   ];
 

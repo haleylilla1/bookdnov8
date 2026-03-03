@@ -12,7 +12,7 @@ import LegalFooter from "@/components/legal-footer";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, X, Briefcase, Receipt } from "lucide-react";
+import { Plus, Briefcase, Receipt, ChevronRight } from "lucide-react";
 
 export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expense-form" | "settings";
 
@@ -171,7 +171,7 @@ function TourOverlay({ step, total, onNext, onSkip }: {
 }
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("calendar");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(null);
@@ -259,94 +259,93 @@ export default function Home() {
           {renderScreen()}
         </main>
 
-        {/* FAB backdrop (when open) */}
+        {/* iOS Bottom Sheet — add menu */}
         {fabOpen && isMainScreen && (
-          <div
-            style={{ position: "fixed", inset: 0, zIndex: 39 }}
-            onClick={() => setFabOpen(false)}
-          />
+          <div className="lg:hidden">
+            {/* Backdrop */}
+            <div
+              style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 48 }}
+              onClick={() => setFabOpen(false)}
+            />
+            {/* Sheet */}
+            <div style={{
+              position: "fixed",
+              bottom: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100%",
+              maxWidth: "480px",
+              backgroundColor: "#ffffff",
+              borderRadius: "20px 20px 0 0",
+              zIndex: 49,
+              paddingBottom: "env(safe-area-inset-bottom, 20px)",
+            }}>
+              {/* Handle */}
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "8px" }}>
+                <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#e5e7eb" }} />
+              </div>
+
+              {/* Add a gig */}
+              <button
+                onClick={() => { setFabOpen(false); setCurrentScreen("gig-form"); }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "16px 20px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  gap: "14px",
+                  minHeight: "unset",
+                }}
+              >
+                <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#eef2ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Briefcase size={20} color={NAVY} />
+                </div>
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <div style={{ fontSize: "16px", fontWeight: 600, color: "#111827" }}>Add a gig</div>
+                  <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "1px" }}>Log a new job</div>
+                </div>
+                <ChevronRight size={18} color="#d1d5db" />
+              </button>
+
+              {/* Divider */}
+              <div style={{ height: "1px", backgroundColor: "#f3f4f6", marginLeft: "74px" }} />
+
+              {/* Add an expense */}
+              <button
+                onClick={() => { setFabOpen(false); setCurrentScreen("expense-form"); }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "16px 20px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  gap: "14px",
+                  minHeight: "unset",
+                }}
+              >
+                <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#fef9ee", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Receipt size={20} color="#d97706" />
+                </div>
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <div style={{ fontSize: "16px", fontWeight: 600, color: "#111827" }}>Add an expense</div>
+                  <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "1px" }}>Track a business cost</div>
+                </div>
+                <ChevronRight size={18} color="#d1d5db" />
+              </button>
+
+              <div style={{ height: "8px" }} />
+            </div>
+          </div>
         )}
 
         {/* Floating Action Buttons — mobile only */}
         {isMainScreen && (
           <div className="lg:hidden" style={{ position: "fixed", bottom: "88px", right: "16px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "10px", zIndex: 40 }}>
-
-            {/* Expanded FAB menu */}
-            {fabOpen && (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "10px" }}>
-                {/* Add Expense */}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: "10px",
-                    padding: "6px 12px",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "#374151",
-                    whiteSpace: "nowrap",
-                  }}>
-                    Add Expense
-                  </div>
-                  <button
-                    onClick={() => { setFabOpen(false); setCurrentScreen("expense-form"); }}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      border: "none",
-                      backgroundColor: "#c258d1",
-                      color: "#ffffff",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 4px 12px rgba(194,88,209,0.4)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Receipt size={18} />
-                  </button>
-                </div>
-
-                {/* Add Gig */}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: "10px",
-                    padding: "6px 12px",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "#374151",
-                    whiteSpace: "nowrap",
-                  }}>
-                    Add Gig
-                  </div>
-                  <button
-                    id="fab-add"
-                    onClick={() => { setFabOpen(false); setCurrentScreen("gig-form"); }}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      border: "none",
-                      backgroundColor: NAVY,
-                      color: "#ffffff",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 4px 12px rgba(3,4,94,0.35)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Briefcase size={18} />
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Got Paid $ button */}
             <button
               id="fab-paid"
@@ -368,34 +367,33 @@ export default function Home() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 16px rgba(22,163,74,0.45)",
+                boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
                 flexShrink: 0,
               }}
             >
               $
             </button>
 
-            {/* + / X toggle button */}
+            {/* + button */}
             <button
               id="fab-toggle"
               onClick={() => setFabOpen(!fabOpen)}
               style={{
-                width: "56px",
-                height: "56px",
+                width: "52px",
+                height: "52px",
                 borderRadius: "50%",
                 border: "none",
-                backgroundColor: fabOpen ? "#6b7280" : NAVY,
+                backgroundColor: NAVY,
                 color: "#ffffff",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 boxShadow: "0 4px 16px rgba(3,4,94,0.35)",
-                transition: "background-color 0.2s ease",
                 flexShrink: 0,
               }}
             >
-              {fabOpen ? <X size={22} /> : <Plus size={24} />}
+              <Plus size={24} />
             </button>
           </div>
         )}

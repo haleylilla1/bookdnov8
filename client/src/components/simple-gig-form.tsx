@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGigSchema, type InsertGig, type User } from "@shared/schema";
 import { z } from "zod";
-import { ArrowLeft, Loader2, MapPin, Navigation } from "lucide-react";
+import { X, Loader2, MapPin, Navigation } from "lucide-react";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 
 // Simplified form schema for planning gigs (detailed tracking happens in "Got Paid")
@@ -368,17 +368,20 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
 
   // MAIN FORM - Full-page slide-in
   return (
-    <div className="fixed inset-0 bg-white z-40 flex flex-col" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+    <div className="fixed inset-0 z-40 flex flex-col" style={{ backgroundColor: "#f5f7f5", paddingTop: "env(safe-area-inset-top, 0px)" }}>
       <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100 shrink-0">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 12px", flexShrink: 0 }}>
+          <div>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>Add Gig</h2>
+            <p style={{ fontSize: "13px", color: "#9ca3af", margin: "3px 0 0" }}>Create a new gig entry</p>
+          </div>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", minHeight: "unset", display: "flex", alignItems: "center", color: "#374151", borderRadius: "8px" }}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", minHeight: "unset", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", borderRadius: "50%" }}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <X size={22} />
           </button>
-          <h2 className="text-lg font-semibold text-gray-900">Add Gig</h2>
         </div>
 
         {/* Form */}

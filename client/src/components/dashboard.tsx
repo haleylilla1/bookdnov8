@@ -807,222 +807,229 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-4 lg:p-0 w-full space-y-6 pb-40">
-      {/* Time Period Selector */}
-      <div className="flex bg-gray-100 p-1 rounded-lg mb-4">
-        <Button 
-          variant={selectedPeriod === "monthly" ? "default" : "ghost"} 
-          size="sm" 
-          className="flex-1"
-          onClick={() => setSelectedPeriod("monthly")}
-        >
-          Monthly
-        </Button>
-        <Button 
-          variant={selectedPeriod === "quarterly" ? "default" : "ghost"} 
-          size="sm" 
-          className="flex-1"
-          onClick={() => setSelectedPeriod("quarterly")}
-        >
-          Quarterly
-        </Button>
-        <Button 
-          variant={selectedPeriod === "annual" ? "default" : "ghost"} 
-          size="sm" 
-          className="flex-1"
-          onClick={() => setSelectedPeriod("annual")}
-        >
-          Annual
-        </Button>
+    <div style={{ padding: "16px", paddingBottom: "160px", width: "100%", backgroundColor: "#f5f5f7", minHeight: "100vh" }}>
+
+      {/* Period Toggle Pills */}
+      <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+        {(["monthly", "quarterly", "annual"] as const).map((p) => {
+          const active = selectedPeriod === p;
+          return (
+            <button
+              key={p}
+              onClick={() => setSelectedPeriod(p)}
+              style={{
+                flex: 1,
+                padding: "8px 0",
+                borderRadius: "20px",
+                border: active ? "none" : "1.5px solid #e5e7eb",
+                backgroundColor: active ? "#03045e" : "#ffffff",
+                color: active ? "#ffffff" : "#9ca3af",
+                fontSize: "13px",
+                fontWeight: active ? 600 : 400,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {p === "monthly" ? "Monthly" : p === "quarterly" ? "Quarterly" : "Annual"}
+            </button>
+          );
+        })}
       </div>
 
       {/* Date Navigation */}
-      <div className="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg">
-        <Button
-          variant="ghost"
-          size="sm"
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+        <button
           onClick={() => navigatePeriod("prev")}
-          className="h-8 w-8 p-0"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#6b7280", display: "flex", alignItems: "center" }}
         >
-          <ChevronLeft className="w-4 h-4" />
-        </Button>
-        
-        <div className="text-center">
-          <div className="font-semibold text-lg text-gray-900">{getPeriodText()}</div>
+          <ChevronLeft size={20} />
+        </button>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>{getPeriodText()}</div>
           {selectedPeriod === "quarterly" && (
-            <div className="text-xs text-gray-500 mb-1">
+            <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
               {(() => {
                 const quarter = getCurrentQuarter(currentDate);
                 const year = currentDate.getFullYear();
                 const nextYear = year + 1;
-                const quarterRanges = {
-                  1: `Jan 1 - Mar 31 (Due Apr 15, ${year})`,
-                  2: `Apr 1 - May 31 (Due Jun 15, ${year})`, 
-                  3: `Jun 1 - Aug 31 (Due Sep 15, ${year})`,
-                  4: `Sep 1 - Dec 31 (Due Jan 15, ${nextYear})`
+                const quarterRanges: Record<number, string> = {
+                  1: `Jan 1 – Mar 31 (Due Apr 15, ${year})`,
+                  2: `Apr 1 – May 31 (Due Jun 15, ${year})`,
+                  3: `Jun 1 – Aug 31 (Due Sep 15, ${year})`,
+                  4: `Sep 1 – Dec 31 (Due Jan 15, ${nextYear})`
                 };
-                return quarterRanges[quarter as keyof typeof quarterRanges];
+                return quarterRanges[quarter];
               })()}
             </div>
           )}
-          <div className="text-sm text-gray-600">
-            {periodStats.totalGigs} total gigs • {periodStats.completedGigs} completed
+          <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
+            {periodStats.totalGigs} gigs &bull; {periodStats.completedGigs} completed
           </div>
         </div>
-        
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={() => navigatePeriod("next")}
-          className="h-8 w-8 p-0"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#6b7280", display: "flex", alignItems: "center" }}
         >
-          <ChevronRight className="w-4 h-4" />
-        </Button>
+          <ChevronRight size={20} />
+        </button>
       </div>
 
-      {/* Export Options */}
-      <div className="mb-4">
-        <div className="text-center mb-3">
-          <p className="text-sm text-gray-600">
-            Generate a comprehensive income report with earnings, expenses, and tax details
-          </p>
+      {/* Total Income Hero Card */}
+      <div style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "16px",
+        padding: "20px",
+        marginBottom: "12px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}>
+        <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "6px" }}>
+          Total Income
         </div>
-        <div className="flex justify-center gap-2 flex-wrap">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleViewIncomeReport}
-            disabled={isGeneratingPDF}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-            data-testid="button-download-report"
-          >
-            <FileText className="w-4 h-4" />
-            {isGeneratingPDF ? 'Downloading...' : 
-             selectedPeriod === 'monthly' ? 'Download Monthly Report' : 
-             selectedPeriod === 'quarterly' ? 'Download Quarterly Report' : 'Download Annual Report'}
-          </Button>
+        <div style={{ fontSize: "36px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
+          ${periodStats.projectedEarnings.toFixed(2)}
+        </div>
+        {periodStats.completedGigs > 0 && periodStats.projectedEarnings > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+            <TrendingUp size={13} color="#10b981" />
+            <span style={{ fontSize: "12px", color: "#10b981", fontWeight: 500 }}>You're on track! Keep it up 🎉</span>
+          </div>
+        )}
+        {periodStats.projectedEarnings === 0 && (
+          <div style={{ marginBottom: "16px" }}>
+            <span style={{ fontSize: "12px", color: "#9ca3af" }}>No gigs added yet for this period</span>
+          </div>
+        )}
 
+        {/* Progress bar */}
+        {(() => {
+          const total = periodStats.projectedEarnings;
+          const received = periodStats.totalReceived;
+          const pct = total > 0 ? Math.min(100, (received / total) * 100) : 0;
+          return (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span style={{ fontSize: "12px", color: "#6b7280" }}>Completed {Math.round(pct)}%</span>
+              </div>
+              <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "#f3f4f6", marginBottom: "16px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${pct}%`, borderRadius: "3px", backgroundColor: "#00b4d8", transition: "width 0.4s ease" }} />
+              </div>
+            </>
+          );
+        })()}
+
+        {/* Completed / Pending split */}
+        <div style={{ display: "flex", gap: "12px" }}>
+          <div style={{ flex: 1, backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px" }}>
+            <div style={{ fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Completed</div>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>${periodStats.totalReceived.toFixed(2)}</div>
+          </div>
+          <div style={{ flex: 1, backgroundColor: "#fafafa", borderRadius: "10px", padding: "12px" }}>
+            <div style={{ fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Pending</div>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>
+              ${Math.max(0, periodStats.projectedEarnings - periodStats.totalReceived).toFixed(2)}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Interactive Cards Note */}
-      <div className="mb-4">
-        <p className="text-sm text-gray-600 text-center">
-          💡 Tap on each card below to see detailed breakdowns
-        </p>
-      </div>
-
-      {/* Main Earnings Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Actual Earnings */}
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow"
+      {/* 2×2 Metric Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "12px" }}>
+        {/* Taxable Income */}
+        <div
           onClick={() => setShowEarningsBreakdown(true)}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
         >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Taxable Income</p>
-                <p className="text-2xl font-bold text-green-600">
-                  ${periodStats.actualEarnings.toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  After reimbursements • {periodStats.completedGigs} completed gigs
-                </p>
-              </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <DollarSign size={16} color="#6b7280" />
+          </div>
+          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Taxable Income</div>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.actualEarnings.toFixed(2)}</div>
+          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{periodStats.completedGigs} gigs paid</div>
+        </div>
 
-        {/* Projected Earnings */}
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow"
+        {/* Expected Earnings */}
+        <div
           onClick={() => setShowProjectedBreakdown(true)}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
         >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Expected Earnings</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  ${periodStats.projectedEarnings.toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  From {periodStats.totalGigs} total gigs (includes upcoming)
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <TrendingUp size={16} color="#6b7280" />
+          </div>
+          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Expected</div>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.projectedEarnings.toFixed(2)}</div>
+          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{periodStats.totalGigs} total gigs</div>
+        </div>
+
+        {/* Tax Estimate */}
+        <div
+          onClick={() => setShowTaxBreakdown(true)}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+        >
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <Calculator size={16} color="#6b7280" />
+          </div>
+          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Tax Estimate</div>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.estimatedTax.toFixed(2)}</div>
+          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>Set aside now</div>
+        </div>
+
+        {/* Expenses */}
+        <div
+          onClick={() => setShowNewExpensesBreakdown(true)}
+          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer" }}
+        >
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <Receipt size={16} color="#6b7280" />
+          </div>
+          <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>Expenses</div>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>${periodStats.totalExpenses.toFixed(2)}</div>
+          <div style={{ fontSize: "10px", color: "#d1d5db", marginTop: "2px" }}>{currentPeriodExpenses.length} tracked</div>
+        </div>
       </div>
 
-
-
-      {/* Additional Stats Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Tax Estimate */}
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setShowTaxBreakdown(true)}
+      {/* Report CTA Card */}
+      <div style={{
+        backgroundColor: "#03045e",
+        borderRadius: "16px",
+        padding: "20px",
+        marginBottom: "16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "12px",
+      }}>
+        <div>
+          <div style={{ fontSize: "15px", fontWeight: 700, color: "#ffffff", marginBottom: "4px" }}>
+            {selectedPeriod === "monthly" ? "Monthly" : selectedPeriod === "quarterly" ? "Quarterly" : "Annual"} Income Report
+          </div>
+          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>
+            Earnings, expenses & tax details
+          </div>
+        </div>
+        <button
+          onClick={handleViewIncomeReport}
+          disabled={isGeneratingPDF}
+          data-testid="button-download-report"
+          style={{
+            backgroundColor: "#00b4d8",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "10px",
+            padding: "10px 16px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: isGeneratingPDF ? "not-allowed" : "pointer",
+            opacity: isGeneratingPDF ? 0.7 : 1,
+            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            flexShrink: 0,
+          }}
         >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tax Estimate</p>
-                <p className="text-2xl font-bold text-red-600">
-                  ${periodStats.estimatedTax.toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  From {periodStats.completedGigs} completed gigs
-                </p>
-              </div>
-              <Calculator className="w-8 h-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tips Earned */}
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setShowTipsBreakdown(true)}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tips Earned</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  ${periodStats.totalTips.toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Cash and card tips
-                </p>
-              </div>
-              <PiggyBank className="w-8 h-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Expenses Breakdown */}
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setShowNewExpensesBreakdown(true)}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Expenses</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  ${periodStats.totalExpenses.toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {currentPeriodExpenses.length} standalone + gig expenses
-                </p>
-              </div>
-              <Receipt className="w-8 h-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
+          <FileText size={14} />
+          {isGeneratingPDF ? "Loading…" : "Download"}
+        </button>
       </div>
 
       {/* Goal Section */}
