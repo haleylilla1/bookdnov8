@@ -19,18 +19,12 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
   return (
     <nav
       style={{
-        position: "fixed",
-        bottom: 0,
-        left: "50%",
-        transform: "translateX(-50%)",
         width: "100%",
-        maxWidth: "480px",
         backgroundColor: "#ffffff",
         borderTop: "1px solid #f0f0f0",
         paddingTop: "8px",
         paddingBottom: "env(safe-area-inset-bottom, 12px)",
         display: "flex",
-        zIndex: 50,
         boxShadow: "0 -2px 16px rgba(0,0,0,0.06)",
       }}
     >

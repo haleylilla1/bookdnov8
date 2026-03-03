@@ -528,68 +528,68 @@ export default function Home() {
           </div>
         )}
 
-        {/* Floating Action Buttons — mobile only */}
-        {isMainScreen && (
-          <div className="lg:hidden" style={{ position: "fixed", bottom: "calc(72px + max(env(safe-area-inset-bottom), 34px))", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
-            {/* Got Paid $ button */}
-            <button
-              id="fab-paid"
-              onClick={() => {
-                setFabOpen(false);
-                openGotPaidSheet();
-              }}
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                border: "none",
-                backgroundColor: GREEN,
-                color: "#ffffff",
-                fontSize: "36px",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
-                flexShrink: 0,
-                lineHeight: 1,
-              }}
-            >
-              $
-            </button>
-
-            {/* + button */}
-            <button
-              id="fab-toggle"
-              onClick={() => setFabOpen(!fabOpen)}
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                border: "none",
-                backgroundColor: NAVY,
-                color: "#ffffff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 16px rgba(3,4,94,0.35)",
-                flexShrink: 0,
-              }}
-            >
-              <Plus size={36} strokeWidth={1.5} />
-            </button>
-          </div>
-        )}
-
         {/* Legal Footer - mobile only */}
         <div className="lg:hidden">
           <LegalFooter className="border-t border-gray-200 bg-white" />
         </div>
 
-        {/* Bottom Navigation - mobile only */}
-        <div className="lg:hidden">
+        {/* Unified bottom bar — FABs always sit exactly above nav, never covered */}
+        <div className="lg:hidden" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", zIndex: 50 }}>
+          {/* FABs — absolute positioned above the nav bar via bottom: 100% */}
+          {isMainScreen && (
+            <div style={{ position: "absolute", bottom: "100%", right: "24px", paddingBottom: "12px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
+              {/* Got Paid $ button */}
+              <button
+                id="fab-paid"
+                onClick={() => {
+                  setFabOpen(false);
+                  openGotPaidSheet();
+                }}
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  border: "none",
+                  backgroundColor: GREEN,
+                  color: "#ffffff",
+                  fontSize: "36px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
+                  flexShrink: 0,
+                  lineHeight: 1,
+                }}
+              >
+                $
+              </button>
+
+              {/* + button */}
+              <button
+                id="fab-toggle"
+                onClick={() => setFabOpen(!fabOpen)}
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  border: "none",
+                  backgroundColor: NAVY,
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 16px rgba(3,4,94,0.35)",
+                  flexShrink: 0,
+                }}
+              >
+                <Plus size={36} strokeWidth={1.5} />
+              </button>
+            </div>
+          )}
+
           <BottomNavigation
             currentScreen={currentScreen}
             onScreenChange={setCurrentScreen}
