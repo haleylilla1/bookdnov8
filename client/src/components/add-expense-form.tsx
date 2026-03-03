@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, ArrowLeft, DollarSign } from "lucide-react";
+import { Briefcase, X, DollarSign } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { type Gig } from "@shared/schema";
 import { addExpenseSchema, type ExpenseFormData, getTodayISO } from "@/lib/form-schemas";
@@ -112,29 +112,51 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
-      <Card className="w-full max-w-sm max-h-[85vh] overflow-hidden bg-white relative z-50 touch-manipulation rounded-lg flex flex-col">
-        <CardHeader className="flex flex-row items-center space-y-0 pb-4 shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="mr-2 h-10 w-10 touch-manipulation"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <CardTitle className="text-lg">
+    <>
+      {/* Backdrop */}
+      <div
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 59 }}
+        onClick={onClose}
+      />
+      {/* Slide-up sheet */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%",
+        maxWidth: "480px",
+        height: "92dvh",
+        backgroundColor: "#f5f7f5",
+        borderRadius: "20px 20px 0 0",
+        zIndex: 60,
+        display: "flex",
+        flexDirection: "column",
+        animation: "sheetSlideUp 0.32s cubic-bezier(0.32,0.72,0,1)",
+      }}>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Pill handle */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: "10px", paddingBottom: "4px", flexShrink: 0 }}>
+          <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#d1d5db" }} />
+        </div>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px 12px", flexShrink: 0 }}>
+          <div>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>
               {linkedGigId ? "Add Gig Expense" : "Add Expense"}
-            </CardTitle>
-            <CardDescription>
-              {linkedGigId 
-                ? "Track expenses for this gig"
-                : "Add a business expense to track your spending"
-              }
-            </CardDescription>
+            </h2>
+            <p style={{ fontSize: "13px", color: "#9ca3af", margin: "3px 0 0" }}>
+              {linkedGigId ? "Track expenses for this gig" : "Track a business cost"}
+            </p>
           </div>
-        </CardHeader>
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", minHeight: "unset", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", borderRadius: "50%" }}
+          >
+            <X size={22} />
+          </button>
+        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
@@ -272,7 +294,8 @@ export default function AddExpenseForm({ onClose, linkedGigId }: AddExpenseFormP
             </div>
           </form>
         </Form>
-      </Card>
-    </div>
+      </div>
+      </div>
+    </>
   );
 }

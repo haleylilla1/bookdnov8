@@ -368,10 +368,36 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
 
   // MAIN FORM - Full-page slide-in
   return (
-    <div className="fixed inset-0 z-40 flex flex-col" style={{ backgroundColor: "#f5f7f5", paddingTop: "env(safe-area-inset-top, 0px)" }}>
-      <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
+    <>
+      {/* Backdrop */}
+      <div
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 59 }}
+        onClick={onClose}
+      />
+      {/* Slide-up sheet */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%",
+        maxWidth: "480px",
+        height: "92dvh",
+        backgroundColor: "#f5f7f5",
+        borderRadius: "20px 20px 0 0",
+        zIndex: 60,
+        display: "flex",
+        flexDirection: "column",
+        animation: "sheetSlideUp 0.32s cubic-bezier(0.32,0.72,0,1)",
+      }}>
+      <div className="w-full flex flex-col h-full">
+        {/* Pill handle */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: "10px", paddingBottom: "4px", flexShrink: 0 }}>
+          <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#d1d5db" }} />
+        </div>
+
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 12px", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px 12px", flexShrink: 0 }}>
           <div>
             <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>Add Gig</h2>
             <p style={{ fontSize: "13px", color: "#9ca3af", margin: "3px 0 0" }}>Create a new gig entry</p>
@@ -892,6 +918,7 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
           </form>
         </Form>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
