@@ -217,9 +217,16 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
             />
           </div>
 
-          <p style={{ fontSize: "12px", color: "#9ca3af", textAlign: "center", marginBottom: "24px" }}>
+          <p style={{ fontSize: "12px", color: "#9ca3af", textAlign: "center", marginBottom: "20px" }}>
             🔒 We never share or sell your data.
           </p>
+
+          <div style={{ backgroundColor: "#f0fdf4", borderRadius: "12px", padding: "14px 16px", marginBottom: "8px", borderLeft: "3px solid #10b981" }}>
+            <p style={{ fontSize: "12px", fontWeight: 700, color: "#065f46", margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>💡 Tip</p>
+            <p style={{ fontSize: "13px", color: "#374151", margin: 0, lineHeight: 1.55 }}>
+              For 2026, the IRS standard mileage rate for business use of a vehicle is <strong>70 cents per mile</strong>. Independent contractors (1099 workers) can use this rate to deduct business-related driving expenses.
+            </p>
+          </div>
 
           <div style={{ flex: 1 }} />
 
