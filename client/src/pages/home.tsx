@@ -481,7 +481,7 @@ export default function Home() {
 
         {/* Floating Action Buttons — mobile only */}
         {isMainScreen && (
-          <div className="lg:hidden" style={{ position: "fixed", bottom: "80px", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
+          <div className="lg:hidden" style={{ position: "fixed", bottom: "calc(68px + env(safe-area-inset-bottom, 16px))", right: "24px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px", zIndex: 40 }}>
             {/* Got Paid $ button */}
             <button
               id="fab-paid"
