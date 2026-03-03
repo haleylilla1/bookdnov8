@@ -215,11 +215,11 @@ export default function Home() {
   const renderScreen = () => {
     switch (currentScreen) {
       case "calendar": return <CalendarView />;
-      case "dashboard": return <Dashboard />;
+      case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
       case "profile": return <Profile />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
       case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
-      default: return <Dashboard />;
+      default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
     }
   };
 

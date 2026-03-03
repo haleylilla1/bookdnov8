@@ -70,7 +70,7 @@ const cardVariants = {
   },
 };
 
-export default function Dashboard() {
+export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAddGig?: () => void; onOpenAddExpense?: () => void } = {}) {
   const [, setLocation] = useLocation();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("monthly");
   const [editingGoal, setEditingGoal] = useState<"monthly" | "quarterly" | "annual" | null>(null);
@@ -918,30 +918,47 @@ export default function Dashboard() {
         <div style={{ fontSize: "30px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
           ${periodStats.projectedEarnings.toFixed(2)}
         </div>
-        {periodStats.completedGigs > 0 && periodStats.projectedEarnings > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-            <TrendingUp size={13} color="#10b981" />
-            <span style={{ fontSize: "12px", color: "#10b981", fontWeight: 500 }}>You're on track! Keep it up 🎉</span>
-          </div>
-        )}
-        {periodStats.projectedEarnings === 0 && (
-          <div style={{ marginBottom: "16px" }}>
-            <span style={{ fontSize: "12px", color: "#9ca3af" }}>No gigs added yet for this period</span>
-          </div>
-        )}
-
-        {/* Progress bar */}
+        {/* Stat tiles: Mileage Deductions + Expense Deductions */}
         {(() => {
-          const total = periodStats.projectedEarnings;
-          const received = periodStats.totalReceived;
-          const pct = total > 0 ? Math.min(100, (received / total) * 100) : 0;
+          const expData = getExpensesBreakdown();
+          const totalMileageDollars = expData.reduce((sum, g) => sum + g.mileageDeduction, 0);
+          const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.70) : 0;
+          const totalExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
           return (
             <>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#111111" }}>Completed {Math.round(pct)}%</span>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+                {/* Tile 1: Mileage Deductions */}
+                <div style={{ flex: 1, backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "16px", marginBottom: "2px" }}>🚗</span>
+                  <span style={{ fontSize: "11px", fontWeight: 400, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Mileage Deductions</span>
+                  <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111", lineHeight: 1.2 }}>${totalMileageDollars.toFixed(2)}</span>
+                  {totalMileageDollars > 0 ? (
+                    <span style={{ fontSize: "11px", color: "#9B9B9B" }}>across {totalMiles} miles driven</span>
+                  ) : (
+                    <span
+                      style={{ fontSize: "11px", color: "#00b4d8", cursor: "pointer" }}
+                      onClick={() => onOpenAddGig?.()}
+                    >None logged yet — tap to add</span>
+                  )}
+                </div>
+                {/* Tile 2: Expense Deductions */}
+                <div style={{ flex: 1, backgroundColor: "#F9F9F9", borderRadius: "12px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "16px", marginBottom: "2px" }}>🧾</span>
+                  <span style={{ fontSize: "11px", fontWeight: 400, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Expense Deductions</span>
+                  <span style={{ fontSize: "20px", fontWeight: 600, color: "#111111", lineHeight: 1.2 }}>${totalExpenseDollars.toFixed(2)}</span>
+                  {totalExpenseDollars > 0 ? (
+                    <span style={{ fontSize: "11px", color: "#9B9B9B" }}>logged this period</span>
+                  ) : (
+                    <span
+                      style={{ fontSize: "11px", color: "#00b4d8", cursor: "pointer" }}
+                      onClick={() => onOpenAddExpense?.()}
+                    >None logged yet — tap to add</span>
+                  )}
+                </div>
               </div>
-              <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "#f3f4f6", marginBottom: "16px", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, borderRadius: "3px", backgroundColor: "#00b4d8", transition: "width 0.4s ease" }} />
+              {/* Motivational line */}
+              <div style={{ fontSize: "13px", color: "#9B9B9B", textAlign: "center", marginBottom: "16px" }}>
+                Every mile and receipt adds up. Keep logging. 💰
               </div>
             </>
           );
