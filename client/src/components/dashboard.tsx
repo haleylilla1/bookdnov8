@@ -1044,11 +1044,11 @@ export default function Dashboard() {
 
       {/* Earnings Breakdown Modal */}
       <Dialog open={showEarningsBreakdown} onOpenChange={setShowEarningsBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Actual Earnings Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
-              View detailed breakdown of completed gigs and their actual earnings.
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Taxable Income Breakdown</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
+              View your total taxable income after deductions and reimbursements.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1091,10 +1091,10 @@ export default function Dashboard() {
 
       {/* Projected Earnings Breakdown Modal */}
       <Dialog open={showProjectedBreakdown} onOpenChange={setShowProjectedBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Projected Earnings Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
               View detailed breakdown of all gigs including completed and upcoming.
             </DialogDescription>
           </DialogHeader>
@@ -1132,10 +1132,10 @@ export default function Dashboard() {
 
       {/* Tax Estimate Breakdown Modal */}
       <Dialog open={showTaxBreakdown} onOpenChange={setShowTaxBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Tax Estimate Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
               View detailed tax calculations for each gig based on income and tax rates.
             </DialogDescription>
           </DialogHeader>
@@ -1188,10 +1188,10 @@ export default function Dashboard() {
 
       {/* Tips Breakdown Modal */}
       <Dialog open={showTipsBreakdown} onOpenChange={setShowTipsBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Tips Earned Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
               View detailed breakdown of tips earned from completed gigs.
             </DialogDescription>
           </DialogHeader>
@@ -1220,10 +1220,10 @@ export default function Dashboard() {
 
       {/* Expenses Breakdown Modal */}
       <Dialog open={showExpensesBreakdown} onOpenChange={setShowExpensesBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Expenses Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
               View detailed breakdown of expenses including parking, other costs, and mileage deductions.
             </DialogDescription>
           </DialogHeader>
@@ -1286,10 +1286,10 @@ export default function Dashboard() {
 
       {/* New Standalone Expenses Breakdown Modal */}
       <Dialog open={showNewExpensesBreakdown} onOpenChange={setShowNewExpensesBreakdown}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
             <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>All Expenses Breakdown</DialogTitle>
-            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px" }}>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
               View all expenses including standalone expenses and gig-related costs.
             </DialogDescription>
           </DialogHeader>

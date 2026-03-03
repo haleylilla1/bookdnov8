@@ -1,0 +1,42 @@
+The issue is that Replit probably just tweaked values without actually refactoring the component styling. You need to be more direct and explicit. Send this:
+
+"The UI did not change from my last request. I need you to go into the actual component files and rewrite the styles from scratch. Do not adjust existing styles — replace them entirely. Here is exactly what each element needs to be changed to:
+Find the bottom sheet / modal component for the earnings and tax breakdowns and make these specific code changes:
+The sheet container
+Remove any existing background, border, or shadow classes
+Set: background white, top-left and top-right border radius 24px, padding 24px on left and right
+The close button
+It is currently floating incorrectly in the top right
+Fix it to be: position absolute, top 20px, right 20px, width 32px, height 32px, border radius 50%, background #F5F5F5, display flex, align items center, justify content center
+The X icon inside should be #111111, 16px
+The title
+Font size 22px, font weight 700, color #111111, margin bottom 4px
+The subtitle
+Font size 13px, color #9B9B9B, line height 1.5, margin bottom 20px
+Each gig card
+Remove any white background and border it currently has
+Set: background #F9F9F9, border radius 14px, border none, padding 16px, margin bottom 10px
+Gig name and amount on the top row
+Both 16px, font weight 600, color #111111
+Use flexbox with justify content space-between
+Client name and date on second row
+Both 13px, font weight 400, color #9B9B9B
+Use flexbox with justify content space-between, margin top 2px
+The category pill
+Background: #00B4D8 (brand cyan)
+Text: white, 11px, font weight 600
+Padding: 4px 12px, border radius 999px
+Display inline-block, margin top 8px
+Deduction rows like Mileage
+Add a 1px solid #F0F0F0 border-top above each deduction row
+Padding top 10px, margin top 10px
+Label: 13px, color #111111
+Amount: 13px, font weight 600, color #10B981 (green)
+The note or disclaimer card at the bottom
+Background #FFFBEB
+Border 1px solid #FDE68A
+Border radius 12px
+Padding 16px
+Title 13px font weight 600 color #B45309
+Body text 13px color #B45309 line height 1.6
+Please show me the exact lines of code you are changing and confirm which file each change is in so I can verify it was applied correctly.
