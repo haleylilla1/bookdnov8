@@ -70,7 +70,7 @@ const cardVariants = {
   },
 };
 
-export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAddGig?: () => void; onOpenAddExpense?: () => void } = {}) {
+export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, onTourNext }: { onOpenAddGig?: () => void; onOpenAddExpense?: () => void; tourStep?: number | null; onTourNext?: () => void } = {}) {
   const [, setLocation] = useLocation();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("monthly");
   const [editingGoal, setEditingGoal] = useState<"monthly" | "quarterly" | "annual" | null>(null);
@@ -973,7 +973,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
 
         {/* Tax Estimate */}
         <div
-          onClick={() => setShowTaxBreakdown(true)}
+          onClick={() => { setShowTaxBreakdown(true); if (tourStep === 2) onTourNext?.(); }}
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
@@ -1009,7 +1009,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
           Generate a comprehensive income report with earnings, expenses, and tax details
         </p>
         <button
-          onClick={handleViewIncomeReport}
+          onClick={() => { handleViewIncomeReport(); if (tourStep === 3) onTourNext?.(); }}
           disabled={isGeneratingPDF}
           data-testid="button-download-report"
           style={{

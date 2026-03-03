@@ -25,38 +25,35 @@ const NAVY = "#03045e";
 const GREEN = "#10b981";
 
 // Tooltip tour steps (4 tooltip steps + 1 completion modal)
+// Each step advances ONLY when the user taps the real target button.
 const TOUR_STEPS = [
   {
     id: "add-gig",
     title: "Start here 👋",
-    body: "This is where you add a gig. Log any job in under a minute.",
-    // Tooltip sits above the + FAB, caret points down-right toward it
+    body: "Tap the + button below to log your first gig. Any job, under a minute.",
     tooltipStyle: { bottom: "230px", right: "12px", maxWidth: "275px" } as CSSProperties,
     caretSide: "bottom-right" as const,
   },
   {
     id: "got-paid",
     title: "Getting paid? Tap this 💚",
-    body: "Once a client pays you, hit this button. Bookd will handle the rest — taxes, income tracking, all of it.",
-    // Tooltip sits above the $ FAB
-    tooltipStyle: { bottom: "310px", right: "12px", maxWidth: "275px" } as CSSProperties,
+    body: "When a client pays you, tap the $ button. Bookd handles taxes, income tracking — all of it.",
+    tooltipStyle: { bottom: "315px", right: "12px", maxWidth: "275px" } as CSSProperties,
     caretSide: "bottom-right" as const,
   },
   {
-    id: "dashboard",
-    title: "Your dashboard is your home base",
-    body: "Tap any card for a detailed breakdown of your income, taxes owed, and expenses. Everything in one place.",
-    // Tooltip centered, mid-screen
-    tooltipStyle: { bottom: "240px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
+    id: "tax-card",
+    title: "Your tax snapshot",
+    body: "Tap the Tax Estimate card to see exactly how your estimate is calculated. No surprises at tax time.",
+    tooltipStyle: { bottom: "310px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
     caretSide: "bottom-center" as const,
   },
   {
-    id: "profile",
-    title: "One last thing",
-    body: "Head to your profile anytime to update your tax rate and address. Keeping this accurate means better estimates for you.",
-    // Tooltip above the bottom nav, right-aligned toward Profile tab
-    tooltipStyle: { bottom: "90px", right: "12px", maxWidth: "275px" } as CSSProperties,
-    caretSide: "bottom-right" as const,
+    id: "download-report",
+    title: "Download your report",
+    body: "Tap the button below to generate a full income report with earnings, expenses, and tax details.",
+    tooltipStyle: { bottom: "230px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
+    caretSide: "bottom-center" as const,
   },
 ];
 
@@ -118,11 +115,9 @@ function TourOverlay({ step, onNext, onSkip }: {
   const s = TOUR_STEPS[step];
 
   return (
-    <div
-      style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }}
-      onClick={onNext}
-    >
-      {/* Tooltip card */}
+    // Non-blocking overlay — pointer-events: none lets the real buttons be tapped
+    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.55)", zIndex: 10000, pointerEvents: "none" }}>
+      {/* Tooltip card — pointer-events: auto so it stays visible and interactive */}
       <div
         style={{
           ...s.tooltipStyle,
@@ -133,8 +128,8 @@ function TourOverlay({ step, onNext, onSkip }: {
           border: `2.5px solid ${CYAN}`,
           padding: "18px 20px 16px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+          pointerEvents: "auto",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Title */}
         <div style={{ fontSize: "15px", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.3 }}>
@@ -142,13 +137,12 @@ function TourOverlay({ step, onNext, onSkip }: {
         </div>
 
         {/* Body */}
-        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "16px", margin: "0 0 16px 0" }}>
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, margin: "0 0 16px 0" }}>
           {s.body}
         </p>
 
         {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          {/* Dot indicators */}
           <div style={{ display: "flex", gap: "5px" }}>
             {Array.from({ length: TOTAL_TOOLTIP_STEPS }).map((_, i) => (
               <div
@@ -163,12 +157,11 @@ function TourOverlay({ step, onNext, onSkip }: {
               />
             ))}
           </div>
-          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", cursor: "pointer" }} onClick={onNext}>
-            tap to continue
+          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
+            tap the button below ↓
           </span>
         </div>
 
-        {/* Caret arrow pointing toward target element */}
         <Caret side={s.caretSide} />
       </div>
     </div>
@@ -282,6 +275,7 @@ export default function Home() {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
+    setCurrentScreen("dashboard"); // always land on dashboard before tour
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     // Only mark "pending" for brand-new users who have never seen the tour
     if (tourKey && !localStorage.getItem(tourKey)) {
@@ -293,13 +287,10 @@ export default function Home() {
 
   const handleTourNext = () => {
     if (tourStep === null) return;
-    // Step 3 (profile) navigates to profile tab so user sees it highlighted
-    if (tourStep === 3) setCurrentScreen("profile");
-    // Step TOTAL_TOOLTIP_STEPS is the completion modal — "Let's go" dismisses tour
+    // Completion modal — dismiss and stay on dashboard
     if (tourStep >= TOTAL_TOOLTIP_STEPS) {
       markTourDone();
       setTourStep(null);
-      setCurrentScreen("dashboard");
     } else {
       setTourStep(tourStep + 1);
     }
@@ -316,7 +307,7 @@ export default function Home() {
         setGotPaidSelectedGig(gig);
         openGotPaidSheet();
       }} />;
-      case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
+      case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} tourStep={tourStep} onTourNext={handleTourNext} />;
       case "profile": return <Profile onDemoComplete={startTour} />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
       case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
@@ -568,6 +559,7 @@ export default function Home() {
                 onClick={() => {
                   setFabOpen(false);
                   openGotPaidSheet();
+                  if (tourStep === 1) handleTourNext();
                 }}
                 style={{
                   width: "64px",
@@ -593,7 +585,7 @@ export default function Home() {
               {/* + button */}
               <button
                 id="fab-toggle"
-                onClick={() => setFabOpen(!fabOpen)}
+                onClick={() => { setFabOpen(!fabOpen); if (tourStep === 0) handleTourNext(); }}
                 style={{
                   width: "64px",
                   height: "64px",
