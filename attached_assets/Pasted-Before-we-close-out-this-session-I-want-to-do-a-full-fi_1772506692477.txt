@@ -1,0 +1,29 @@
+Before we close out this session I want to do a full final audit. Please go through everything we built or changed today and answer each of these questions explicitly. Do not fix anything yet — just report back first.
+FUNCTIONALITY CHECKS
+
+Got Paid flow — when a user selects W2, custom rate, or default rate and taps confirm, is the correct taxRateUsed, taxTreatment, and isW2 value being saved to the database every single time without exception?
+Tax calculations — is there any place in the codebase that is still using a hardcoded tax rate instead of pulling from taxRateUsed on the gig record or the user's profile default?
+Reports — do the monthly, quarterly, and annual reports all correctly exclude W2 gigs from the tax total and display the W2 label in place of a dollar amount?
+The summary line — does the report show the 'X W2 gigs excluded from tax calculations' line only when there is at least one W2 gig in the period, and hide it when there are none?
+Decimal tax rates — if a user types 28.5 as a custom rate, is that stored and displayed as 28.5 everywhere, not rounded to 28 or 29?
+
+DATA INTEGRITY CHECKS
+
+Are there any existing gigs in the database that predate today's schema changes that are missing taxRateUsed, taxTreatment, or isW2 values? If so what do they default to and will that cause any display errors in the reports?
+Is taxPercentage still being sent alongside the new fields in the got paid mutation so that nothing in the existing code that reads taxPercentage breaks?
+Did db:push complete successfully and are all three new columns confirmed in the gigs table?
+
+UI CONSISTENCY CHECKS
+
+Does the W2 badge in the reports match the brand style — same font, same color system, same pill shape as other status labels in the app?
+On the Got Paid sheet, when the user switches between the three tax options does the dynamic summary line at the bottom update instantly and correctly every time?
+
+EDGE CASES
+
+What happens if a user opens the Got Paid sheet and taps confirm without selecting any option — does it correctly fall back to their default profile rate?
+What happens if a user's profile tax rate is null or undefined — is there a safe fallback that prevents a broken calculation or a NaN displaying anywhere?
+What happens if the user types nothing or clears the custom rate input and taps confirm — is that handled gracefully?
+Is the first-launch onboarding flag working correctly so returning users never see the coach marks again?
+Are there any console errors or warnings currently showing in the app that we have not addressed?
+
+Please answer all 15 questions and list any issues found with the file name and line number. Once I have reviewed the full report I will tell you which ones to fix and in what order.
