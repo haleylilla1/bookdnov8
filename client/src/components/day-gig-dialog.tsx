@@ -137,9 +137,9 @@ export default function DayGigDialog({
                         onEdit(gig);
                         onOpenChange(false);
                       }}
-                      style={{ width: "38px", height: "38px", backgroundColor: "#ffffff", border: "1px solid #E8E8E8", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", color: "#6b7280" }}
                     >
-                      <Edit2 size={15} color={NAVY} strokeWidth={2} />
+                      <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => {
@@ -154,9 +154,9 @@ export default function DayGigDialog({
                         onOpenChange(false);
                       }}
                       disabled={isDeleting}
-                      style={{ width: "38px", height: "38px", backgroundColor: "#fff0f0", border: "1px solid #fecaca", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", color: "#ef4444" }}
                     >
-                      <Trash2 size={15} color="#ef4444" strokeWidth={2} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
