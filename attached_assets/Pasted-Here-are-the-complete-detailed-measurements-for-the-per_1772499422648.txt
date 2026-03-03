@@ -1,0 +1,80 @@
+Here are the complete detailed measurements for the period navigation section on the dashboard:
+
+Period Selector Buttons (Monthly/Quarterly/Annual):
+Container:
+
+Display: flex
+Alignment: justify-center (centered horizontally)
+Gap between buttons: gap-2 (8px)
+Bottom margin: mb-6 (24px)
+Individual Buttons:
+
+Horizontal padding: px-5 (20px left/right)
+Vertical padding: py-2 (8px top/bottom)
+Border radius: rounded-full (fully rounded pill shape)
+Font size: text-sm (14px)
+Font weight: font-medium
+Minimum width: min-w-[100px] (100px)
+Transition: transition-all
+Active state (selected button):
+
+Background color: #03045e (deep navy blue)
+Text color: white
+Border: none
+Inactive state:
+
+Background color: white
+Text color: text-gray-600 (#4B5563)
+Border: 1px solid with border-gray-200 (#E5E7EB)
+Period Display Section (February 2026 with arrows):
+Container:
+
+Bottom margin: mb-6 (24px)
+Period Display Row (with arrows):
+
+Display: flex
+Alignment: items-center justify-center
+Gap: gap-4 (16px between arrows and text)
+Bottom margin: mb-1 (4px)
+Arrow Buttons (Left & Right):
+
+Padding: p-1.5 (6px all sides)
+Border radius: rounded-lg
+Hover background: hover:bg-gray-100 (#F3F4F6)
+Transition: transition-colors
+Icon size: w-5 h-5 (20px × 20px)
+Icon color: text-gray-600 (#4B5563)
+Period Label (e.g., "February 2026"):
+
+Font size: text-lg (18px)
+Font weight: font-semibold
+Text color: text-gray-900 (#111827)
+Subtitle Row (e.g., "0 total gigs • 0 completed"):
+
+Font size: text-sm (14px)
+Text color: text-gray-500 (#6B7280)
+Alignment: text-center
+Visual Layout Summary:
+┌─────────────────────────────────────────┐
+│     [Monthly] [Quarterly] [Annual]      │  ← Centered, 8px gap
+│              ↓ 24px margin               │
+│         ←  February 2026  →              │  ← 16px gaps, centered
+│              ↓ 4px margin                │
+│         0 total gigs • 0 completed       │  ← Centered
+│              ↓ 24px margin               │
+│           [Main Content]                 │
+└─────────────────────────────────────────┘
+Key Measurements:
+
+Period buttons to period display: 24px
+Left arrow to text: 16px
+Text to right arrow: 16px
+Period display to subtitle: 4px
+Subtitle to main content: 24px
+Button height: 36px (8px top + 8px bottom + ~20px text)
+Arrow button size: 29px (6px padding × 2 + 20px icon = ~32px)
+Period label: 18px font size
+Button font: 14px
+home
+393
+852

@@ -809,8 +809,8 @@ export default function Dashboard() {
   return (
     <div style={{ padding: "16px", paddingBottom: "160px", width: "100%", backgroundColor: "#f5f5f7", minHeight: "100vh" }}>
 
-      {/* Period Toggle Pills */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+      {/* Period Toggle Pills — centered */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "24px" }}>
         {(["monthly", "quarterly", "annual"] as const).map((p) => {
           const active = selectedPeriod === p;
           return (
@@ -819,6 +819,7 @@ export default function Dashboard() {
               onClick={() => setSelectedPeriod(p)}
               style={{
                 padding: "8px 20px",
+                minWidth: "100px",
                 borderRadius: "9999px",
                 border: active ? "none" : "1px solid #e5e7eb",
                 backgroundColor: active ? "#03045e" : "#ffffff",
@@ -836,45 +837,47 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Date Navigation */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px" }}>
-        <div>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>
-            {getPeriodText()}
-          </h2>
-          {selectedPeriod === "quarterly" && (
-            <div style={{ fontSize: "14px", color: "#9ca3af", marginTop: "2px" }}>
-              {(() => {
-                const quarter = getCurrentQuarter(currentDate);
-                const year = currentDate.getFullYear();
-                const nextYear = year + 1;
-                const quarterRanges: Record<number, string> = {
-                  1: `Jan 1 – Mar 31 (Due Apr 15, ${year})`,
-                  2: `Apr 1 – May 31 (Due Jun 15, ${year})`,
-                  3: `Jun 1 – Aug 31 (Due Sep 15, ${year})`,
-                  4: `Sep 1 – Dec 31 (Due Jan 15, ${nextYear})`
-                };
-                return quarterRanges[quarter];
-              })()}
-            </div>
-          )}
-          <div style={{ fontSize: "14px", color: "#9ca3af", marginTop: "4px" }}>
-            {periodStats.totalGigs} total gigs &bull; {periodStats.completedGigs} completed
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: "4px", paddingTop: "6px" }}>
+      {/* Date Navigation — centered with flanking arrows */}
+      <div style={{ marginBottom: "24px", textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", marginBottom: "4px" }}>
           <button
             onClick={() => navigatePeriod("prev")}
-            style={{ background: "none", border: "1.5px solid #e5e7eb", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ background: "none", border: "none", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={20} />
           </button>
+          <span style={{ fontSize: "18px", fontWeight: 600, color: "#111827" }}>
+            {getPeriodText()}
+          </span>
           <button
             onClick={() => navigatePeriod("next")}
-            style={{ background: "none", border: "1.5px solid #e5e7eb", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", color: "#6b7280", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ background: "none", border: "none", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={20} />
           </button>
+        </div>
+        {selectedPeriod === "quarterly" && (
+          <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "2px" }}>
+            {(() => {
+              const quarter = getCurrentQuarter(currentDate);
+              const year = currentDate.getFullYear();
+              const nextYear = year + 1;
+              const quarterRanges: Record<number, string> = {
+                1: `Jan 1 – Mar 31 (Due Apr 15, ${year})`,
+                2: `Apr 1 – May 31 (Due Jun 15, ${year})`,
+                3: `Jun 1 – Aug 31 (Due Sep 15, ${year})`,
+                4: `Sep 1 – Dec 31 (Due Jan 15, ${nextYear})`
+              };
+              return quarterRanges[quarter];
+            })()}
+          </div>
+        )}
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>
+          {periodStats.totalGigs} total gigs &bull; {periodStats.completedGigs} completed
         </div>
       </div>
 
