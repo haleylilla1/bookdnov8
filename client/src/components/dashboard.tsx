@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,25 @@ const getCurrentQuarter = (date: Date): number => {
   if (month >= 4 && month <= 5) return 2; // Apr-May
   if (month >= 6 && month <= 8) return 3; // Jun-Aug
   return 4; // Sep-Dec
+};
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
 };
 
 export default function Dashboard() {
@@ -1051,11 +1071,11 @@ export default function Dashboard() {
               View your total taxable income after deductions and reimbursements.
             </DialogDescription>
           </DialogHeader>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getActualEarningsBreakdown().map((gig, index) => {
               const mileageDeduction = (gig.mileage || 0) * 0.70;
               return (
-                <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+                <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                     <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                     <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
@@ -1079,13 +1099,13 @@ export default function Dashboard() {
                       </div>
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
             {getActualEarningsBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No completed gigs yet</p>
             )}
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
@@ -1098,9 +1118,9 @@ export default function Dashboard() {
               View detailed breakdown of all gigs including completed and upcoming.
             </DialogDescription>
           </DialogHeader>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getProjectedEarningsBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+              <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
@@ -1121,12 +1141,12 @@ export default function Dashboard() {
                     {gig.status}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
             {getProjectedEarningsBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No gigs found</p>
             )}
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
@@ -1139,9 +1159,9 @@ export default function Dashboard() {
               View detailed tax calculations for each gig based on income and tax rates.
             </DialogDescription>
           </DialogHeader>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTaxBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+              <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
@@ -1156,14 +1176,14 @@ export default function Dashboard() {
                 <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                   {gig.gigType}
                 </span>
-              </div>
+              </motion.div>
             ))}
             {getTaxBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No tax estimates available</p>
             )}
             
             {/* Legal Disclaimer */}
-            <div style={{ backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "12px", padding: "16px", marginTop: "6px" }}>
+            <motion.div variants={cardVariants} style={{ backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "12px", padding: "16px", marginTop: "6px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "6px" }}>
                 <span style={{ fontSize: "16px", flexShrink: 0 }}>⚠️</span>
                 <p style={{ fontSize: "13px", fontWeight: 600, color: "#B45309", margin: 0 }}>Tax Disclaimer</p>
@@ -1173,16 +1193,18 @@ export default function Dashboard() {
                 These estimates are for informational purposes only. Please consult with a qualified tax professional 
                 for accurate tax planning and filing guidance.
               </p>
-            </div>
+            </motion.div>
 
             {/* Update Tax Rate Button */}
-            <button
-              onClick={() => { setShowTaxBreakdown(false); setLocation("/profile"); }}
-              style={{ display: "block", width: "100%", height: "52px", backgroundColor: "#03045e", color: "#ffffff", fontSize: "15px", fontWeight: 600, borderRadius: "9999px", border: "none", cursor: "pointer", marginTop: "20px", marginBottom: "8px" }}
-            >
-              Update Tax Rate in Profile ›
-            </button>
-          </div>
+            <motion.div variants={cardVariants}>
+              <button
+                onClick={() => { setShowTaxBreakdown(false); setLocation("/profile"); }}
+                style={{ display: "block", width: "100%", height: "52px", backgroundColor: "#03045e", color: "#ffffff", fontSize: "15px", fontWeight: 600, borderRadius: "9999px", border: "none", cursor: "pointer", marginTop: "20px", marginBottom: "8px" }}
+              >
+                Update Tax Rate in Profile ›
+              </button>
+            </motion.div>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
@@ -1195,9 +1217,9 @@ export default function Dashboard() {
               View detailed breakdown of tips earned from completed gigs.
             </DialogDescription>
           </DialogHeader>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getTipsBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+              <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
@@ -1209,12 +1231,12 @@ export default function Dashboard() {
                 <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                   {gig.gigType}
                 </span>
-              </div>
+              </motion.div>
             ))}
             {getTipsBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No tips earned yet</p>
             )}
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
@@ -1227,9 +1249,9 @@ export default function Dashboard() {
               View detailed breakdown of expenses including parking, other costs, and mileage deductions.
             </DialogDescription>
           </DialogHeader>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getExpensesBreakdown().map((gig, index) => (
-              <div key={index} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+              <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -1275,12 +1297,12 @@ export default function Dashboard() {
                     )}
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
             {getExpensesBreakdown().length === 0 && (
               <p className="text-center text-gray-500 py-4">No expenses recorded</p>
             )}
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
@@ -1298,9 +1320,9 @@ export default function Dashboard() {
             {getNewExpensesBreakdown().length > 0 && (
               <div>
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Standalone Expenses</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getNewExpensesBreakdown().map((item, index) => (
-                    <div key={`${item.type}-${item.id}-${index}`} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+                    <motion.div key={`${item.type}-${item.id}-${index}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                         <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, flex: 1 }}>{item.merchant}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -1344,9 +1366,9 @@ export default function Dashboard() {
                           </div>
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
 
@@ -1354,9 +1376,9 @@ export default function Dashboard() {
             {getExpensesBreakdown().length > 0 && (
               <div>
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Gig-Related Expenses</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {getExpensesBreakdown().map((gig, index) => (
-                    <div key={`gig-${gig.id}`} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+                    <motion.div key={`gig-${gig.id}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                         <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -1402,9 +1424,9 @@ export default function Dashboard() {
                           )}
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
 
