@@ -839,10 +839,10 @@ export default function Dashboard() {
 
       {/* Date Navigation — centered with flanking arrows */}
       <div style={{ marginBottom: "24px", textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", marginBottom: "4px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", marginBottom: "2px" }}>
           <button
             onClick={() => navigatePeriod("prev")}
-            style={{ background: "none", border: "none", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
+            style={{ background: "none", border: "none", borderRadius: "8px", padding: "4px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
           >
@@ -853,7 +853,7 @@ export default function Dashboard() {
           </span>
           <button
             onClick={() => navigatePeriod("next")}
-            style={{ background: "none", border: "none", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
+            style={{ background: "none", border: "none", borderRadius: "8px", padding: "4px", cursor: "pointer", color: "#4b5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s ease" }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
           >
