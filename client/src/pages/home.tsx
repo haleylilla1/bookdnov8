@@ -25,7 +25,7 @@ const NAVY = "#03045e";
 const GREEN = "#10b981";
 
 // Tooltip tour steps (4 tooltip steps + 1 completion modal)
-// Each step advances ONLY when the user taps the real target button.
+// Tapping anywhere on the overlay or the tooltip card advances the step.
 const TOUR_STEPS = [
   {
     id: "add-gig",
@@ -309,7 +309,7 @@ export default function Home() {
       case "profile": return <Profile onDemoComplete={startTour} />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
       case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
-      default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} />;
+      default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} tourStep={tourStep} onTourNext={handleTourNext} />;
     }
   };
 

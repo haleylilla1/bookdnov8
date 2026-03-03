@@ -33,12 +33,12 @@ Bookd is a mobile-first gig worker companion app designed for financial tracking
 - **Technical Implementations**:
     - **Performance & Scalability**: Node.js memory tracking, scalable cache system (5,000 entries with LRU eviction), 12 production-critical database indexes, Neon serverless for connection pooling, API pagination, multi-tier rate limiting, and enterprise-grade Artillery.js load testing.
     - **Data Handling**: RESTful API endpoints, normalized database tables, consistent UTC date parsing, comprehensive backup infrastructure, and user data export functionality.
-    - **Authentication & Security**: Consolidated `auth.ts` with database-backed sessions, password reset, secure session management, comprehensive audit logging, input sanitization (XSS, SQL injection prevention), and advanced rate limiting.
+    - **Authentication & Security**: Consolidated `auth.ts` with database-backed sessions, password reset, secure session management, comprehensive audit logging, input sanitization (XSS, SQL injection prevention), and advanced rate limiting. Dual-track auth: session accepted from cookie OR `Authorization: Bearer` header — `sessionId` stored in `localStorage` on login so Safari cookie-blocking users are fully supported. All API requests send the token as a header via `getAuthHeaders()` in `queryClient.ts`. Login/register use `setQueryData` for instant cache population + `invalidateQueries` for a background full-user refresh.
     - **Core Features**:
         - **Mileage System**: Streamlined service with intelligent fallback and Google Maps API integration.
         - **"Got Paid" Workflow**: Tracks income and expenses, calculates actual pay and business deductions (including IRS standard mileage rate), supports multi-day gig payments, and handles different tax treatments (default, custom, W2).
         - **Expense Management**: Comprehensive tracking with business category classification, gig linking, mobile-optimized forms, and full CRUD functionality.
-        - **First-Time User Onboarding**: 8-step flow including setup questionnaire and feature tour.
+        - **First-Time User Onboarding**: 3-step setup (address, tax rate, gig types) + 4-step tooltip tour (+ FAB → $ FAB → Tax card → Download Report) + completion modal. Tour state tracked per user in localStorage (`bookd_tour_seen_<userId>`). Dashboard always renders even with zero data — no empty-state early return.
         - **Reporting**: Generates 1099 and W2 gig reports, with platform-aware download (blob for web, Capacitor Filesystem + Share for native).
     - **Monitoring & Reliability**: Real-time frontend performance tracking, Sentry integration, health check endpoints for UptimeRobot, and a robust recovery system.
     - **Production Readiness**: Complete production server setup with security headers, CORS, optimized request limits, and a clean build process.
