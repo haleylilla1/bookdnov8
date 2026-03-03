@@ -97,17 +97,23 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
     const completedGigs = allGigs.filter(g => g && (g.status === 'completed' || g.actualPay));
     console.log('💰 Completed gigs found:', completedGigs.length);
     
-    // Generate tax breakdown table with bulletproof logic
-    // Use completedGigs directly (already grouped in prepareReportData)
-    const taxEstimatesRows = completedGigs.map((gig, index) => {
+    // Split gigs into 1099 (taxable) and W2 groups
+    const w2Gigs = completedGigs.filter(g => (g as any).isW2 === true);
+    const taxableGigs = completedGigs.filter(g => (g as any).isW2 !== true);
+
+    // Generate tax breakdown table — 1099 gigs only
+    const taxEstimatesRows = taxableGigs.map((gig) => {
       try {
         const actualPay = safeParseFloat(gig.actualPay);
         const tips = safeParseFloat(gig.tips);
         const gigIncome = actualPay + tips;
         
-        const gigTaxRate = (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
-          ? Number(gig.taxPercentage) 
-          : (user.defaultTaxPercentage || 23);
+        // Prefer taxRateUsed (set at payment time), fall back to taxPercentage, then user default
+        const gigTaxRate = ((gig as any).taxRateUsed !== null && (gig as any).taxRateUsed !== undefined)
+          ? Number((gig as any).taxRateUsed)
+          : (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
+            ? Number(gig.taxPercentage) 
+            : (user.defaultTaxPercentage || 23);
         const gigTaxes = gigIncome * (gigTaxRate / 100);
         
         return `
@@ -128,6 +134,26 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
               <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000; font-weight: bold;">$0.00</td>
           </tr>
         `;
+      }
+    }).join('');
+
+    // Generate W2 section rows
+    const w2Rows = w2Gigs.map((gig) => {
+      try {
+        const actualPay = safeParseFloat(gig.actualPay);
+        const tips = safeParseFloat(gig.tips);
+        const gigIncome = actualPay + tips;
+        const dateStr = gig.date.includes(' - ') ? gig.date : new Date(gig.date).toLocaleDateString();
+        return `
+          <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #000;">${escapeHtml(gig.eventName || 'Unnamed Event')}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #000;">${escapeHtml(gig.clientName || 'Unknown')}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #000;">${dateStr}</td>
+              <td style="padding: 12px; text-align: right; border-bottom: 1px solid #000; font-weight: bold;">$${gigIncome.toFixed(2)}</td>
+          </tr>
+        `;
+      } catch {
+        return '';
       }
     }).join('');
     
@@ -354,6 +380,7 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
         <div class="page">
             <h2 style="font-size: 24px; margin-bottom: 30px; text-align: center;">DETAILED TAX ESTIMATES BY GIG</h2>
             
+            ${taxableGigs.length > 0 ? `
             <div style="margin: 20px 0;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
@@ -369,19 +396,50 @@ export async function generateProfessionalHTML(options: ReportOptions): Promise<
                         
                         <!-- Total Row -->
                         <tr style="font-weight: bold; border-top: 2px solid #000;">
-                            <td style="padding: 15px; border-bottom: 2px solid #000;">TOTAL</td>
-                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #000;">$${data.totalIncome.toFixed(2)}</td>
+                            <td style="padding: 15px; border-bottom: 2px solid #000;">TOTAL (1099 gigs only)</td>
+                            <td style="padding: 15px; text-align: right; border-bottom: 2px solid #000;">$${taxableGigs.reduce((sum, g) => sum + safeParseFloat(g.actualPay) + safeParseFloat(g.tips), 0).toFixed(2)}</td>
                             <td style="padding: 15px; text-align: center; border-bottom: 2px solid #000;">-</td>
                             <td style="padding: 15px; text-align: right; border-bottom: 2px solid #000; font-weight: bold;">$${data.estimatedTaxes.toFixed(2)}</td>
                         </tr>
                     </tbody>
                 </table>
+                ${w2Gigs.length > 0 ? `
+                <p style="font-size: 12px; color: #555; margin-top: 8px; font-style: italic;">
+                    ${w2Gigs.length} W2 gig${w2Gigs.length > 1 ? 's' : ''} excluded from tax calculations — taxes were withheld by employer
+                </p>` : ''}
             </div>
+            ` : `
+            <p style="text-align: center; color: #555; margin: 30px 0;">No 1099 gigs for this period.</p>
+            `}
+
+            ${w2Gigs.length > 0 ? `
+            <div style="margin: 30px 0;">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #000; padding-bottom: 6px;">W2 INCOME — TAXES WITHHELD BY EMPLOYER</h3>
+                <p style="font-size: 13px; color: #555; margin-bottom: 16px;">The following gigs were marked as W2 employment. Taxes were withheld by the employer and these gigs are excluded from the self-employment tax calculations above.</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #000; font-weight: bold;">Gig</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #000; font-weight: bold;">Client / Employer</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #000; font-weight: bold;">Date</th>
+                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #000; font-weight: bold;">Income</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${w2Rows}
+                        <tr style="font-weight: bold; border-top: 2px solid #000;">
+                            <td style="padding: 15px;" colspan="3">W2 TOTAL</td>
+                            <td style="padding: 15px; text-align: right;">$${w2Gigs.reduce((sum, g) => sum + safeParseFloat(g.actualPay) + safeParseFloat(g.tips), 0).toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            ` : ''}
             
             <div style="margin: 30px 0; padding: 15px; border: 1px solid #000;">
                 <p style="font-size: 14px; margin: 0; line-height: 1.5;">
-                    <strong>Calculation Method:</strong> For each gig, taxes are calculated using the gig's individual tax rate applied to gross income. 
-                    Income includes actual pay and tips. Each gig uses its individual tax rate setting. These are taxes on gross income before business expense deductions.
+                    <strong>Calculation Method:</strong> For each 1099 gig, taxes are calculated using the exact rate applied at the time of payment. 
+                    W2 gigs are listed separately and excluded from tax totals since employer withholding already covers those taxes.
                 </p>
             </div>
         </div>
@@ -1018,8 +1076,11 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
   const mileageValue = totalMileage * MILEAGE_RATE;
   const netIncome = totalIncome - totalExpenses - mileageValue;
   
-  // Calculate tax estimates using tax-smart logic (same as dashboard)
+  // Calculate tax estimates — exclude W2 gigs, use taxRateUsed when available
   const estimatedTaxes = completedGigs.reduce((sum, gig) => {
+    // Skip W2 gigs — taxes already withheld by employer
+    if ((gig as any).isW2 === true) return sum;
+
     const tips = parseFloat(gig.tips || '0');
     let taxableIncome = 0;
     
@@ -1037,9 +1098,12 @@ async function prepareReportData(options: ReportOptions): Promise<ReportData> {
     // Add tips (always taxable)
     taxableIncome += tips;
     
-    const gigTaxRate = (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
-      ? gig.taxPercentage 
-      : (user.defaultTaxPercentage || 23);
+    // Prefer taxRateUsed (exact rate at payment time), fall back to taxPercentage, then user default
+    const gigTaxRate = ((gig as any).taxRateUsed !== null && (gig as any).taxRateUsed !== undefined)
+      ? Number((gig as any).taxRateUsed)
+      : (gig.taxPercentage !== null && gig.taxPercentage !== undefined) 
+        ? gig.taxPercentage 
+        : (user.defaultTaxPercentage || 23);
     return sum + (taxableIncome * gigTaxRate / 100);
   }, 0);
   

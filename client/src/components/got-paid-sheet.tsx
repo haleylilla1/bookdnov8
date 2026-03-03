@@ -32,11 +32,12 @@ interface OtherExpense {
 interface GotPaidSheetProps {
   gig: Gig;
   homeAddress?: string;
+  defaultTaxPercentage?: number;
   onBack: () => void;
   onSuccess: () => void;
 }
 
-export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: GotPaidSheetProps) {
+export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, onBack, onSuccess }: GotPaidSheetProps) {
   const [step, setStep] = useState(1);
   const { toast } = useToast();
 
@@ -70,7 +71,14 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
   const [isRoundTripPerDay, setIsRoundTripPerDay] = useState(false);
 
   // Step 4: Tax
-  const [taxPct, setTaxPct] = useState(String(gig.taxPercentage ?? 25));
+  const profileRate = defaultTaxPercentage ?? (gig.taxPercentage ?? 25);
+  const [taxTreatment, setTaxTreatment] = useState<"default" | "custom" | "w2">("default");
+  const [taxPct, setTaxPct] = useState(String(profileRate));
+
+  const effectiveTaxRate =
+    taxTreatment === "w2" ? 0 :
+    taxTreatment === "custom" ? parseFloat(taxPct || "0") :
+    profileRate;
 
   // Multi-day info
   const gigStartDate = (gig as any).startDate;
@@ -145,7 +153,10 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
         otherExpenses: validOtherExpenses,
         otherReimbursed: 0,
         paymentMethod,
-        taxPercentage: parseFloat(taxPct || "25"),
+        taxPercentage: effectiveTaxRate,
+        taxRateUsed: effectiveTaxRate,
+        taxTreatment,
+        isW2: taxTreatment === "w2",
         gigAddress: gigAddressFormatted || gigAddressDisplay || undefined,
         startingAddress: startingAddressFormatted || startingAddress || undefined,
       });
@@ -497,36 +508,97 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
           </div>
         );
 
-      case 4:
+      case 4: {
+        const optionCard = (
+          value: "default" | "custom" | "w2",
+          title: string,
+          description: string,
+        ) => {
+          const selected = taxTreatment === value;
+          return (
+            <div
+              onClick={() => setTaxTreatment(value)}
+              style={{
+                border: `2px solid ${selected ? CYAN : "#E5E7EB"}`,
+                borderRadius: "14px",
+                padding: "16px",
+                marginBottom: "10px",
+                cursor: "pointer",
+                backgroundColor: selected ? "#f0fbff" : "#ffffff",
+                transition: "border-color 150ms ease, background-color 150ms ease",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: "15px", fontWeight: 600, color: "#111111", marginBottom: "3px" }}>{title}</div>
+                  <div style={{ fontSize: "12px", color: "#9B9B9B" }}>{description}</div>
+                </div>
+                <div style={{
+                  width: "20px", height: "20px", borderRadius: "50%",
+                  border: `2px solid ${selected ? CYAN : "#E5E7EB"}`,
+                  backgroundColor: selected ? CYAN : "transparent",
+                  flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 150ms ease",
+                }}>
+                  {selected && <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#fff" }} />}
+                </div>
+              </div>
+            </div>
+          );
+        };
+
         return (
           <div>
-            <div style={questionStyle}>What's your tax rate?</div>
-            <div style={subStyle}>Used to estimate what you'll owe on this income</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "12px" }}>
-              <input
-                type="number"
-                inputMode="decimal"
-                value={taxPct}
-                onChange={(e) => setTaxPct(e.target.value)}
-                onFocus={(e) => e.target.select()}
-                style={{ ...inputStyle, fontSize: "40px", fontWeight: 700, flex: 1 }}
-                min="0"
-                max="100"
-                autoFocus
-              />
-              <span style={{ fontSize: "28px", fontWeight: 600, color: "#9B9B9B" }}>%</span>
-            </div>
-            <div style={{ fontSize: "12px", color: "#9B9B9B" }}>
-              Most gig workers set this between 25–30%
-            </div>
+            <div style={questionStyle}>How are taxes handled?</div>
+            <div style={subStyle}>Choose how to calculate your tax estimate</div>
+
+            {optionCard("default", `Use my default rate (${profileRate}%)`, "Applies the rate set in your profile")}
+            {optionCard("custom", "Custom rate for this gig", "Type any rate — only applies to this gig")}
+            {optionCard("w2", "W2 — taxes already withheld", "Employer withheld taxes; nothing to set aside")}
+
+            {taxTreatment === "custom" && (
+              <div style={{ marginTop: "16px" }}>
+                <div style={labelStyle}>Your rate for this gig</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={taxPct}
+                    onChange={(e) => setTaxPct(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    style={{ ...inputStyle, fontSize: "40px", fontWeight: 700, flex: 1 }}
+                    autoFocus
+                    placeholder="0"
+                  />
+                  <span style={{ fontSize: "28px", fontWeight: 600, color: "#9B9B9B" }}>%</span>
+                </div>
+              </div>
+            )}
+
+            {taxTreatment !== "custom" && (
+              <div style={{ marginTop: "16px", padding: "14px 16px", backgroundColor: "#F9F9F9", borderRadius: "12px" }}>
+                <span style={{ fontSize: "14px", color: "#374151" }}>
+                  {taxTreatment === "w2"
+                    ? "0% — taxes were withheld by your employer"
+                    : `${profileRate}% — pulled from your profile`}
+                </span>
+              </div>
+            )}
           </div>
         );
+      }
 
       case 5: {
         const received = parseFloat(totalReceived || "0");
-        const tax = received * (parseFloat(taxPct || "0") / 100);
+        const tax = taxTreatment === "w2" ? 0 : received * (effectiveTaxRate / 100);
         const netParking = totalParkingSpent - totalParkingReimbursed;
         const milesNum = parseFloat(miles || "0");
+
+        const taxRateLabel =
+          taxTreatment === "w2" ? "W2 — withheld by employer" :
+          taxTreatment === "custom" ? `${effectiveTaxRate}% (custom)` :
+          `${effectiveTaxRate}% (profile default)`;
 
         const rows: { label: string; value: string; highlight?: boolean }[] = [
           { label: "Gig", value: (gig as any).gigType || gig.eventName || "—" },
@@ -545,8 +617,10 @@ export default function GotPaidSheet({ gig, homeAddress, onBack, onSuccess }: Go
           ...(totalOtherExpenses > 0
             ? [{ label: "Other expenses", value: `$${totalOtherExpenses.toFixed(2)}` }]
             : []),
-          { label: "Tax rate", value: `${taxPct}%` },
-          { label: "Est. tax owed", value: `$${tax.toFixed(2)}`, highlight: true },
+          { label: "Tax treatment", value: taxRateLabel },
+          ...(taxTreatment !== "w2"
+            ? [{ label: "Est. tax owed", value: `$${tax.toFixed(2)}`, highlight: true }]
+            : [{ label: "Est. tax owed", value: "$0.00 — W2 income", highlight: true }]),
         ];
 
         return (

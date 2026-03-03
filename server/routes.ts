@@ -947,7 +947,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       paymentMethod: z.string().transform(sanitizeText).optional(),
       taxPercentage: z.union([z.string(), z.number()])
         .transform(val => sanitizeNumber(val, 25))
-        .refine(val => val >= 0 && val <= 100, 'Tax percentage must be between 0 and 100'),
+        .refine(val => val >= 0, 'Tax percentage cannot be negative'),
+      taxRateUsed: z.union([z.string(), z.number()])
+        .transform(val => sanitizeNumber(val, 0))
+        .optional(),
+      taxTreatment: z.enum(['default', 'custom', 'w2']).optional(),
+      isW2: z.boolean().optional().default(false),
       gigAddress: z.string().optional(),
       startingAddress: z.string().optional()
     })),
@@ -964,6 +969,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mileage,
         paymentMethod,
         taxPercentage,
+        taxRateUsed,
+        taxTreatment,
+        isW2,
         gigAddress,
         startingAddress
       } = req.body;
@@ -1045,7 +1053,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parkingReimbursed: parkingReimbursed > 0,
         otherExpensesReimbursed: actualOtherReimbursed > 0,
         // Save addresses for mileage reports
-        gigAddress: gigAddress || null
+        gigAddress: gigAddress || null,
+        // Tax treatment fields
+        taxRateUsed: (taxRateUsed !== undefined ? taxRateUsed : taxPercentage).toString(),
+        taxTreatment: taxTreatment || 'default',
+        isW2: isW2 || false,
       };
       console.log(`📍 Got Paid updateData.gigAddress="${updateData.gigAddress}" for gig ${gigId}`);
 

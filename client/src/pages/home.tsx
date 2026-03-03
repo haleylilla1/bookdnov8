@@ -405,6 +405,7 @@ export default function Home() {
                 <GotPaidSheet
                   gig={gotPaidSelectedGig}
                   homeAddress={userData?.homeAddress || ""}
+                  defaultTaxPercentage={userData?.defaultTaxPercentage}
                   onBack={() => setGotPaidSelectedGig(null)}
                   onSuccess={() => {
                     queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });

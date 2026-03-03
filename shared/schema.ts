@@ -170,6 +170,10 @@ export const gigs = pgTable("gigs", {
   // Multi-day gig support
   isMultiDay: boolean("is_multi_day").default(false),
   multiDayGroupId: text("multi_day_group_id"), // Groups multi-day gig entries together
+  // Tax treatment at time of payment
+  taxRateUsed: decimal("tax_rate_used", { precision: 6, scale: 2 }),
+  taxTreatment: text("tax_treatment"), // 'default', 'custom', 'w2'
+  isW2: boolean("is_w2").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   // CRITICAL SCALABILITY INDEXES for 1,000+ users with 10,000+ records each
