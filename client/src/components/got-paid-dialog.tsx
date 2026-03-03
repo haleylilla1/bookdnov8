@@ -272,7 +272,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
   };
 
   // Simplified tax calculations - separate taxable income from business deductions
-  const mileageDeduction = parseNumber(formData.mileage) * 0.70; // 2025 IRS standard mileage rate
+  const mileageDeduction = parseNumber(formData.mileage) * 0.725; // 2026 IRS standard mileage rate
   const totalOtherSpent = formData.otherExpenses.reduce((sum, exp) => sum + parseNumber(exp.amount), 0);
   const totalOtherReimbursed = formData.otherExpenses.reduce((sum, exp) => sum + parseNumber(exp.reimbursedAmount), 0);
   const calculations = {
@@ -409,7 +409,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                   Mileage Tracking
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Calculate miles driven for tax deductions ({formatCurrency(parseNumber(formData.mileage) * 0.70)} at $0.70/mile)
+                  Calculate miles driven for tax deductions ({formatCurrency(parseNumber(formData.mileage) * 0.725)} at $0.725/mile)
                   {gig.isMultiDay && <span className="block mt-1 text-xs text-blue-600">Multi-day gig: Select "Calculate for each day" to multiply by {calculateDayCount()} days</span>}
                 </p>
               </CardHeader>
@@ -551,10 +551,10 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                       Congratulations!
                     </div>
                     <div className="text-green-800 font-semibold">
-                      That's a tax deduction of {formatCurrency(parseNumber(formData.mileage) * 0.70)}!
+                      That's a tax deduction of {formatCurrency(parseNumber(formData.mileage) * 0.725)}!
                     </div>
                     <div className="text-green-600 text-sm mt-1">
-                      ({formData.mileage} miles × $0.70)
+                      ({formData.mileage} miles × $0.725)
                     </div>
                   </div>
                 )}
@@ -941,7 +941,7 @@ export default function GotPaidDialog({ gig, isOpen, onClose, onSave }: GotPaidD
                     <div className="text-lg font-bold text-blue-700 mb-2">{formatCurrency(calculations.businessDeductions)}</div>
                     <div className="text-xs text-blue-600 space-y-1">
                       {parseNumber(formData.mileage) > 0 && (
-                        <div>• Mileage: {formData.mileage} miles × $0.70 = {formatCurrency(calculations.mileageDeduction)}</div>
+                        <div>• Mileage: {formData.mileage} miles × $0.725 = {formatCurrency(calculations.mileageDeduction)}</div>
                       )}
                       {parseNumber(formData.parkingSpent) - parseNumber(formData.parkingReimbursed) > 0 && (
                         <div>• Parking: {formatCurrency(parseNumber(formData.parkingSpent) - parseNumber(formData.parkingReimbursed))}</div>

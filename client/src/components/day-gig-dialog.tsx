@@ -69,7 +69,7 @@ export default function DayGigDialog({
               const pay = gig.status === "completed" && gig.actualPay
                 ? parseFloat(gig.actualPay)
                 : parseFloat(gig.expectedPay || "0");
-              const mileageDeduction = (gig.mileage || 0) * 0.70;
+              const mileageDeduction = (gig.mileage || 0) * 0.725;
               const isCompleted = gig.status === "completed";
 
               return (

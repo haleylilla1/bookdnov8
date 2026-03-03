@@ -9,7 +9,7 @@ import type { Gig } from "@shared/schema";
 
 const GREEN = "#10b981";
 const CYAN = "#00b4d8";
-const IRS_RATE = 0.70;
+const IRS_RATE = 0.725;
 
 const PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
@@ -502,7 +502,7 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
             {parseFloat(miles || "0") > 0 && !isCalculatingMileage && (
               <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginTop: "14px", marginBottom: "12px" }}>
                 <span style={{ fontSize: "13px", color: GREEN, fontWeight: 500 }}>
-                  That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2025 IRS rate (70¢/mile)
+                  That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2026 IRS rate (72.5¢/mile)
                 </span>
               </div>
             )}

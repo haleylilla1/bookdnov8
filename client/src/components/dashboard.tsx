@@ -717,7 +717,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
       .map(gig => {
         const parkingExpense = safeParseFloat(gig.parkingExpense);
         const otherExpenses = safeParseFloat(gig.otherExpenses);
-        const mileageDeduction = (gig.mileage || 0) * 0.70; // 2025 IRS standard mileage rate
+        const mileageDeduction = (gig.mileage || 0) * 0.725; // 2026 IRS standard mileage rate
         const totalExpenses = parkingExpense + otherExpenses + mileageDeduction;
         
         return {
@@ -939,7 +939,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
       {(() => {
         const expData = getExpensesBreakdown();
         const totalMileageDollars = expData.reduce((sum, g) => sum + g.mileageDeduction, 0);
-        const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.70) : 0;
+        const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.725) : 0;
         const totalExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
         return (
           <div style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #F0F0F0", padding: "16px", marginBottom: "12px" }}>
@@ -1087,7 +1087,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense }: { onOpenAd
           </DialogHeader>
           <motion.div variants={containerVariants} initial="hidden" animate={showEarningsBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {getActualEarningsBreakdown().map((gig, index) => {
-              const mileageDeduction = (gig.mileage || 0) * 0.70;
+              const mileageDeduction = (gig.mileage || 0) * 0.725;
               return (
                 <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
@@ -1796,7 +1796,7 @@ function GigExpenseEditForm({
                 />
               </FormControl>
               <FormDescription>
-                Round-trip mileage for tax deduction (${(0.70 * (field.value || 0)).toFixed(2)} deduction)
+                Round-trip mileage for tax deduction (${(0.725 * (field.value || 0)).toFixed(2)} deduction)
               </FormDescription>
               <FormMessage />
             </FormItem>
