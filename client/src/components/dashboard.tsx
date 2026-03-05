@@ -975,6 +975,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
 
         {/* Tax Estimate */}
         <div
+          id="tour-tax-card"
           onClick={() => setShowTaxBreakdown(true)}
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
@@ -1011,6 +1012,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           Generate a comprehensive income report with earnings, expenses, and tax details
         </p>
         <button
+          id="tour-download-report"
           onClick={handleViewIncomeReport}
           disabled={isGeneratingPDF}
           data-testid="button-download-report"

@@ -25,35 +25,31 @@ const NAVY = "#03045e";
 const GREEN = "#10b981";
 
 // Tooltip tour steps (4 tooltip steps + 1 completion modal)
-// Tapping anywhere on the overlay or the tooltip card advances the step.
+// Each step targets a real DOM element by ID for accurate positioning.
 const TOUR_STEPS = [
   {
     id: "add-gig",
+    targetId: "fab-toggle",
     title: "Start here 👋",
     body: "Tap the + button below to log your first gig. Any job, under a minute.",
-    tooltipStyle: { bottom: "230px", right: "12px", maxWidth: "275px" } as CSSProperties,
-    caretSide: "bottom-right" as const,
   },
   {
     id: "got-paid",
+    targetId: "fab-paid",
     title: "Getting paid? Tap this 💚",
     body: "When a client pays you, tap the $ button. Bookd handles taxes, income tracking — all of it.",
-    tooltipStyle: { bottom: "315px", right: "12px", maxWidth: "275px" } as CSSProperties,
-    caretSide: "bottom-right" as const,
   },
   {
     id: "tax-card",
+    targetId: "tour-tax-card",
     title: "Your tax snapshot",
     body: "Tap the Tax Estimate card to see exactly how your estimate is calculated. No surprises at tax time.",
-    tooltipStyle: { bottom: "310px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
-    caretSide: "bottom-center" as const,
   },
   {
     id: "download-report",
+    targetId: "tour-download-report",
     title: "Download your report",
     body: "Tap the button below to generate a full income report with earnings, expenses, and tax details.",
-    tooltipStyle: { bottom: "230px", left: "50%", transform: "translateX(-50%)", maxWidth: "300px" } as CSSProperties,
-    caretSide: "bottom-center" as const,
   },
 ];
 
@@ -78,7 +74,81 @@ function TourOverlay({ step, onNext, onSkip }: {
   onNext: () => void;
   onSkip: () => void;
 }) {
+  const [tooltipStyle, setTooltipStyle] = useState<CSSProperties>({ opacity: 0, pointerEvents: "none" });
+  const [caretSide, setCaretSide] = useState<"bottom-right" | "bottom-center" | "bottom-left">("bottom-center");
   const isCompletion = step === TOTAL_TOOLTIP_STEPS;
+
+  useEffect(() => {
+    if (isCompletion) return;
+    setTooltipStyle({ opacity: 0, pointerEvents: "none" });
+
+    const s = TOUR_STEPS[step];
+    const TOOLTIP_WIDTH = 275;
+    const GAP = 14;
+    const EDGE_PAD = 12;
+
+    const computePosition = () => {
+      const el = document.getElementById(s.targetId);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
+
+      const vh = window.innerHeight;
+      const vw = window.innerWidth;
+      const elCenterX = rect.left + rect.width / 2;
+
+      // Always place tooltip ABOVE the element
+      const bottomFromViewport = vh - rect.top + GAP;
+
+      let left: number | undefined;
+      let right: number | undefined;
+      let transform: string | undefined;
+      let caret: "bottom-right" | "bottom-center" | "bottom-left" = "bottom-center";
+
+      if (elCenterX > vw * 0.6) {
+        // Element is on the right side — right-align tooltip
+        right = Math.max(EDGE_PAD, vw - rect.right);
+        caret = "bottom-right";
+      } else if (elCenterX < vw * 0.4) {
+        // Element is on the left side
+        left = Math.max(EDGE_PAD, rect.left);
+        caret = "bottom-left";
+      } else {
+        // Center over element, clamped to viewport
+        left = Math.min(
+          Math.max(EDGE_PAD + TOOLTIP_WIDTH / 2, elCenterX),
+          vw - EDGE_PAD - TOOLTIP_WIDTH / 2
+        );
+        transform = "translateX(-50%)";
+        caret = "bottom-center";
+      }
+
+      setCaretSide(caret);
+      setTooltipStyle({
+        bottom: bottomFromViewport,
+        left,
+        right,
+        transform,
+        maxWidth: TOOLTIP_WIDTH,
+        opacity: 1,
+        pointerEvents: "auto",
+        transition: "opacity 0.2s ease",
+      });
+    };
+
+    const el = document.getElementById(s.targetId);
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const offScreen = rect.top < 60 || rect.bottom > window.innerHeight - 60;
+
+    if (offScreen) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(computePosition, 700);
+    } else {
+      setTimeout(computePosition, 100);
+    }
+  }, [step, isCompletion]);
 
   // Final "You're all set!" modal
   if (isCompletion) {
@@ -118,7 +188,7 @@ function TourOverlay({ step, onNext, onSkip }: {
     <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={onNext}>
       <div
         style={{
-          ...s.tooltipStyle,
+          ...tooltipStyle,
           position: "fixed",
           zIndex: 10001,
           backgroundColor: NAVY,
@@ -129,17 +199,12 @@ function TourOverlay({ step, onNext, onSkip }: {
         }}
         onClick={(e) => { e.stopPropagation(); onNext(); }}
       >
-        {/* Title */}
         <div style={{ fontSize: "15px", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.3 }}>
           {s.title}
         </div>
-
-        {/* Body */}
         <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, margin: "0 0 16px 0" }}>
           {s.body}
         </p>
-
-        {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: "5px" }}>
             {Array.from({ length: TOTAL_TOOLTIP_STEPS }).map((_, i) => (
@@ -159,8 +224,7 @@ function TourOverlay({ step, onNext, onSkip }: {
             tap to continue
           </span>
         </div>
-
-        <Caret side={s.caretSide} />
+        <Caret side={caretSide} />
       </div>
     </div>
   );
