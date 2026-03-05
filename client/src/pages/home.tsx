@@ -13,7 +13,7 @@ import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
-import { Plus, Briefcase, Receipt, ChevronRight } from "lucide-react";
+import { Plus, Briefcase, Receipt, ChevronRight, DollarSign } from "lucide-react";
 import GotPaidSheet from "@/components/got-paid-sheet";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
@@ -565,18 +565,15 @@ export default function Home() {
                   border: "none",
                   backgroundColor: GREEN,
                   color: "#ffffff",
-                  fontSize: "36px",
-                  fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
                   flexShrink: 0,
-                  lineHeight: 1,
                 }}
               >
-                $
+                <DollarSign size={36} strokeWidth={1.5} />
               </button>
 
               {/* + button */}
