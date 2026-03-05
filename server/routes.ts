@@ -299,6 +299,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
   });
 
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  });
+
   // Database connectivity check
   app.get('/api/health/database', async (req, res) => {
     try {
