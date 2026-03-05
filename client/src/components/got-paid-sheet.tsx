@@ -502,7 +502,7 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
             {parseFloat(miles || "0") > 0 && !isCalculatingMileage && (
               <div style={{ backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px 14px", marginTop: "14px", marginBottom: "12px" }}>
                 <span style={{ fontSize: "13px", color: GREEN, fontWeight: 500 }}>
-                  That's a <strong>${mileageDeduction.toFixed(2)}</strong> deduction at the 2026 IRS rate (72.5¢/mile)
+                  That's a <strong>${mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> deduction at the 2026 IRS rate (72.5¢/mile)
                 </span>
               </div>
             )}
@@ -614,23 +614,23 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
         const rows: { label: string; value: string; highlight?: boolean }[] = [
           { label: "Gig", value: (gig as any).gigType || gig.eventName || "—" },
           { label: "Client", value: gig.clientName || "—" },
-          { label: "Amount received", value: `$${received.toFixed(2)}`, highlight: true },
+          { label: "Amount received", value: `$${received.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, highlight: true },
           { label: "Payment method", value: PAYMENT_METHODS.find((m) => m.value === paymentMethod)?.label ?? paymentMethod },
           ...(milesNum > 0
             ? [
                 { label: "Miles driven", value: `${milesNum} mi${isRoundTrip ? " (round trip)" : ""}${isRoundTripPerDay && isMultiDayGig ? ` × ${gigDays} days` : ""}` },
-                { label: "Mileage deduction", value: `$${(milesNum * IRS_RATE).toFixed(2)}` },
+                { label: "Mileage deduction", value: `$${(milesNum * IRS_RATE).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
               ]
             : []),
           ...(netParking > 0
-            ? [{ label: "Net parking cost", value: `$${netParking.toFixed(2)}` }]
+            ? [{ label: "Net parking cost", value: `$${netParking.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` }]
             : []),
           ...(totalOtherExpenses > 0
-            ? [{ label: "Other expenses", value: `$${totalOtherExpenses.toFixed(2)}` }]
+            ? [{ label: "Other expenses", value: `$${totalOtherExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` }]
             : []),
           { label: "Tax treatment", value: taxRateLabel },
           ...(taxTreatment !== "w2"
-            ? [{ label: "Est. tax owed", value: `$${tax.toFixed(2)}`, highlight: true }]
+            ? [{ label: "Est. tax owed", value: `$${tax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, highlight: true }]
             : [{ label: "Est. tax owed", value: "$0.00 — W2 income", highlight: true }]),
         ];
 

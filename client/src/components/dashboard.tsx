@@ -878,20 +878,20 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           Total Income
         </div>
         <div style={{ fontSize: "30px", fontWeight: 800, color: "#111827", marginBottom: "4px", lineHeight: 1.1 }}>
-          ${periodStats.projectedEarnings.toFixed(2)}
+          ${periodStats.projectedEarnings.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
         {/* Completed / Pending split */}
         <div style={{ display: "flex", gap: "12px" }}>
           <div style={{ flex: 1, backgroundColor: "#fafafa", borderRadius: "10px", padding: "12px" }}>
             <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "2px" }}>Earned</div>
             <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>from completed gigs</div>
-            <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>${periodStats.actualEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>${periodStats.actualEarnings.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           </div>
           <div style={{ flex: 1, backgroundColor: "#fafafa", borderRadius: "10px", padding: "12px" }}>
             <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "2px" }}>Upcoming</div>
             <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>from scheduled gigs</div>
             <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>
-              ${Math.max(0, periodStats.projectedEarnings - periodStats.actualEarnings).toFixed(2)}
+              ${Math.max(0, periodStats.projectedEarnings - periodStats.actualEarnings).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
@@ -913,7 +913,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               <div style={{ flex: 1, paddingRight: "16px" }}>
                 <Car size={18} color="#00b4d8" />
                 <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Mileage</div>
-                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalMileageDollars.toFixed(2)}</div>
+                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalMileageDollars.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 {totalMileageDollars > 0 ? (
                   <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>{totalMiles} miles driven</div>
                 ) : (
@@ -926,7 +926,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               <div style={{ flex: 1, paddingLeft: "16px" }}>
                 <Receipt size={18} color="#00b4d8" />
                 <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Expenses</div>
-                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalExpenseDollars.toFixed(2)}</div>
+                <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalExpenseDollars.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 {totalExpenseDollars > 0 ? (
                   <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>logged this period</div>
                 ) : (
@@ -954,7 +954,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         >
           <div>
             <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Taxable Income</div>
-            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.actualEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.actualEarnings.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>After reimbursements &bull; {periodStats.completedGigs} completed gig{periodStats.completedGigs !== 1 ? "s" : ""}</div>
           </div>
           <DollarSign size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -967,7 +967,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         >
           <div>
             <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expected Earnings</div>
-            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.projectedEarnings.toFixed(2)}</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.projectedEarnings.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>From {periodStats.totalGigs} total gig{periodStats.totalGigs !== 1 ? "s" : ""} (includes upcoming)</div>
           </div>
           <TrendingUp size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -981,7 +981,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         >
           <div>
             <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Tax Estimate</div>
-            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.estimatedTax.toFixed(2)}</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.estimatedTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Estimated tax liability</div>
           </div>
           <FileText size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -994,7 +994,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         >
           <div>
             <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expenses</div>
-            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toFixed(2)}</div>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Total tracked expenses</div>
           </div>
           <Receipt size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
@@ -1056,7 +1056,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                 <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                     <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                     <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
@@ -1073,7 +1073,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                     <div style={{ marginTop: "10px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
-                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${mileageDeduction.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     </div>
                   )}
@@ -1101,7 +1101,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                   <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
@@ -1139,14 +1139,14 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
                   <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>{parseGigDate(gig.date).toLocaleDateString()}</p>
                 </div>
                 <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 10px 0" }}>
-                  Gross Income: ${gig.taxableIncome.toFixed(2)} × {gig.taxRate}%
+                  Gross Income: ${gig.taxableIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × {gig.taxRate}%
                 </p>
                 <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px" }}>
                   {gig.gigType}
@@ -1197,7 +1197,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               <motion.div key={index} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                   <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
@@ -1230,7 +1230,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
                       <Pencil size={14} />
                     </button>
@@ -1255,19 +1255,19 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                     {gig.parkingExpense > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "13px", color: "#111111" }}>Parking</span>
-                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     )}
                     {gig.otherExpenses > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "13px", color: "#111111" }}>Other Expenses</span>
-                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     )}
                     {gig.mileageDeduction > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
-                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     )}
                   </div>
@@ -1302,7 +1302,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                         <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, flex: 1 }}>{item.merchant}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>
-                            {item.isReimbursement ? "-" : ""}${Math.abs(item.displayAmount).toFixed(2)}
+                            {item.isReimbursement ? "-" : ""}${Math.abs(item.displayAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                           {!item.isReimbursement && (
                             <>
@@ -1337,7 +1337,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                         <div style={{ marginTop: "8px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <span style={{ fontSize: "13px", color: "#111111" }}>Net out-of-pocket</span>
-                            <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>${(item.amount - item.parsedReimbursedAmount).toFixed(2)}</span>
+                            <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>${(item.amount - item.parsedReimbursedAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
                         </div>
                       )}
@@ -1366,7 +1366,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
                         <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toFixed(2)}</p>
+                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                           <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
                             <Pencil size={14} />
                           </button>
@@ -1391,19 +1391,19 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                           {gig.parkingExpense > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span style={{ fontSize: "13px", color: "#111111" }}>Parking</span>
-                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.parkingExpense.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                           {gig.otherExpenses > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span style={{ fontSize: "13px", color: "#111111" }}>Other Expenses</span>
-                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                           {gig.mileageDeduction > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
-                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toFixed(2)}</span>
+                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                         </div>
@@ -1757,7 +1757,7 @@ function GigExpenseEditForm({
                 />
               </FormControl>
               <FormDescription>
-                Round-trip mileage for tax deduction (${(0.725 * (field.value || 0)).toFixed(2)} deduction)
+                Round-trip mileage for tax deduction (${(0.725 * (field.value || 0)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} deduction)
               </FormDescription>
               <FormMessage />
             </FormItem>

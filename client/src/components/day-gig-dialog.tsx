@@ -83,7 +83,7 @@ export default function DayGigDialog({
                       {gig.eventName || "Unnamed Gig"}
                     </p>
                     <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0, whiteSpace: "nowrap" }}>
-                      ${pay.toFixed(2)}
+                      ${pay.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
 
@@ -105,7 +105,7 @@ export default function DayGigDialog({
                     <div style={{ marginTop: "10px", borderTop: "1px solid #F0F0F0", paddingTop: "8px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
-                        <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>-${mileageDeduction.toFixed(2)}</span>
+                        <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>-${mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     </div>
                   )}
@@ -114,7 +114,7 @@ export default function DayGigDialog({
                   {gig.tips && parseFloat(gig.tips) > 0 && (
                     <div style={{ marginTop: "6px", display: "flex", justifyContent: "space-between" }}>
                       <span style={{ fontSize: "13px", color: "#111111" }}>Tips</span>
-                      <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>+${parseFloat(gig.tips).toFixed(2)}</span>
+                      <span style={{ fontSize: "13px", color: GREEN, fontWeight: 600 }}>+${parseFloat(gig.tips).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   )}
 

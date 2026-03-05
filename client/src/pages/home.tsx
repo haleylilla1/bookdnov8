@@ -589,7 +589,7 @@ export default function Home() {
                               <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "2px" }}>{gig.clientName}</div>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                              <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toFixed(2)}</div>
+                              <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                               <ChevronRight size={16} color="#d1d5db" />
                             </div>
                           </div>
@@ -609,7 +609,7 @@ export default function Home() {
                         <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "2px" }}>{gig.clientName}</div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toFixed(2)}</div>
+                        <div style={{ fontSize: "17px", fontWeight: 600, color: "#111111" }}>${Number(gig.expectedPay ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         <ChevronRight size={16} color="#d1d5db" />
                       </div>
                     </div>
