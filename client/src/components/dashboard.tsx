@@ -83,6 +83,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
   const [showTipsBreakdown, setShowTipsBreakdown] = useState(false);
   const [showExpensesBreakdown, setShowExpensesBreakdown] = useState(false);
   const [showNewExpensesBreakdown, setShowNewExpensesBreakdown] = useState(false);
+  const [showMileageBreakdown, setShowMileageBreakdown] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const hasUpdatedStatusesRef = useRef(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -998,7 +999,8 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           const miles = mileageDollars > 0 ? Math.round(mileageDollars / 0.725) : 0;
           return (
             <div
-              style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              onClick={() => setShowMileageBreakdown(true)}
+              style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
             >
               <div>
                 <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Mileage Deduction</div>
@@ -1445,6 +1447,70 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                 <Receipt className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p className="font-medium">No expenses found</p>
                 <p className="text-sm">Add expenses to track your business costs</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mileage Breakdown Modal */}
+      <Dialog open={showMileageBreakdown} onOpenChange={setShowMileageBreakdown}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
+          <DialogHeader>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Mileage Deduction</DialogTitle>
+            <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
+              IRS standard mileage rate deductions — claimed at tax filing.
+            </DialogDescription>
+          </DialogHeader>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {/* IRS rate badge */}
+            <div style={{ backgroundColor: "#f0f9ff", borderRadius: "10px", padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "13px", color: "#0369a1", fontWeight: 500 }}>IRS Standard Rate (2024)</span>
+              <span style={{ fontSize: "13px", color: "#0369a1", fontWeight: 700 }}>$0.725 / mile</span>
+            </div>
+
+            <motion.div variants={containerVariants} initial="hidden" animate={showMileageBreakdown ? "visible" : "hidden"} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {getExpensesBreakdown().filter(g => g.mileageDeduction > 0).map((gig, index) => (
+                <motion.div key={`mile-${gig.id}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 600, color: "#10b981", margin: 0 }}>-${gig.mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
+                    <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                      {gig.isMultiDay
+                        ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
+                        : parseGigDate(gig.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px" }}>
+                      {gig.gigType}
+                    </span>
+                    <span style={{ fontSize: "13px", color: "#6b7280" }}>{gig.mileage} miles</span>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {getExpensesBreakdown().filter(g => g.mileageDeduction > 0).length === 0 && (
+              <div className="text-center text-gray-500 py-8">
+                <Car className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p className="font-medium">No mileage logged yet</p>
+                <p className="text-sm">Add mileage when logging a gig to track your deduction</p>
+              </div>
+            )}
+
+            {/* Total row */}
+            {getExpensesBreakdown().filter(g => g.mileageDeduction > 0).length > 0 && (
+              <div style={{ borderTop: "2px solid #F0F0F0", paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "#111111" }}>
+                  Total · {getExpensesBreakdown().reduce((sum, g) => sum + (g.mileage || 0), 0).toLocaleString("en-US")} miles
+                </span>
+                <span style={{ fontSize: "14px", fontWeight: 700, color: "#10b981" }}>
+                  -${getExpensesBreakdown().reduce((sum, g) => sum + g.mileageDeduction, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
               </div>
             )}
           </div>
