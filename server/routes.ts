@@ -739,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const gigExpenses = groupedGigs.reduce((sum, gig) => {
         const parkingExpense = safeParseFloat(gig.parkingExpense);
         const otherExpenses = safeParseFloat(gig.otherExpenses);
-        const mileageDeduction = (gig.mileage || 0) * 0.70;
+        const mileageDeduction = (gig.mileage || 0) * 0.725;
         return sum + parkingExpense + otherExpenses + mileageDeduction;
       }, 0);
 

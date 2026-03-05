@@ -897,16 +897,21 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         </div>
       </div>
 
-      {/* YOUR SAVINGS THIS MONTH — flush section */}
+      {/* YEAR-END DEDUCTIONS — flush section */}
       {(() => {
         const expData = getExpensesBreakdown();
         const totalMileageDollars = expData.reduce((sum, g) => sum + g.mileageDeduction, 0);
         const totalMiles = totalMileageDollars > 0 ? Math.round(totalMileageDollars / 0.725) : 0;
-        const totalExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
+        const gigExpenseDollars = expData.reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
+        const standaloneDollars = currentPeriodExpenses.reduce((sum, e) => sum + safeParseFloat(e.amount), 0);
+        const totalExpenseDollars = gigExpenseDollars + standaloneDollars;
         return (
           <div style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #F0F0F0", padding: "16px", marginBottom: "12px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 600, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.8px", marginBottom: "12px" }}>
-              Your Savings This Month
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div style={{ fontSize: "11px", fontWeight: 600, color: "#9B9B9B", textTransform: "uppercase" as const, letterSpacing: "0.8px" }}>
+                Year-End Deductions
+              </div>
+              <div style={{ fontSize: "10px", color: "#00b4d8", fontWeight: 500 }}>Claimed at tax filing</div>
             </div>
             <div style={{ display: "flex", width: "100%" }}>
               {/* Left: Mileage */}
@@ -928,7 +933,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                 <div style={{ fontSize: "13px", color: "#9B9B9B", marginTop: "4px" }}>Expenses</div>
                 <div style={{ fontSize: "22px", fontWeight: 600, color: "#111111", marginTop: "2px" }}>${totalExpenseDollars.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 {totalExpenseDollars > 0 ? (
-                  <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>logged this period</div>
+                  <div style={{ fontSize: "12px", color: "#9B9B9B", marginTop: "2px" }}>{(gigExpenseDollars > 0 && standaloneDollars > 0) ? "gig + standalone" : "logged this period"}</div>
                 ) : (
                   <div style={{ fontSize: "12px", color: "#00b4d8", marginTop: "2px", cursor: "pointer" }} onClick={() => onOpenAddExpense?.()}>None logged yet</div>
                 )}
@@ -987,18 +992,43 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           <FileText size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
         </div>
 
-        {/* Expenses */}
-        <div
-          onClick={() => setShowNewExpensesBreakdown(true)}
-          style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-        >
-          <div>
-            <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Expenses</div>
-            <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${periodStats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Total tracked expenses</div>
-          </div>
-          <Receipt size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
-        </div>
+        {/* Mileage Deduction */}
+        {(() => {
+          const mileageDollars = getExpensesBreakdown().reduce((sum, g) => sum + g.mileageDeduction, 0);
+          const miles = mileageDollars > 0 ? Math.round(mileageDollars / 0.725) : 0;
+          return (
+            <div
+              style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Mileage Deduction</div>
+                <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${mileageDollars.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>{miles > 0 ? `${miles.toLocaleString("en-US")} miles · ` : ""}Year-end deduction at filing</div>
+              </div>
+              <Car size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
+            </div>
+          );
+        })()}
+
+        {/* Business Expenses */}
+        {(() => {
+          const gigExpenses = getExpensesBreakdown().reduce((sum, g) => sum + g.parkingExpense + g.otherExpenses, 0);
+          const standaloneExp = currentPeriodExpenses.reduce((sum, e) => sum + safeParseFloat(e.amount), 0);
+          const total = gigExpenses + standaloneExp;
+          return (
+            <div
+              onClick={() => setShowNewExpensesBreakdown(true)}
+              style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: 500, color: "#374151", marginBottom: "4px" }}>Business Expenses</div>
+                <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827", lineHeight: 1.1 }}>${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>Parking, supplies & more · Year-end deduction</div>
+              </div>
+              <Receipt size={22} color="#d1d5db" style={{ flexShrink: 0 }} />
+            </div>
+          );
+        })()}
       </div>
 
       {/* Report CTA Card */}
