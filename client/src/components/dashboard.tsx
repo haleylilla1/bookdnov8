@@ -882,7 +882,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         </div>
         {/* Completed / Pending split */}
         <div style={{ display: "flex", gap: "12px" }}>
-          <div style={{ flex: 1, backgroundColor: "#f0fdf4", borderRadius: "10px", padding: "12px" }}>
+          <div style={{ flex: 1, backgroundColor: "#fafafa", borderRadius: "10px", padding: "12px" }}>
             <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "2px" }}>Earned</div>
             <div style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>from completed gigs</div>
             <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827" }}>${periodStats.actualEarnings.toFixed(2)}</div>
