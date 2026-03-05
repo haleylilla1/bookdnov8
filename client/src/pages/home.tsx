@@ -268,11 +268,14 @@ export default function Home() {
     if (tourKey) localStorage.setItem(tourKey, "done");
   };
 
+  // Always navigates to dashboard first, then fires tour once confirmed rendered
   const startTour = () => {
-    setTimeout(() => setTourStep(0), 300);
+    setCurrentScreen("dashboard");
+    setShowOnboarding(false);
+    setPendingTour(true);
   };
 
-  // Fire the tour only after the dashboard is confirmed rendered and onboarding is gone
+  // Fires tour only after both conditions are confirmed true in a real render
   useEffect(() => {
     if (!pendingTour || showOnboarding || currentScreen !== "dashboard") return;
     const timer = setTimeout(() => {
@@ -283,13 +286,12 @@ export default function Home() {
   }, [pendingTour, showOnboarding, currentScreen]);
 
   const handleOnboardingComplete = () => {
-    setCurrentScreen("dashboard");
-    setShowOnboarding(false);
-    queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     if (tourKey && !localStorage.getItem(tourKey)) {
       localStorage.setItem(tourKey, "pending");
     }
-    setPendingTour(true);
+    startTour();
+    // Delay invalidation so refetch doesn't race with the screen transition
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: ["/api/user"] }), 1000);
   };
 
   const handleTourNext = () => {
