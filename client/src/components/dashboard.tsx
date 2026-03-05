@@ -16,7 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { editExpenseSchema, type ExpenseFormData } from "@/lib/form-schemas";
 import { useFormErrorHandler } from "@/hooks/use-form-error-handler";
-import { ChevronLeft, ChevronRight, Edit2, Pencil, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2, Car } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Pencil, Save, X, DollarSign, Calendar, Users, TrendingUp, Receipt, Calculator, PiggyBank, FileText, Download, Trash2, Car, Sparkles } from "lucide-react";
 import { AmountField, MerchantField, BusinessPurposeField, CategoryField, DateField } from "@/components/ui/form-field-wrapper";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig, User, Expense } from "@shared/schema";
@@ -940,7 +940,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
 
       {/* Hint text */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 2px" }}>
-        <span style={{ fontSize: "16px" }}>💡</span>
+        <Sparkles size={15} color="#00b4d8" />
         <span style={{ fontSize: "12px", color: "#111111" }}>Tap on each card below to see detailed breakdowns</span>
       </div>
 
