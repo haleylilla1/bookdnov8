@@ -1315,9 +1315,9 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
       <Dialog open={showNewExpensesBreakdown} onOpenChange={setShowNewExpensesBreakdown}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto border-0 shadow-none bg-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>All Expenses Breakdown</DialogTitle>
+            <DialogTitle style={{ fontSize: "22px", fontWeight: 700, color: "#111111" }}>Business Expenses</DialogTitle>
             <DialogDescription style={{ fontSize: "13px", color: "#9B9B9B", maxWidth: "280px", lineHeight: 1.5 }}>
-              View all expenses including standalone expenses and gig-related costs.
+              Parking, supplies, and other costs — claimed as deductions at tax filing.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1377,8 +1377,8 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
               </div>
             )}
 
-            {/* Gig-Related Expenses Section */}
-            {getExpensesBreakdown().length > 0 && (
+            {/* Gig-Related Expenses Section (parking & other only — no mileage) */}
+            {getExpensesBreakdown().filter(g => g.parkingExpense > 0 || g.otherExpenses > 0).length > 0 && (
               <div>
                 <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "8px" }}>Gig-Related Expenses</h4>
                 <motion.div
@@ -1391,32 +1391,33 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                   }}
                   style={{ display: "flex", flexDirection: "column", gap: "10px" }}
                 >
-                  {getExpensesBreakdown().map((gig, index) => (
-                    <motion.div key={`gig-${gig.id}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
-                        <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gig.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                          <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
-                            <Pencil size={14} />
-                          </button>
-                          <button onClick={() => clearGigExpenses(gig.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#ef4444", display: "flex" }}>
-                            <Trash2 size={14} />
-                          </button>
+                  {getExpensesBreakdown().filter(g => g.parkingExpense > 0 || g.otherExpenses > 0).map((gig, index) => {
+                    const gigTotal = gig.parkingExpense + gig.otherExpenses;
+                    return (
+                      <motion.div key={`gig-${gig.id}`} variants={cardVariants} style={{ backgroundColor: "#F9F9F9", borderRadius: "14px", padding: "16px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2px" }}>
+                          <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>{gig.eventName || "Unnamed Gig"}</p>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <p style={{ fontSize: "16px", fontWeight: 600, color: "#111111", margin: 0 }}>${gigTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                            <button onClick={() => setEditingGigExpense(gig)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#6b7280", display: "flex" }}>
+                              <Pencil size={14} />
+                            </button>
+                            <button onClick={() => clearGigExpenses(gig.id)} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", color: "#ef4444", display: "flex" }}>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                        <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
-                        <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
-                          {gig.isMultiDay
-                            ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
-                            : parseGigDate(gig.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px", marginBottom: gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0 ? "10px" : "6px" }}>
-                        {gig.gigType}
-                      </span>
-                      {(gig.parkingExpense > 0 || gig.otherExpenses > 0 || gig.mileageDeduction > 0) && (
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                          <p style={{ fontSize: "13px", color: "#9B9B9B", margin: 0 }}>{gig.clientName}</p>
+                          <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>
+                            {gig.isMultiDay
+                              ? `${parseGigDate(gig.startDate!).toLocaleDateString()} - ${parseGigDate(gig.endDate!).toLocaleDateString()}`
+                              : parseGigDate(gig.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <span style={{ display: "inline-block", backgroundColor: "#00b4d8", color: "#ffffff", fontSize: "11px", fontWeight: 600, borderRadius: "9999px", padding: "4px 12px", marginTop: "6px", marginBottom: "10px" }}>
+                          {gig.gigType}
+                        </span>
                         <div style={{ borderTop: "1px solid #F0F0F0", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
                           {gig.parkingExpense > 0 && (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -1430,22 +1431,16 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
                               <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.otherExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
-                          {gig.mileageDeduction > 0 && (
-                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                              <span style={{ fontSize: "13px", color: "#111111" }}>Mileage ({gig.mileage} mi)</span>
-                              <span style={{ fontSize: "13px", color: "#10b981", fontWeight: 600 }}>-${gig.mileageDeduction.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                            </div>
-                          )}
                         </div>
-                      )}
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </motion.div>
               </div>
             )}
 
             {/* No expenses found */}
-            {getNewExpensesBreakdown().length === 0 && getExpensesBreakdown().length === 0 && (
+            {getNewExpensesBreakdown().length === 0 && getExpensesBreakdown().filter(g => g.parkingExpense > 0 || g.otherExpenses > 0).length === 0 && (
               <div className="text-center text-gray-500 py-8">
                 <Receipt className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p className="font-medium">No expenses found</p>
