@@ -171,6 +171,7 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [pendingTour, setPendingTour] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -271,16 +272,24 @@ export default function Home() {
     setTimeout(() => setTourStep(0), 300);
   };
 
+  // Fire the tour only after the dashboard is confirmed rendered and onboarding is gone
+  useEffect(() => {
+    if (!pendingTour || showOnboarding || currentScreen !== "dashboard") return;
+    const timer = setTimeout(() => {
+      setTourStep(0);
+      setPendingTour(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [pendingTour, showOnboarding, currentScreen]);
+
   const handleOnboardingComplete = () => {
-    setCurrentScreen("dashboard"); // switch to dashboard first
+    setCurrentScreen("dashboard");
     setShowOnboarding(false);
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-    // Only mark "pending" for brand-new users who have never seen the tour
     if (tourKey && !localStorage.getItem(tourKey)) {
       localStorage.setItem(tourKey, "pending");
     }
-    // 600ms gives the dashboard time to fully render before tour overlays appear
-    setTimeout(() => setTourStep(0), 600);
+    setPendingTour(true);
   };
 
   const handleTourNext = () => {
