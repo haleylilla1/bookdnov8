@@ -272,15 +272,15 @@ export default function Home() {
   };
 
   const handleOnboardingComplete = () => {
+    setCurrentScreen("dashboard"); // switch to dashboard first
     setShowOnboarding(false);
-    setCurrentScreen("dashboard"); // always land on dashboard before tour
     queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     // Only mark "pending" for brand-new users who have never seen the tour
     if (tourKey && !localStorage.getItem(tourKey)) {
       localStorage.setItem(tourKey, "pending");
     }
-    // Explicitly fire the tour — 300ms lets the onboarding overlay fully unmount first
-    startTour();
+    // 600ms gives the dashboard time to fully render before tour overlays appear
+    setTimeout(() => setTourStep(0), 600);
   };
 
   const handleTourNext = () => {
