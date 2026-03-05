@@ -67,6 +67,17 @@ app.use(express.urlencoded({ extended: true, limit: maxRequestSize }));
 app.use(cookieParser());
 app.use(limiter); // Apply general rate limiting
 
+// Redirect bare domain to app subdomain in production
+if (isProduction) {
+  app.use((req, res, next) => {
+    const host = req.headers.host || '';
+    if (host === 'bookd.tools' || host === 'www.bookd.tools') {
+      return res.redirect(301, `https://app.bookd.tools${req.originalUrl}`);
+    }
+    next();
+  });
+}
+
 // Security headers for production
 if (isProduction) {
   app.use((req, res, next) => {
