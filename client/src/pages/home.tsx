@@ -430,7 +430,7 @@ export default function Home() {
         </main>
 
         {/* iOS Bottom Sheet — add menu */}
-        {fabOpen && isMainScreen && (
+        {fabOpen && currentScreen !== "profile" && isMainScreen && (
           <div className="lg:hidden">
             {/* Backdrop */}
             <div
@@ -630,7 +630,7 @@ export default function Home() {
         {/* Unified bottom bar — FABs always sit exactly above nav, never covered */}
         <div className="lg:hidden" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", zIndex: 50 }}>
           {/* FABs — absolute positioned above the nav bar via bottom: 100% */}
-          {isMainScreen && (
+          {currentScreen !== "profile" && isMainScreen && (
             <div style={{ position: "absolute", bottom: "100%", right: "24px", paddingBottom: "12px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
               {/* Got Paid $ button */}
               <button
