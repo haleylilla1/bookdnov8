@@ -13,7 +13,7 @@ import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
-import { Plus, Briefcase, Receipt, ChevronRight, DollarSign } from "lucide-react";
+import { Plus, Briefcase, Receipt, ChevronRight, DollarSign, Check, Sparkles } from "lucide-react";
 import GotPaidSheet from "@/components/got-paid-sheet";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
@@ -161,7 +161,13 @@ function TourOverlay({ step, onNext, onSkip }: {
           style={{ backgroundColor: NAVY, borderRadius: "24px", border: `2.5px solid ${CYAN}`, padding: "32px 28px", textAlign: "center", maxWidth: "340px", width: "100%" }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div style={{ fontSize: "28px", marginBottom: "16px" }}>🎉</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+            <Sparkles size={16} color={CYAN} style={{ opacity: 0.6, marginTop: "10px" }} />
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: CYAN, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 24px rgba(0,180,216,0.5)` }}>
+              <Check size={34} color="#ffffff" strokeWidth={2.5} />
+            </div>
+            <Sparkles size={16} color={CYAN} style={{ opacity: 0.6, marginBottom: "10px" }} />
+          </div>
           <div style={{ fontSize: "22px", fontWeight: 800, color: "#ffffff", marginBottom: "14px", lineHeight: 1.25 }}>
             You're all set!
           </div>

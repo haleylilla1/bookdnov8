@@ -65,7 +65,6 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     gigTypes: [],
     otherJobType: "",
   });
-  const [showDone, setShowDone] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -101,10 +100,6 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
       defaultTaxPercentage: taxValue,
       gigTypes: resolvedGigTypes,
     });
-    setShowDone(true);
-  };
-
-  const handleDone = () => {
     onComplete();
   };
 
@@ -154,37 +149,6 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     color: "#9ca3af",
     cursor: "default",
   };
-
-  // "You're all set!" modal
-  if (showDone) {
-    return (
-      <div style={{ ...containerStyle, backgroundColor: "rgba(3,4,94,0.92)", justifyContent: "center" }}>
-        <div style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "24px",
-          padding: "36px 28px",
-          maxWidth: "340px",
-          width: "calc(100% - 48px)",
-          textAlign: "center",
-        }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎉</div>
-          <h2 style={{ fontSize: "24px", fontWeight: 700, color: NAVY, marginBottom: "12px" }}>You're all set!</h2>
-          <p style={{ fontSize: "15px", color: "#6b7280", lineHeight: 1.6, marginBottom: "24px" }}>
-            Your profile is ready. Start logging gigs, track what you earn, and know exactly what's yours to keep.
-          </p>
-          <p style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "28px", fontStyle: "italic" }}>
-            Thanks for supporting this app. — Haley
-          </p>
-          <button
-            style={{ ...btnPrimary, marginTop: 0 }}
-            onClick={handleDone}
-          >
-            Let's go
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // STEP: Address
   if (step === "address") {
