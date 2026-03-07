@@ -639,6 +639,144 @@ export function setupAuthRoutes(app: Express): void {
   });
   */
 
+  // GOOGLE OAUTH - INITIATE
+  app.get('/api/auth/google', (req: Request, res: Response) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      return res.redirect('/auth?error=google_not_configured');
+    }
+
+    const protocol = (req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http'));
+    const host = req.get('host');
+    const redirectUri = `${protocol}://${host}/auth/google/callback`;
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'email profile',
+      access_type: 'offline',
+      prompt: 'select_account',
+    });
+
+    res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  });
+
+  // GOOGLE OAUTH - CALLBACK
+  app.get('/auth/google/callback', async (req: Request, res: Response) => {
+    const { code, error } = req.query;
+
+    if (error || !code) {
+      console.log('❌ Google OAuth denied or missing code:', error);
+      return res.redirect('/auth?error=google_denied');
+    }
+
+    try {
+      const protocol = (req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http'));
+      const host = req.get('host');
+      const redirectUri = `${protocol}://${host}/auth/google/callback`;
+
+      // Exchange code for tokens
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code: code as string,
+          client_id: process.env.GOOGLE_CLIENT_ID!,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }),
+      });
+
+      const tokens = await tokenRes.json() as { access_token?: string; error?: string };
+
+      if (!tokens.access_token) {
+        console.error('❌ Google token exchange failed:', tokens);
+        return res.redirect('/auth?error=google_failed');
+      }
+
+      // Get user info from Google
+      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      });
+      const googleUser = await userInfoRes.json() as { id: string; email: string; name: string; picture?: string };
+
+      if (!googleUser.email) {
+        return res.redirect('/auth?error=google_no_email');
+      }
+
+      const email = googleUser.email.toLowerCase().trim();
+
+      // Find existing user by email OR googleId
+      let [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      if (existingUser) {
+        // Link Google ID to existing account if not already linked
+        if (!existingUser.googleId) {
+          await db.update(users).set({ googleId: googleUser.id }).where(eq(users.id, existingUser.id));
+        }
+      } else {
+        // Create new user from Google account
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            email,
+            name: googleUser.name,
+            googleId: googleUser.id,
+            emailVerified: true,
+            isActive: true,
+            passwordHash: null,
+          })
+          .returning();
+
+        existingUser = newUser;
+
+        // Track signup in Klaviyo
+        try {
+          const { KlaviyoService } = await import('./klaviyo');
+          await KlaviyoService.trackUserSignupWithWelcomeEmail(existingUser.email, {
+            name: existingUser.name,
+            signupMethod: 'google',
+            subscriptionTier: 'trial',
+            userAgent: req.get('User-Agent') || '',
+            referrer: 'google_oauth'
+          });
+        } catch (e) {
+          console.log('Note: Klaviyo signup tracking failed (non-critical)');
+        }
+      }
+
+      if (!existingUser.isActive) {
+        return res.redirect('/auth?error=account_disabled');
+      }
+
+      // Create session
+      const sessionId = await Auth.createSession(existingUser.id, req.ip, req.get('User-Agent'));
+
+      // Set cookie (same as email login)
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      console.log(`✅ Google OAuth success for user ${existingUser.id} (${email})`);
+
+      // Redirect to frontend with sessionId so it can be stored in localStorage
+      // (needed for Safari/Bearer token dual-track auth)
+      res.redirect(`/?google_session=${sessionId}`);
+    } catch (err) {
+      console.error('❌ Google OAuth callback error:', err);
+      res.redirect('/auth?error=google_failed');
+    }
+  });
+
   // PASSWORD RESET REQUEST
   app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
     try {

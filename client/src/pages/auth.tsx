@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
+
+const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
+  google_denied: "Google sign-in was cancelled.",
+  google_failed: "Google sign-in failed. Please try again.",
+  google_no_email: "Your Google account didn't share an email address. Please use email sign-in.",
+  google_not_configured: "Google sign-in is not available right now.",
+  account_disabled: "This account has been disabled. Please contact support.",
+};
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +25,19 @@ export default function AuthPage() {
     confirmPassword: ""
   });
   const { toast } = useToast();
+
+  // Show error from Google OAuth redirect (e.g. ?error=google_denied)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorKey = params.get('error');
+    if (errorKey && GOOGLE_ERROR_MESSAGES[errorKey]) {
+      toast({
+        title: GOOGLE_ERROR_MESSAGES[errorKey],
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/auth');
+    }
+  }, []);
 
   // Prevent zoom on mobile input focus
   const inputProps = {

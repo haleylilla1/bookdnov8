@@ -68,9 +68,26 @@ function OfflineBanner() {
   );
 }
 
+function GoogleSessionHandler() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const googleSession = params.get('google_session');
+    if (googleSession) {
+      localStorage.setItem('bookd_session', googleSession);
+      // Remove the param from the URL without triggering a full reload
+      const clean = window.location.pathname;
+      window.history.replaceState({}, '', clean);
+      // Force a full reload so AuthProvider picks up the new session
+      window.location.reload();
+    }
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <GoogleSessionHandler />
       <OfflineBanner />
       <AppRouter />
       <Toaster />
