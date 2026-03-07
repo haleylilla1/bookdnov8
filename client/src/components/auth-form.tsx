@@ -120,12 +120,17 @@ export default function AuthForm() {
         cancel_on_tap_outside: true,
       });
       if (googleBtnRef.current) {
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          theme: 'outline',
-          size: 'large',
-          width: googleBtnRef.current.offsetWidth || 320,
-          text: 'continue_with',
-          shape: 'rectangular',
+        // Use requestAnimationFrame so the div has been laid out and has a real width
+        requestAnimationFrame(() => {
+          if (!googleBtnRef.current) return;
+          const width = googleBtnRef.current.getBoundingClientRect().width || 320;
+          window.google!.accounts.id.renderButton(googleBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            width: Math.min(Math.floor(width), 400),
+            text: 'continue_with',
+            shape: 'rectangular',
+          });
         });
       }
     };

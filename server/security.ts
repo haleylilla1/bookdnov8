@@ -125,11 +125,12 @@ export function setSecurityHeaders(req: Request, res: Response, next: NextFuncti
   if (!isDevelopment) {
     res.setHeader('Content-Security-Policy', 
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-      "style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data: https:; " +
-      "font-src 'self' data:; " +
-      "connect-src 'self' https://api.openai.com https://maps.googleapis.com;"
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com; " +
+      "style-src 'self' 'unsafe-inline' https://accounts.google.com; " +
+      "img-src 'self' data: https: blob:; " +
+      "font-src 'self' data: https://fonts.gstatic.com; " +
+      "frame-src https://accounts.google.com; " +
+      "connect-src 'self' https://api.openai.com https://maps.googleapis.com https://oauth2.googleapis.com https://accounts.google.com https://www.googleapis.com;"
     );
   }
   
