@@ -763,8 +763,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }, 0);
 
-      // Calculate tax estimate
+      // Calculate tax estimate — W2 gigs are excluded (taxes already withheld by employer)
       const estimatedTax = completedGigs.reduce((sum, gig) => {
+        if (gig.isW2 || (gig as any).taxTreatment === 'w2') return sum;
+
         let taxableIncome = 0;
         
         if (gig.totalReceived && parseFloat(gig.totalReceived) > 0) {

@@ -674,7 +674,9 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
 
   const getTaxBreakdown = () => {
     if (!Array.isArray(currentPeriodGigs)) return [];
-    const completedGigs = currentPeriodGigs.filter(gig => gig.status === "completed");
+    const completedGigs = currentPeriodGigs.filter(gig =>
+      gig.status === "completed" && !(gig as any).isW2 && (gig as any).taxTreatment !== 'w2'
+    );
     const groupedGigs = getGroupedGigs(completedGigs);
     
     return groupedGigs.map(gig => {
