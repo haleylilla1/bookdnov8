@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -65,6 +65,10 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     gigTypes: [],
     otherJobType: "",
   });
+
+  const [otherFocused, setOtherFocused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const otherInputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -332,8 +336,8 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     };
 
     return (
-      <div style={containerStyle}>
-        <div style={innerStyle}>
+      <div ref={containerRef} style={containerStyle}>
+        <div style={{ ...innerStyle, paddingBottom: otherFocused ? "360px" : "48px" }}>
           <ProgressDots total={3} current={2} />
 
           <div style={{ marginBottom: "8px" }}>
@@ -375,12 +379,28 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           {data.gigTypes.includes("Other") && (
             <div style={{ marginBottom: "20px" }}>
               <input
+                ref={otherInputRef}
                 type="text"
                 placeholder="What do you do? (e.g. Hair Stylist)"
                 value={data.otherJobType}
                 autoFocus
                 onChange={(e) => setData({ ...data, otherJobType: e.target.value })}
-                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
+                onFocus={() => {
+                  setOtherFocused(true);
+                  setTimeout(() => {
+                    if (containerRef.current && otherInputRef.current) {
+                      const container = containerRef.current;
+                      const input = otherInputRef.current;
+                      const inputBottom = input.getBoundingClientRect().bottom;
+                      const containerBottom = container.getBoundingClientRect().bottom;
+                      if (inputBottom > containerBottom - 20) {
+                        container.scrollTop += inputBottom - containerBottom + 40;
+                      }
+                      input.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }, 450);
+                }}
+                onBlur={() => setOtherFocused(false)}
                 style={{
                   width: "100%",
                   height: "48px",
