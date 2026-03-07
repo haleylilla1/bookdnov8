@@ -592,7 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user for tax rate
       const user = await storage.getUser(userId);
-      const userTaxRate = user?.defaultTaxPercentage || 23;
+      const userTaxRate = user?.defaultTaxPercentage ?? 23;
 
       // Calculate period date range
       let startDate: Date, endDate: Date;

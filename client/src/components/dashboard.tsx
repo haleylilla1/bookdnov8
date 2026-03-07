@@ -685,7 +685,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         ? Number((gig as any).taxRateUsed)
         : (gig.taxPercentage !== null && gig.taxPercentage !== undefined)
           ? gig.taxPercentage
-          : (user?.defaultTaxPercentage || 28);
+          : (user?.defaultTaxPercentage ?? 28);
       const estimatedTax = income * (taxRate / 100);
       
       return {
