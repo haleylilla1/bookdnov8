@@ -639,7 +639,112 @@ export function setupAuthRoutes(app: Express): void {
   });
   */
 
-  // GOOGLE OAUTH - INITIATE
+  // GOOGLE OAUTH - TOKEN VERIFICATION (for in-app GSI flow, no external redirect)
+  app.post('/api/auth/google/token', async (req: Request, res: Response) => {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ error: 'No credential provided' });
+    }
+
+    try {
+      // Verify the ID token with Google's tokeninfo endpoint
+      const tokenInfoRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+      const payload = await tokenInfoRes.json() as {
+        email?: string;
+        name?: string;
+        sub?: string;
+        aud?: string;
+        error?: string;
+        email_verified?: string;
+      };
+
+      if (payload.error || !payload.email || !payload.sub) {
+        console.error('❌ Google token verification failed:', payload);
+        return res.status(401).json({ error: 'Invalid Google token' });
+      }
+
+      // Verify the token was issued for our app
+      const expectedClientId = process.env.GOOGLE_CLIENT_ID;
+      if (expectedClientId && payload.aud !== expectedClientId) {
+        console.error('❌ Google token audience mismatch');
+        return res.status(401).json({ error: 'Token not issued for this app' });
+      }
+
+      const email = payload.email.toLowerCase().trim();
+
+      // Find existing user by email
+      let [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      if (existingUser) {
+        // Link Google ID if not already linked
+        if (!existingUser.googleId) {
+          await db.update(users).set({ googleId: payload.sub }).where(eq(users.id, existingUser.id));
+        }
+      } else {
+        // Create new user from Google account
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            email,
+            name: payload.name || email.split('@')[0],
+            googleId: payload.sub,
+            emailVerified: true,
+            isActive: true,
+            passwordHash: null,
+          })
+          .returning();
+        existingUser = newUser;
+
+        // Track signup in Klaviyo
+        try {
+          const { KlaviyoService } = await import('./klaviyo');
+          await KlaviyoService.trackUserSignupWithWelcomeEmail(existingUser.email, {
+            name: existingUser.name,
+            signupMethod: 'google',
+            subscriptionTier: 'trial',
+            userAgent: req.get('User-Agent') || '',
+            referrer: 'google_gsi'
+          });
+        } catch (e) {
+          console.log('Note: Klaviyo tracking failed (non-critical)');
+        }
+      }
+
+      if (!existingUser.isActive) {
+        return res.status(403).json({ error: 'Account disabled' });
+      }
+
+      // Create session
+      const sessionId = await Auth.createSession(existingUser.id, req.ip, req.get('User-Agent'));
+
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      console.log(`✅ Google GSI sign-in success for user ${existingUser.id} (${email})`);
+
+      res.json({
+        sessionId,
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          name: existingUser.name,
+        }
+      });
+    } catch (err) {
+      console.error('❌ Google token verification error:', err);
+      res.status(500).json({ error: 'Google sign-in failed. Please try again.' });
+    }
+  });
+
+  // GOOGLE OAUTH - INITIATE (redirect flow — kept for non-iOS/desktop fallback)
   app.get('/api/auth/google', (req: Request, res: Response) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     if (!clientId) {

@@ -1,10 +1,25 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2, ArrowLeft, TrendingUp, PiggyBank, Car } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
 import { sanitizeEmail, sanitizeText } from "@/utils/validation";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: object) => void;
+          renderButton: (element: HTMLElement, config: object) => void;
+          prompt: () => void;
+          cancel: () => void;
+        };
+      };
+    };
+  }
+}
 
 type Mode = 'welcome' | 'login' | 'register' | 'reset-request' | 'reset-password';
 
@@ -69,12 +84,68 @@ export default function AuthForm() {
   const [resetEmail, setResetEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  const handleGoogleSignIn = () => {
-    window.location.href = "/api/auth/google";
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+
+  // Verify Google credential with our server and establish a session
+  const handleGoogleCredential = async (response: { credential: string }) => {
+    try {
+      const res = await fetch('/api/auth/google/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+      if (data.sessionId) localStorage.setItem('bookd_session', data.sessionId);
+      const userData = data.user;
+      if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    } catch (err: any) {
+      toast({ title: 'Google sign-in failed', description: err.message, variant: 'destructive' });
+    }
   };
 
+  // Initialize GSI and render the button into our container div
   useEffect(() => {
-    // Handle error params from Google OAuth callback
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    const init = () => {
+      if (!window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      if (googleBtnRef.current) {
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: googleBtnRef.current.offsetWidth || 320,
+          text: 'continue_with',
+          shape: 'rectangular',
+        });
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      init();
+    } else {
+      // Poll until the GSI script loads (it's loaded async in index.html)
+      const interval = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          init();
+          clearInterval(interval);
+        }
+      }, 150);
+      return () => clearInterval(interval);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    // Handle error params from Google OAuth callback (redirect flow fallback)
     const urlParams = new URLSearchParams(window.location.search);
     const errorKey = urlParams.get("error");
     const errorMessages: Record<string, string> = {
@@ -257,18 +328,7 @@ export default function AuthForm() {
               Get started
             </button>
 
-            <button
-              style={{ ...btnOutline, marginTop: "10px" }}
-              onClick={handleGoogleSignIn}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Continue with Google
-            </button>
+            <div ref={googleBtnRef} style={{ width: "100%", marginTop: "10px", minHeight: "52px", display: "flex", justifyContent: "center" }} />
 
             <button
               style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "16px", cursor: "pointer", padding: "8px" }}
@@ -346,19 +406,7 @@ export default function AuthForm() {
 
             <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
 
-            <button
-              style={{ ...btnOutline }}
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Continue with Google
-            </button>
+            <div ref={googleBtnRef} style={{ width: "100%", minHeight: "52px", display: "flex", justifyContent: "center" }} />
 
             <button
               style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "12px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px" }}
@@ -459,19 +507,7 @@ export default function AuthForm() {
 
             <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
 
-            <button
-              style={{ ...btnOutline }}
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Continue with Google
-            </button>
+            <div ref={googleBtnRef} style={{ width: "100%", minHeight: "52px", display: "flex", justifyContent: "center" }} />
 
             <button
               style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "12px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px" }}
