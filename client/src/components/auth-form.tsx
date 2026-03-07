@@ -6,19 +6,6 @@ import { Eye, EyeOff, Loader2, ArrowLeft, TrendingUp, PiggyBank, Car } from "luc
 import logoImage from "@assets/bookd-logo.png";
 import { sanitizeEmail, sanitizeText } from "@/utils/validation";
 
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: object) => void;
-          prompt: (momentListener?: (notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean; isDismissedMoment: () => boolean; }) => void) => void;
-          cancel: () => void;
-        };
-      };
-    };
-  }
-}
 
 type Mode = 'welcome' | 'login' | 'register' | 'reset-request' | 'reset-password';
 
@@ -55,21 +42,6 @@ const btnPrimary: React.CSSProperties = {
   gap: "8px",
 };
 
-const btnOutline: React.CSSProperties = {
-  width: "100%",
-  height: "52px",
-  backgroundColor: "#ffffff",
-  color: "#374151",
-  fontSize: "15px",
-  fontWeight: 500,
-  border: "1.5px solid #d1d5db",
-  borderRadius: "12px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-};
 
 export default function AuthForm() {
   const queryClient = useQueryClient();
@@ -83,101 +55,13 @@ export default function AuthForm() {
   const [resetEmail, setResetEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  const [gsiReady, setGsiReady] = useState(false);
-
-  // Verify Google credential with our server and establish a session
-  const handleGoogleCredential = async (response: { credential: string }) => {
-    try {
-      const res = await fetch('/api/auth/google/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ credential: response.credential }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
-      if (data.sessionId) localStorage.setItem('bookd_session', data.sessionId);
-      const userData = data.user;
-      if (userData?.id) queryClient.setQueryData(['/api/user'], userData);
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-    } catch (err: any) {
-      toast({ title: 'Google sign-in failed', description: err.message, variant: 'destructive' });
-    }
-  };
-
-  // Initialize GSI once on mount — wrapped in try/catch so errors don't block the button
-  useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) return;
-
-    const init = () => {
-      if (!window.google?.accounts?.id) return;
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleGoogleCredential,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-        setGsiReady(true);
-      } catch {
-        // initialize() failed (e.g. origin not registered) — button still shows,
-        // click will fall back to redirect OAuth
-      }
-    };
-
-    if (window.google?.accounts?.id) {
-      init();
-    } else {
-      const interval = setInterval(() => {
-        if (window.google?.accounts?.id) {
-          init();
-          clearInterval(interval);
-        }
-      }, 150);
-      // Give up after 10s and still mark ready so button stays functional
-      const timeout = setTimeout(() => {
-        clearInterval(interval);
-      }, 10000);
-      return () => { clearInterval(interval); clearTimeout(timeout); };
-    }
-  }, []);
-
-  // Handle Google sign-in: try One Tap first, fall back to redirect OAuth
-  const handleGoogleSignIn = () => {
-    // If GSI One Tap is available, try it
-    if (gsiReady && window.google?.accounts?.id) {
-      let promptFired = false;
-      window.google.accounts.id.prompt((notification) => {
-        promptFired = true;
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // One Tap suppressed (iOS WebView, user not signed in, etc.) — use redirect
-          window.location.href = '/api/auth/google';
-        }
-      });
-      // If prompt() callback never fires within 1s, fall back to redirect
-      setTimeout(() => {
-        if (!promptFired) window.location.href = '/api/auth/google';
-      }, 1000);
-    } else {
-      // GSI not available — use redirect OAuth flow directly
-      window.location.href = '/api/auth/google';
-    }
-  };
 
   useEffect(() => {
     // Handle error params from Google OAuth callback (redirect flow fallback)
     const urlParams = new URLSearchParams(window.location.search);
     const errorKey = urlParams.get("error");
-    const errorMessages: Record<string, string> = {
-      google_denied: "Google sign-in was cancelled.",
-      google_failed: "Google sign-in failed. Please try again.",
-      google_no_email: "Your Google account didn't share an email. Please use email sign-in.",
-      google_not_configured: "Google sign-in is not available right now.",
-      account_disabled: "This account has been disabled. Please contact support.",
-    };
-    if (errorKey && errorMessages[errorKey]) {
-      toast({ title: errorMessages[errorKey], variant: "destructive" });
+    if (errorKey === "account_disabled") {
+      toast({ title: "This account has been disabled. Please contact support.", variant: "destructive" });
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -349,16 +233,6 @@ export default function AuthForm() {
               Get started
             </button>
 
-            <button style={{ ...btnOutline, marginTop: "10px" }} onClick={handleGoogleSignIn}>
-              <svg width="18" height="18" viewBox="0 0 48 48" style={{ flexShrink: 0 }}>
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-              Continue with Google
-            </button>
-
             <button
               style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "16px", cursor: "pointer", padding: "8px" }}
               onClick={() => setMode("login")}
@@ -431,18 +305,6 @@ export default function AuthForm() {
               disabled={isLoading}
             >
               Forgot password?
-            </button>
-
-            <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
-
-            <button style={btnOutline} onClick={handleGoogleSignIn} disabled={isLoading}>
-              <svg width="18" height="18" viewBox="0 0 48 48" style={{ flexShrink: 0 }}>
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-              Continue with Google
             </button>
 
             <button
@@ -541,18 +403,6 @@ export default function AuthForm() {
               <a href="/terms-of-service" style={{ color: CYAN }}>Terms</a> and{" "}
               <a href="/privacy-policy" style={{ color: CYAN }}>Privacy Policy</a>.
             </p>
-
-            <div style={{ borderTop: "1px solid #e5e7eb", margin: "20px 0" }} />
-
-            <button style={btnOutline} onClick={handleGoogleSignIn} disabled={isLoading}>
-              <svg width="18" height="18" viewBox="0 0 48 48" style={{ flexShrink: 0 }}>
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-              Continue with Google
-            </button>
 
             <button
               style={{ background: "none", border: "none", color: "#6b7280", fontSize: "15px", marginTop: "12px", cursor: "pointer", display: "block", width: "100%", textAlign: "center", padding: "8px" }}
