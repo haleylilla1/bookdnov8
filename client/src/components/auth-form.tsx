@@ -105,20 +105,25 @@ export default function AuthForm() {
     }
   };
 
-  // Initialize GSI once on mount
+  // Initialize GSI once on mount — wrapped in try/catch so errors don't block the button
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) return;
 
     const init = () => {
       if (!window.google?.accounts?.id) return;
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleGoogleCredential,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-      setGsiReady(true);
+      try {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+        setGsiReady(true);
+      } catch {
+        // initialize() failed (e.g. origin not registered) — button still shows,
+        // click will fall back to redirect OAuth
+      }
     };
 
     if (window.google?.accounts?.id) {
@@ -130,21 +135,34 @@ export default function AuthForm() {
           clearInterval(interval);
         }
       }, 150);
-      return () => clearInterval(interval);
+      // Give up after 10s and still mark ready so button stays functional
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+      }, 10000);
+      return () => { clearInterval(interval); clearTimeout(timeout); };
     }
   }, []);
 
-  // Show Google's in-page account picker when our button is tapped
+  // Handle Google sign-in: try One Tap first, fall back to redirect OAuth
   const handleGoogleSignIn = () => {
-    if (!gsiReady || !window.google?.accounts?.id) {
-      toast({ title: 'Google sign-in not ready', description: 'Please try again in a moment.', variant: 'destructive' });
-      return;
+    // If GSI One Tap is available, try it
+    if (gsiReady && window.google?.accounts?.id) {
+      let promptFired = false;
+      window.google.accounts.id.prompt((notification) => {
+        promptFired = true;
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // One Tap suppressed (iOS WebView, user not signed in, etc.) — use redirect
+          window.location.href = '/api/auth/google';
+        }
+      });
+      // If prompt() callback never fires within 1s, fall back to redirect
+      setTimeout(() => {
+        if (!promptFired) window.location.href = '/api/auth/google';
+      }, 1000);
+    } else {
+      // GSI not available — use redirect OAuth flow directly
+      window.location.href = '/api/auth/google';
     }
-    window.google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        toast({ title: 'Google sign-in unavailable', description: 'Please use email sign-in instead.', variant: 'destructive' });
-      }
-    });
   };
 
   useEffect(() => {
