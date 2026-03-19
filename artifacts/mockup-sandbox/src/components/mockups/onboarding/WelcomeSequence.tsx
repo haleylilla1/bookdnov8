@@ -128,17 +128,16 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
       justifyContent: "center",
       cursor: "pointer",
     }}>
-      {/* Logo */}
-      <div style={{
-        fontFamily: "'Poppins', sans-serif",
-        fontWeight: 800,
-        fontSize: 56,
-        color: NAVY,
-        letterSpacing: "-2px",
-        lineHeight: 1,
-      }}>
-        bookd<span style={{ color: AQUA }}>/</span>
-      </div>
+      {/* Logo image */}
+      <img
+        src="/__mockup/bookd-logo.png"
+        alt="bookd"
+        style={{
+          width: 200,
+          height: "auto",
+          marginBottom: 18,
+        }}
+      />
 
       {/* Tagline */}
       <p style={{
@@ -149,28 +148,10 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
         textAlign: "center",
         padding: "0 44px",
         lineHeight: 1.6,
-        marginTop: 14,
-        marginBottom: 16,
+        margin: 0,
       }}>
         The all-in-one financial tool for independent workers
       </p>
-
-      {/* Badge */}
-      <div style={{
-        background: "#EAF9FF",
-        border: `1px solid ${AQUA}`,
-        borderRadius: 100,
-        padding: "7px 18px",
-      }}>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 700,
-          color: AQUA,
-          fontFamily: "'Montserrat', sans-serif",
-          letterSpacing: "0.07em",
-          textTransform: "uppercase" as const,
-        }}>Free to Download</span>
-      </div>
 
       {/* Tap hint */}
       <div style={{
