@@ -47,24 +47,47 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
   );
 }
 
-/* ── Video placeholder top half ── */
-function VideoPlaceholder({ emoji, filename }: { emoji: string; filename: string }) {
+/* ── Video top half ── */
+function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; filename: string }) {
   return (
     <div style={{
       flex: 1,
-      background: "#EAF9FF",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
       position: "relative",
       overflow: "hidden",
+      background: "#EAF9FF",
     }}>
-      <span style={{ fontSize: 52 }}>{emoji}</span>
-      <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
-        {filename}
-      </span>
+      <video
+        src={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+        onError={(e) => { (e.currentTarget as HTMLVideoElement).style.display = "none"; }}
+      />
+      {/* Fallback shown if video fails */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        pointerEvents: "none",
+        zIndex: -1,
+      }}>
+        <span style={{ fontSize: 52 }}>{emoji}</span>
+        <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
+          {filename}
+        </span>
+      </div>
     </div>
   );
 }
@@ -172,7 +195,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPlaceholder emoji="📋" filename="girl_working.mp4" />
+      <VideoPanel src="/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={2} />
@@ -221,7 +244,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPlaceholder emoji="🚗" filename="girl_driving.mp4" />
+      <VideoPanel src="/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={3} />
@@ -273,7 +296,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
 function Screen4({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPlaceholder emoji="🎉" filename="girl_cheering.mp4" />
+      <VideoPanel src="/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={4} />
