@@ -64,6 +64,49 @@ export function PaywallScreen() {
           No charge today. Cancel anytime before your trial ends.
         </p>
 
+        {/* Vertical trial timeline */}
+        <div style={{
+          background: "#f8fafc", border: "1px solid #e5e7eb",
+          borderRadius: 16, padding: "18px 18px 14px",
+          marginBottom: 20,
+        }}>
+          <p style={{
+            fontSize: 11, fontWeight: 700, color: "#9ca3af",
+            textTransform: "uppercase", letterSpacing: "0.08em",
+            margin: "0 0 16px", fontFamily: "'Montserrat', sans-serif",
+          }}>What happens next</p>
+
+          {[
+            { day: "Today", dot: CYAN,      title: "Free trial begins",    sub: "Full access, nothing charged.",              last: false },
+            { day: "Day 4", dot: "#9ca3af", title: "3-day reminder",       sub: "We'll email you before your trial ends.",    last: false },
+            { day: "Day 6", dot: "#9ca3af", title: "1-day reminder",       sub: "Last chance to cancel for free.",            last: false },
+            { day: "Day 7", dot: NAVY,      title: "Subscription starts",  sub: chargeLabel,                                 last: true  },
+          ].map(({ day, dot, title, sub, last }) => (
+            <div key={day} style={{ display: "flex", gap: 14 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 }}>
+                <div style={{
+                  width: 12, height: 12, borderRadius: "50%",
+                  background: dot, flexShrink: 0, marginTop: 2,
+                  boxShadow: dot === CYAN ? "0 0 0 3px rgba(0,180,216,0.2)" : "none",
+                }} />
+                {!last && <div style={{ width: 2, flex: 1, background: "#e5e7eb", margin: "4px 0" }} />}
+              </div>
+              <div style={{ paddingBottom: last ? 0 : 16 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 700,
+                    color: dot === CYAN ? CYAN : dot === NAVY ? NAVY : "#9ca3af",
+                    fontFamily: "'Montserrat', sans-serif",
+                    textTransform: "uppercase", letterSpacing: "0.07em",
+                  }}>{day}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#9ca3af", margin: 0, fontFamily: "'Montserrat', sans-serif", lineHeight: 1.4 }}>{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Plan cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
 
@@ -196,82 +239,6 @@ export function PaywallScreen() {
                 </svg>
               </div>
               <span style={{ fontSize: 13, color: "#374151", fontFamily: "'Montserrat', sans-serif" }}>{item}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Vertical trial timeline */}
-        <div style={{
-          background: "#f8fafc", border: "1px solid #e5e7eb",
-          borderRadius: 16, padding: "18px 18px 14px",
-          marginBottom: 16,
-        }}>
-          <p style={{
-            fontSize: 11, fontWeight: 700, color: "#9ca3af",
-            textTransform: "uppercase", letterSpacing: "0.08em",
-            margin: "0 0 16px", fontFamily: "'Montserrat', sans-serif",
-          }}>What happens next</p>
-
-          {[
-            {
-              day: "Today",
-              dot: CYAN,
-              title: "Free trial begins",
-              sub: "Full access, nothing charged.",
-              last: false,
-            },
-            {
-              day: "Day 4",
-              dot: "#9ca3af",
-              title: "3-day reminder",
-              sub: "We'll email you before your trial ends.",
-              last: false,
-            },
-            {
-              day: "Day 6",
-              dot: "#9ca3af",
-              title: "1-day reminder",
-              sub: "Last chance to cancel for free.",
-              last: false,
-            },
-            {
-              day: "Day 7",
-              dot: NAVY,
-              title: "Subscription starts",
-              sub: chargeLabel,
-              last: true,
-            },
-          ].map(({ day, dot, title, sub, last }) => (
-            <div key={day} style={{ display: "flex", gap: 14, position: "relative" }}>
-              {/* Dot + line */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 }}>
-                <div style={{
-                  width: 12, height: 12, borderRadius: "50%",
-                  background: dot, flexShrink: 0,
-                  marginTop: 2,
-                  boxShadow: dot === CYAN ? `0 0 0 3px rgba(0,180,216,0.2)` : "none",
-                }} />
-                {!last && <div style={{ width: 2, flex: 1, background: "#e5e7eb", margin: "4px 0" }} />}
-              </div>
-
-              {/* Content */}
-              <div style={{ paddingBottom: last ? 0 : 16 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
-                  <span style={{
-                    fontSize: 11, fontWeight: 700, color: dot === CYAN ? CYAN : (dot === NAVY ? NAVY : "#9ca3af"),
-                    fontFamily: "'Montserrat', sans-serif",
-                    textTransform: "uppercase", letterSpacing: "0.07em",
-                  }}>{day}</span>
-                  <span style={{
-                    fontSize: 13, fontWeight: 600, color: "#111827",
-                    fontFamily: "'Poppins', sans-serif",
-                  }}>{title}</span>
-                </div>
-                <p style={{
-                  fontSize: 12, color: "#9ca3af", margin: 0,
-                  fontFamily: "'Montserrat', sans-serif", lineHeight: 1.4,
-                }}>{sub}</p>
-              </div>
             </div>
           ))}
         </div>
