@@ -3,6 +3,25 @@
 ## Overview
 Bookd is a mobile-first gig worker companion app designed for financial tracking and calendar-based gig management. It aims to provide a reliable, scalable, and user-friendly solution, transitioning from a prototype to a production-ready application. Its core purpose is to help gig workers manage gigs and clients, track finances, and streamline tax-smart workflows. The project vision includes launching on the iOS App Store with subscription monetization at $4/month or $40/year, including a 7-day free trial.
 
+## Weekend Build List
+Features planned for the upcoming build session:
+
+### 1. Push Notifications (OneSignal)
+- Onboarding screen where user selects notification frequency for late payment reminders
+- Local notifications: schedule at `gig end date + X weeks` if gig is still pending; cancel when "Got Paid" is recorded
+- OneSignal integration for server-initiated push (tax deadline reminders, engagement nudges, etc.)
+- Device token registered and stored in DB per user
+- OneSignal segmentation for targeting specific user groups from dashboard
+
+### 2. Google OAuth — In-App Browser Fix
+- Current issue: Google sign-in opens Safari (leaves the app)
+- Fix: use `@capacitor/browser` to open SFSafariViewController (in-app browser sheet)
+- Register custom URL scheme `bookd://` in `capacitor.config.ts` + iOS Info.plist
+- Update server's `/auth/google/callback` to redirect to `bookd://auth?google_session=<id>` instead of `/?google_session=`
+- App listens for `bookd://` via `@capacitor/app` App URL open listener and handles session
+
+---
+
 ## Canvas Mockups (Onboarding Flow — in progress)
 All mockup components live in `artifacts/mockup-sandbox/src/components/mockups/onboarding/` and are served by the mockup sandbox at `https://<domain>/__mockup/preview/onboarding/<ComponentName>`. Canvas shape IDs are listed for reference.
 
