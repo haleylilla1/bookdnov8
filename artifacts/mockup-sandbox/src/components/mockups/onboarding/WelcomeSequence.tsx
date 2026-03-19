@@ -51,7 +51,8 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
 function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; filename: string }) {
   return (
     <div style={{
-      flex: 1,
+      flexShrink: 0,
+      height: 300,
       position: "relative",
       overflow: "hidden",
       background: "#EAF9FF",
