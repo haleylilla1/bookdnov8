@@ -244,23 +244,20 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
             margin: "0 0 10px",
           }}>Every Mile Counts</p>
 
-          <div style={{
+          <h2 style={{
             fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-            fontSize: 48, color: AQUA, lineHeight: 1, margin: "0 0 10px",
-          }}>$3,770</div>
+            fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
+          }}>
+            Every mile you drive is{" "}
+            <span style={{ color: AQUA }}>money back</span>
+            {" "}at tax time.
+          </h2>
 
           <p style={{
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            back at tax time — from logging just 100 miles a week to your gigs.
-          </p>
-
-          <p style={{
-            fontSize: 12, color: "#8A93A8",
-            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 10px",
-          }}>
-            The 2026 IRS rate is $0.725/mile. Every drive to a gig is a deduction. Most independent workers never log a single one.
+            At $0.725/mile, logging 100 miles a week adds up to $3,770 back from the IRS — most gig workers never claim a single one.
           </p>
 
           <p style={{
@@ -301,54 +298,18 @@ function Screen4({ onAdvance }: { onAdvance: () => void }) {
 
         <h2 style={{
           fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 14px",
+          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
         }}>
           Keep more of the money{" "}
           <span style={{ color: AQUA }}>you earned.</span>
         </h2>
 
-        {/* Haley card */}
-        <div style={{
-          background: "#F8F9FB",
-          border: "1.5px solid #E8EBF0",
-          borderRadius: 16,
-          padding: 14,
-          marginBottom: 14,
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 12,
+        <p style={{
+          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
         }}>
-          {/* Avatar */}
-          <div style={{
-            width: 38, height: 38, borderRadius: "50%",
-            background: AQUA, flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span style={{
-              fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-              fontSize: 15, color: "#fff",
-            }}>H</span>
-          </div>
-
-          {/* Text */}
-          <div style={{ flex: 1 }}>
-            <div style={{
-              fontSize: 12, fontWeight: 700, color: NAVY,
-              fontFamily: "'Montserrat', sans-serif", marginBottom: 1,
-            }}>Haley</div>
-            <div style={{
-              fontSize: 9, fontWeight: 700, color: AQUA,
-              fontFamily: "'Montserrat', sans-serif",
-              textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5,
-            }}>Bookd Creator</div>
-            <div style={{
-              fontSize: 11, color: "#8A93A8",
-              fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55,
-            }}>
-              "I've been a freelancer for six years and found that tools built for the way we work are hard to come by. Thank you for being here."
-            </div>
-          </div>
-        </div>
+          Built by a freelancer for freelancers — Bookd tracks your income, miles, and expenses so nothing slips through the cracks at tax time.
+        </p>
 
         <p style={{
           fontSize: 9, color: "#bbb", fontStyle: "italic",
