@@ -48,7 +48,9 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
 }
 
 /* ── Video panel ── */
-function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; filename: string }) {
+function VideoPanel({ src, emoji, filename, objectPosition = "center" }: {
+  src: string; emoji: string; filename: string; objectPosition?: string;
+}) {
   return (
     <div style={{
       flexShrink: 0,
@@ -69,6 +71,7 @@ function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; file
           width: "100%",
           height: "100%",
           objectFit: "cover",
+          objectPosition,
           zIndex: 1,
         }}
         onError={(e) => { (e.currentTarget as HTMLVideoElement).style.display = "none"; }}
@@ -85,10 +88,10 @@ function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; file
           {filename}
         </span>
       </div>
-      {/* Gradient fade — dissolves any line at the video's bottom edge */}
+      {/* Subtle edge dissolve — just enough to blend into white below */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
-        height: 80,
+        height: 32,
         background: "linear-gradient(to bottom, transparent, #ffffff)",
         zIndex: 2, pointerEvents: "none",
       }} />
@@ -233,7 +236,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
-      <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
+      <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" objectPosition="top" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <div>
