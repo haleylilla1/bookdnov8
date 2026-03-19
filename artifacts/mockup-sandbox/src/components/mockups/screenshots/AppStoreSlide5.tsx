@@ -33,44 +33,40 @@ export function AppStoreSlide5() {
 
         <h1 style={{
           fontSize: 40, fontWeight: 900, color: "#fff",
-          lineHeight: 1.1, margin: "0 0 16px",
+          lineHeight: 1.1, margin: "0 0 14px",
           letterSpacing: "-1px",
         }}>
-          Tax time,{" "}
-          <span style={{ color: CYAN }}>handled.</span>
+          Download your report —{" "}
+          <span style={{ color: CYAN }}>walk into tax season prepared.</span>
         </h1>
 
         <p style={{
-          fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.55,
+          fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.55,
           margin: "0 0 20px", fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
         }}>
-          Download a complete income & deduction report — ready for your accountant or tax software.
+          One tap generates a complete income, mileage & deduction report — ready for your accountant or tax software.
         </p>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
           {[
-            { label: "Tax Estimate", value: "$2,116", sub: "Estimated liability" },
-            { label: "Deductions", value: "$1,301", sub: "Miles + expenses" },
+            { label: "Tax Estimate", value: "$2,116", sub: "Know before you file" },
+            { label: "Total Deductions", value: "$1,301", sub: "Miles + all expenses" },
           ].map((card) => (
             <div key={card.label} style={{
               flex: 1, background: "rgba(0,180,216,0.1)",
               border: "1px solid rgba(0,180,216,0.25)",
               borderRadius: 14, padding: "14px 12px", textAlign: "center",
             }}>
-              <div style={{ fontSize: 11, color: CYAN, fontFamily: "'Montserrat', sans-serif", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{card.label}</div>
+              <div style={{ fontSize: 10, color: CYAN, fontFamily: "'Montserrat', sans-serif", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{card.label}</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>{card.value}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontFamily: "'Montserrat', sans-serif", marginTop: 4 }}>{card.sub}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "'Montserrat', sans-serif", marginTop: 4 }}>{card.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 330 }}>
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 80,
-          background: `linear-gradient(to bottom, ${NAVY}, transparent)`, zIndex: 1,
-        }} />
-        <img src="/__mockup/ss_report.png" style={{ width: "100%", display: "block" }} />
+      <div style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", width: 330 }}>
+        <img src="/__mockup/ss_report_nobg.png" style={{ width: "100%", display: "block" }} />
       </div>
     </div>
   );

@@ -32,42 +32,40 @@ export function AppStoreSlide4() {
 
         <h1 style={{
           fontSize: 40, fontWeight: 900, color: "#fff",
-          lineHeight: 1.1, margin: "0 0 16px",
+          lineHeight: 1.1, margin: "0 0 14px",
           letterSpacing: "-1px",
         }}>
-          Every expense is a{" "}
-          <span style={{ color: CYAN }}>deduction.</span>
+          Log expenses as you go —{" "}
+          <span style={{ color: CYAN }}>lower your tax bill.</span>
         </h1>
 
         <p style={{
-          fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.55,
+          fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.55,
           margin: "0 0 20px", fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
         }}>
-          Log parking, supplies, equipment & more. Business expenses reduce what you owe at tax time.
+          Parking, supplies, equipment — every business expense logged reduces what you owe at tax time.
         </p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start", padding: "0 4px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
           {[
-            "Parking costs & reimbursements",
-            "Supplies, meals & equipment",
-            "Linked to specific gigs automatically",
+            { fn: "Log parking costs & reimbursements", val: "capture net deductions" },
+            { fn: "Add supplies, meals & equipment", val: "nothing left on the table" },
+            { fn: "Linked directly to each gig", val: "organized for your accountant" },
           ].map((item) => (
-            <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 20, height: 20, borderRadius: "50%", background: CYAN, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <div key={item.fn} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: CYAN, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                 <span style={{ fontSize: 11, color: "#fff", fontWeight: 700 }}>✓</span>
               </div>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontFamily: "'Montserrat', sans-serif", fontWeight: 500, textAlign: "left" }}>{item}</span>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontFamily: "'Montserrat', sans-serif", fontWeight: 500, textAlign: "left", lineHeight: 1.4 }}>
+                <strong style={{ color: "#fff" }}>{item.fn}</strong> — {item.val}
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 330 }}>
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 80,
-          background: `linear-gradient(to bottom, ${NAVY}, transparent)`, zIndex: 1,
-        }} />
-        <img src="/__mockup/ss_expenses.png" style={{ width: "100%", display: "block" }} />
+      <div style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", width: 330 }}>
+        <img src="/__mockup/ss_expenses_nobg.png" style={{ width: "100%", display: "block" }} />
       </div>
     </div>
   );

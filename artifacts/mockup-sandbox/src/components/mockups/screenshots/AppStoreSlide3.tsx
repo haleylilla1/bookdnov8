@@ -32,44 +32,41 @@ export function AppStoreSlide3() {
 
         <h1 style={{
           fontSize: 40, fontWeight: 900, color: "#fff",
-          lineHeight: 1.1, margin: "0 0 16px",
+          lineHeight: 1.1, margin: "0 0 14px",
           letterSpacing: "-1px",
         }}>
-          Every mile is worth{" "}
-          <span style={{ color: CYAN }}>$0.725.</span>
+          Track your drives —{" "}
+          <span style={{ color: CYAN }}>save thousands in deductions.</span>
         </h1>
 
         <p style={{
-          fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.55,
+          fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.55,
           margin: "0 0 20px", fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
         }}>
-          Auto-calculated mileage deductions at the 2026 IRS standard rate — every drive tracked.
+          Enter your route and Bookd auto-calculates your deduction at the IRS standard rate. Every mile counts at tax time.
         </p>
 
         <div style={{
           background: "rgba(0,180,216,0.12)", border: "1px solid rgba(0,180,216,0.3)",
-          borderRadius: 14, padding: "14px 18px", textAlign: "left",
+          borderRadius: 14, padding: "14px 18px",
         }}>
-          <div style={{ fontSize: 12, color: CYAN, fontFamily: "'Montserrat', sans-serif", fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-            Example gig
+          <div style={{ fontSize: 11, color: CYAN, fontFamily: "'Montserrat', sans-serif", fontWeight: 700, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Real example
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontFamily: "'Montserrat', sans-serif" }}>270 miles round trip</span>
-            <span style={{ fontSize: 13, color: "#fff", fontWeight: 700, fontFamily: "'Montserrat', sans-serif" }}>$195.75 deduction</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", fontFamily: "'Montserrat', sans-serif" }}>270 miles (round trip)</span>
+            <span style={{ fontSize: 16, color: "#fff", fontWeight: 800, fontFamily: "'Poppins', sans-serif" }}>$195.75</span>
           </div>
-          <div style={{ height: 1, background: "rgba(255,255,255,0.1)", margin: "8px 0" }} />
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "'Montserrat', sans-serif" }}>
-            Calculated automatically from your route
+          <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 8 }} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "'Montserrat', sans-serif" }}>2026 IRS rate: 72.5¢/mile</span>
+            <span style={{ fontSize: 12, color: CYAN, fontWeight: 600, fontFamily: "'Montserrat', sans-serif" }}>deduction at filing</span>
           </div>
         </div>
       </div>
 
-      <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 330 }}>
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 80,
-          background: `linear-gradient(to bottom, ${NAVY}, transparent)`, zIndex: 1,
-        }} />
-        <img src="/__mockup/ss_mileage.png" style={{ width: "100%", display: "block" }} />
+      <div style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", width: 330 }}>
+        <img src="/__mockup/ss_mileage_nobg.png" style={{ width: "100%", display: "block" }} />
       </div>
     </div>
   );
