@@ -87,24 +87,20 @@ export function GigGapScreenB() {
           every year.
         </h1>
 
-        {/* Hero navy card — annual missed front and center */}
-        <div style={{
-          background: NAVY, borderRadius: 22,
-          padding: "24px 24px 20px",
-          marginBottom: 16, textAlign: "center",
-        }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px", fontFamily: "'Montserrat', sans-serif" }}>
+        {/* Navy hero card — annual number in white, clean */}
+        <div style={{ background: NAVY, borderRadius: 22, padding: "24px 24px 20px", marginBottom: 16 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px", fontFamily: "'Montserrat', sans-serif" }}>
             Estimated annual deductions missed
           </p>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 58, color: "#FF6B47", lineHeight: 1, margin: "0 0 6px" }}>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 54, color: "#ffffff", lineHeight: 1, margin: "0 0 6px" }}>
             {fmt(annualMissed)}
           </div>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: 0, fontFamily: "'Montserrat', sans-serif" }}>
-            based on {fmtShort(income)}/mo income · adjust below
+          <p style={{ fontSize: 13, color: CYAN, margin: "0 0 20px", fontFamily: "'Montserrat', sans-serif" }}>
+            based on {fmtShort(income)}/mo · adjust below
           </p>
 
-          {/* Inline mini slider */}
-          <div style={{ marginTop: 20, position: "relative" }}>
+          {/* Slider inside hero card */}
+          <div style={{ position: "relative", marginBottom: 6 }}>
             <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
             <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${pct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
             <input
@@ -113,15 +109,15 @@ export function GigGapScreenB() {
               onChange={(e) => { setIncome(Number(e.target.value)); setPulsing(false); }}
               style={{ position: "relative", zIndex: 1, background: "transparent" }}
             />
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-              {[500, 3000, 5000, 8000, 10000].map((v) => (
-                <span key={v} style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "'Montserrat', sans-serif" }}>{fmtShort(v)}</span>
-              ))}
-            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            {[500, 3000, 5000, 8000, 10000].map((v) => (
+              <span key={v} style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontFamily: "'Montserrat', sans-serif" }}>{fmtShort(v)}</span>
+            ))}
           </div>
         </div>
 
-        {/* Monthly + Annually side by side */}
+        {/* Monthly + Annually — same restrained style as original A */}
         <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
           {[{ label: "Monthly", val: monthlyMissed }, { label: "Annually", val: annualMissed }].map(({ label, val }) => (
             <div key={label} style={{ flex: 1, background: CORAL_BG, border: `1px solid ${CORAL_BORDER}`, borderRadius: 14, padding: "14px 12px" }}>
@@ -132,16 +128,16 @@ export function GigGapScreenB() {
           ))}
         </div>
 
-        {/* Breakdown rows */}
+        {/* Breakdown */}
         <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
           {[
-            { title: "Mileage", sub: `~${miles.toLocaleString()} mi/mo · $0.725/mi`, mo: mileageDeduction, yr: mileageDeduction * 12 },
+            { title: "Mileage", sub: `~${miles.toLocaleString()} mi/mo · $0.725/mi`, mo: mileageDeduction, yr: mileageDeduction * 12, subColor: "#9ca3af" },
             { title: "Business expenses", sub: "Parking, supplies, equipment", mo: businessExpenses, yr: businessExpenses * 12, subColor: CYAN },
           ].map(({ title, sub, mo, yr, subColor }, i) => (
             <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
-                <div style={{ fontSize: 12, color: subColor || "#9ca3af", marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{sub}</div>
+                <div style={{ fontSize: 12, color: subColor, marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{sub}</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(mo)}/mo</div>

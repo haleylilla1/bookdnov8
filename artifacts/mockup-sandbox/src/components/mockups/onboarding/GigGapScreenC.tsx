@@ -3,7 +3,9 @@ import { useState } from "react";
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
 const CORAL = "#D84C2A";
-const CORAL_LIGHT = "#FFF5F3";
+const CORAL_BG = "#FFF5F3";
+const CORAL_BORDER = "#FFE0DA";
+const MISSED_COLOR = "#475569";
 
 const MIN = 500;
 const MAX = 10000;
@@ -87,14 +89,14 @@ export function GigGapScreenC() {
 
         <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, lineHeight: 1.25, margin: "0 0 6px" }}>
           Of every dollar you earn,{" "}
-          <span style={{ color: CORAL }}>this much disappears.</span>
+          <span style={{ color: CYAN }}>this much disappears.</span>
         </h1>
-        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 20px", lineHeight: 1.5, fontFamily: "'Montserrat', sans-serif" }}>
-          Drag the slider to see your personal gig gap.
+        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 18px", lineHeight: 1.5, fontFamily: "'Montserrat', sans-serif" }}>
+          Drag to see your personal gig gap.
         </p>
 
         {/* Income slider card */}
-        <div style={{ background: "#f8fafc", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 18px 14px", marginBottom: 18 }}>
+        <div style={{ background: "#f8fafc", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 18px 14px", marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "'Montserrat', sans-serif" }}>Monthly income</span>
             <span style={{ fontSize: 26, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(income)}</span>
@@ -116,71 +118,56 @@ export function GigGapScreenC() {
           </div>
         </div>
 
-        {/* Split bar visual */}
+        {/* Split bar — navy (kept) vs slate (missed), no aggressive colors */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", height: 44, borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-            <div style={{
-              flex: keptPct, background: NAVY,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "flex 0.3s ease",
-            }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
-                {keptPct}% kept
-              </span>
+          <div style={{ display: "flex", height: 40, borderRadius: 12, overflow: "hidden", marginBottom: 8 }}>
+            <div style={{ flex: keptPct, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{keptPct}% kept</span>
             </div>
-            <div style={{
-              flex: missedPct, background: CORAL,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "flex 0.3s ease",
-            }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
-                {missedPct}% gone
-              </span>
+            <div style={{ flex: missedPct, background: MISSED_COLOR, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{missedPct}% gone</span>
             </div>
           </div>
-
-          {/* Legend */}
           <div style={{ display: "flex", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: 3, background: NAVY }} />
-              <span style={{ fontSize: 12, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>You keep</span>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: NAVY }} />
+              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>You keep</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: 3, background: CORAL }} />
-              <span style={{ fontSize: 12, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>Unclaimed deductions</span>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: MISSED_COLOR }} />
+              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>Unclaimed deductions</span>
             </div>
           </div>
         </div>
 
-        {/* Big coral missed card */}
-        <div style={{ background: CORAL_LIGHT, border: "1.5px solid #FFE0DA", borderRadius: 18, padding: "18px 20px", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 12 }}>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: CORAL, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 4px", fontFamily: "'Montserrat', sans-serif" }}>Annually missed</p>
-              <div style={{ fontSize: 42, fontWeight: 800, color: CORAL, lineHeight: 1, fontFamily: "'Poppins', sans-serif" }}>{fmt(annualMissed)}</div>
+        {/* Monthly + Annually — same style as original A */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+          {[{ label: "Monthly", val: monthlyMissed }, { label: "Annually", val: annualMissed }].map(({ label, val }) => (
+            <div key={label} style={{ flex: 1, background: CORAL_BG, border: `1px solid ${CORAL_BORDER}`, borderRadius: 14, padding: "14px 12px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: CORAL, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontFamily: "'Montserrat', sans-serif" }}>{label}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: CORAL, lineHeight: 1.1, marginBottom: 2, fontFamily: "'Poppins', sans-serif" }}>{fmt(val)}</div>
+              <div style={{ fontSize: 12, color: CORAL, opacity: 0.7, fontFamily: "'Montserrat', sans-serif" }}>typically missed</div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: CORAL, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 4px", fontFamily: "'Montserrat', sans-serif", opacity: 0.7 }}>Monthly</p>
-              <div style={{ fontSize: 24, fontWeight: 800, color: CORAL, lineHeight: 1, fontFamily: "'Poppins', sans-serif", opacity: 0.8 }}>{fmt(monthlyMissed)}</div>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Two breakdown pills */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(216,76,42,0.08)", borderRadius: 10, padding: "10px 14px" }}>
+        {/* Breakdown */}
+        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
+          {[
+            { title: "Mileage", sub: `~${miles.toLocaleString()} mi/mo · $0.725/mi`, mo: mileageDeduction, yr: mileageDeduction * 12, subColor: "#9ca3af" },
+            { title: "Business expenses", sub: "Parking, supplies, equipment", mo: businessExpenses, yr: businessExpenses * 12, subColor: CYAN },
+          ].map(({ title, sub, mo, yr, subColor }, i) => (
+            <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
               <div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: CORAL, fontFamily: "'Montserrat', sans-serif" }}>Mileage</span>
-                <span style={{ fontSize: 11, color: CORAL, opacity: 0.65, marginLeft: 6, fontFamily: "'Montserrat', sans-serif" }}>~{miles.toLocaleString()} mi/mo</span>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
+                <div style={{ fontSize: 12, color: subColor, marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{sub}</div>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: CORAL, fontFamily: "'Poppins', sans-serif" }}>{fmt(mileageDeduction)}/mo</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(216,76,42,0.08)", borderRadius: 10, padding: "10px 14px" }}>
-              <div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: CORAL, fontFamily: "'Montserrat', sans-serif" }}>Business expenses</span>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(mo)}/mo</div>
+                <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{fmt(yr)}/yr</div>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: CORAL, fontFamily: "'Poppins', sans-serif" }}>{fmt(businessExpenses)}/mo</span>
             </div>
-          </div>
+          ))}
         </div>
 
         <p style={{ fontSize: 10, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 8px", padding: "0 4px", fontFamily: "'Montserrat', sans-serif" }}>
