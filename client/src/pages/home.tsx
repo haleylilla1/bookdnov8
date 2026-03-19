@@ -9,7 +9,7 @@ import BottomNavigation from "@/components/bottom-navigation";
 import AppHeader from "@/components/app-header";
 import DesktopSidebar from "@/components/desktop-sidebar";
 import LegalFooter from "@/components/legal-footer";
-import { OnboardingFlow } from "@/components/onboarding-flow";
+import { OnboardingFlow, GigGapStep } from "@/components/onboarding-flow";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
@@ -18,7 +18,7 @@ import GotPaidSheet from "@/components/got-paid-sheet";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
 
-export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expense-form" | "settings";
+export type Screen = "calendar" | "dashboard" | "profile" | "gig-form" | "expense-form" | "settings" | "gig-gap-tool";
 
 const CYAN = "#00b4d8";
 const NAVY = "#03045e";
@@ -390,6 +390,7 @@ export default function Home() {
       case "profile": return <Profile onDemoComplete={startTour} />;
       case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
       case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
+      case "gig-gap-tool": return <GigGapStep onComplete={() => setCurrentScreen("dashboard")} />;
       default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} tourStep={tourStep} onTourNext={handleTourNext} />;
     }
   };

@@ -1,4 +1,4 @@
-import { Calendar, LayoutDashboard, User, FileText, Plus, LogOut, Receipt } from "lucide-react";
+import { Calendar, LayoutDashboard, User, FileText, Plus, LogOut, Receipt, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Screen } from "@/pages/home";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,11 @@ export default function DesktopSidebar({ currentScreen, onScreenChange }: Deskto
       id: "profile" as Screen,
       icon: User,
       label: "Profile",
+    },
+    {
+      id: "gig-gap-tool" as Screen,
+      icon: TrendingUp,
+      label: "Time to Value Tool",
     },
   ];
 
