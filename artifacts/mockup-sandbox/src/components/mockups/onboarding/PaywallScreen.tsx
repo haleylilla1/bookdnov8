@@ -23,9 +23,9 @@ const CHECK_ITEMS = [
 export function PaywallScreen() {
   const [plan, setPlan] = useState<"annual" | "monthly">("annual");
 
-  const price = plan === "annual" ? "$30/year" : "$4/month";
-  const billingNote = plan === "annual" ? "Just $2.50/mo — billed annually" : "Billed every month";
-  const chargeLabel = plan === "annual" ? "$30 charged after trial" : "$4 charged after trial";
+  const price = plan === "annual" ? "$40/year" : "$4/month";
+  const billingNote = plan === "annual" ? "Just $3.33/mo — billed annually" : "Billed every month";
+  const chargeLabel = plan === "annual" ? "$40 charged after trial" : "$4 charged after trial";
 
   return (
     <div style={{
@@ -130,7 +130,7 @@ export function PaywallScreen() {
               fontSize: 10, fontWeight: 700, color: "#fff",
               fontFamily: "'Montserrat', sans-serif",
               letterSpacing: "0.06em", textTransform: "uppercase",
-            }}>Best Value — Save $18</div>
+            }}>Best Value — Save $8</div>
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
@@ -143,7 +143,7 @@ export function PaywallScreen() {
                   fontSize: 12,
                   color: plan === "annual" ? "rgba(255,255,255,0.6)" : "#9ca3af",
                   fontFamily: "'Montserrat', sans-serif",
-                }}>{plan === "annual" ? "Just $2.50/mo · billed annually" : "$2.50/mo · billed annually"}</div>
+                }}>{plan === "annual" ? "Just $3.33/mo · billed annually" : "$3.33/mo · billed annually"}</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ textAlign: "right" }}>
@@ -151,7 +151,7 @@ export function PaywallScreen() {
                     fontSize: 22, fontWeight: 800,
                     color: plan === "annual" ? "#fff" : NAVY,
                     fontFamily: "'Poppins', sans-serif", lineHeight: 1,
-                  }}>$30</div>
+                  }}>$40</div>
                   <div style={{
                     fontSize: 11,
                     color: plan === "annual" ? "rgba(255,255,255,0.5)" : "#9ca3af",
