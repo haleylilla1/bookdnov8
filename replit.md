@@ -1,7 +1,22 @@
 # Bookd Project Context
 
 ## Overview
-Bookd is a mobile-first gig worker companion app designed for financial tracking and calendar-based gig management. It aims to provide a reliable, scalable, and user-friendly solution, transitioning from a prototype to a production-ready application. Its core purpose is to help gig workers manage gigs and clients, track finances, and streamline tax-smart workflows. The project vision includes launching on the iOS App Store with subscription monetization at $5/month or $50/year, including a 7-day free trial.
+Bookd is a mobile-first gig worker companion app designed for financial tracking and calendar-based gig management. It aims to provide a reliable, scalable, and user-friendly solution, transitioning from a prototype to a production-ready application. Its core purpose is to help gig workers manage gigs and clients, track finances, and streamline tax-smart workflows. The project vision includes launching on the iOS App Store with subscription monetization at $4/month or $40/year, including a 7-day free trial.
+
+## Canvas Mockups (Onboarding Flow — in progress)
+All mockup components live in `artifacts/mockup-sandbox/src/components/mockups/onboarding/` and are served by the mockup sandbox at `https://<domain>/__mockup/preview/onboarding/<ComponentName>`. Canvas shape IDs are listed for reference.
+
+| Canvas Shape | File | Notes |
+|---|---|---|
+| `welcome-sequence` | `WelcomeSequence.tsx` | 4-screen splash → video flow. Screens 2–4 share identical layout: aqua step label, dual-color H2, body, disclaimer, continue button. Videos at `/__mockup/girl_*.mp4`. paddingTop:80 locks video to same Y on all screens. |
+| `warmup-screen` | `WarmUpScreen.tsx` | "Warm Up" onboarding step with stat cards and option selector. |
+| `gig-gap-screen` | `GigGapScreen.tsx` | Original time-to-value tool. Live income slider ($500–$10k), coral monthly/annual missed cards, mileage + expense breakdown. |
+| `gig-gap-screen-b` | `GigGapScreenB.tsx` | Variant B — same as A but leads with a navy hero card (white annual number). |
+| `gig-gap-screen-c` | `GigGapScreenC.tsx` | Variant C — adds navy/slate split bar showing kept% vs missed%. |
+| `paywall-screen` | `PaywallScreen.tsx` | Paywall. Timeline first (Today → Day 6 reminder → Day 7 charge), then plan cards. Annual $40/yr ($3.33/mo, save $8) recommended; Monthly $4/mo. Feature checklist. Pinned CTA. |
+
+**Pricing (current):** $4/month · $40/year · 7-day free trial · 1 reminder on Day 6
+**Color system:** Navy `#03045e` · Cyan `#00b4d8` · Coral `#D84C2A` (summary cards only) · Fonts: Poppins (headings) + Montserrat (body)
 
 ## User Preferences
 - Focus on mobile-first experience optimization
