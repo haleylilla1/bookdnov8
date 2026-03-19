@@ -48,8 +48,8 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
 }
 
 /* ── Video panel ── */
-function VideoPanel({ src, emoji, filename, objectPosition = "center" }: {
-  src: string; emoji: string; filename: string; objectPosition?: string;
+function VideoPanel({ src, poster, objectPosition = "center" }: {
+  src: string; poster: string; objectPosition?: string;
 }) {
   return (
     <div style={{
@@ -61,6 +61,7 @@ function VideoPanel({ src, emoji, filename, objectPosition = "center" }: {
     }}>
       <video
         src={src}
+        poster={poster}
         autoPlay
         loop
         muted
@@ -74,20 +75,7 @@ function VideoPanel({ src, emoji, filename, objectPosition = "center" }: {
           objectPosition,
           zIndex: 1,
         }}
-        onError={(e) => { (e.currentTarget as HTMLVideoElement).style.display = "none"; }}
       />
-      {/* Fallback — sits behind video */}
-      <div style={{
-        position: "absolute", inset: 0,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 8, pointerEvents: "none", zIndex: 0,
-      }}>
-        <span style={{ fontSize: 52 }}>{emoji}</span>
-        <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
-          {filename}
-        </span>
-      </div>
       {/* Subtle edge dissolve — just enough to blend into white below */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
@@ -183,7 +171,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
-      <VideoPanel src="/__mockup/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
+      <VideoPanel src="/__mockup/girl_working.mp4" poster="/__mockup/girl_working_poster.jpg" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <div>
@@ -236,7 +224,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
-      <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" objectPosition="top" />
+      <VideoPanel src="/__mockup/girl_driving.mp4" poster="/__mockup/girl_driving_poster.jpg" objectPosition="top" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <div>
@@ -289,7 +277,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
 function Screen4({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
-      <VideoPanel src="/__mockup/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
+      <VideoPanel src="/__mockup/girl_cheering.mp4" poster="/__mockup/girl_cheering_poster.jpg" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <div>
