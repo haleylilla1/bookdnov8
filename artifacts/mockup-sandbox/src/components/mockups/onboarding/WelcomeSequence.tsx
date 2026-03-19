@@ -425,7 +425,7 @@ export function WelcomeSequence() {
       {visible === 1 && <Screen1 onAdvance={next} />}
       {visible === 2 && <Screen2 onAdvance={next} />}
       {visible === 3 && <Screen3 onAdvance={next} />}
-      {visible === 4 && <Screen4 onAdvance={() => alert("Onboarding begins!")} />}
+      {visible === 4 && <Screen4 onAdvance={() => advance(1)} />}
     </div>
   );
 }
