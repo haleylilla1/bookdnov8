@@ -301,11 +301,10 @@ export class Auth {
 
   static async sendResetEmail(email: string, token: string): Promise<boolean> {
     try {
-      // Track password reset request in Klaviyo first
+      // Track password reset request in Klaviyo (no token - security)
       try {
         const { KlaviyoService } = await import('./klaviyo');
         await KlaviyoService.trackEvent(email, 'Password Reset Requested', {
-          reset_token: token,
           requested_at: new Date().toISOString()
         });
       } catch (error) {
@@ -439,7 +438,7 @@ export async function requireAuth(req: any, res: Response, next: NextFunction): 
 export function setupAuthRoutes(app: Express): void {
   
   // REGISTER
-  app.post('/api/auth/register', async (req: Request, res: Response) => {
+  app.post('/api/auth/register', authRateLimit, async (req: Request, res: Response) => {
     console.log('📱 Registration attempt from:', req.get('User-Agent'));
     console.log('📱 Request origin:', req.get('Origin'));
     console.log('📱 Request body keys:', Object.keys(req.body));
@@ -541,7 +540,7 @@ export function setupAuthRoutes(app: Express): void {
   });
 
   // LOGIN
-  app.post('/api/auth/login', async (req: Request, res: Response) => {
+  app.post('/api/auth/login', authRateLimit, async (req: Request, res: Response) => {
     console.log('📱 Login attempt from:', req.get('User-Agent'));
     console.log('📱 Request origin:', req.get('Origin'));
     console.log('📱 Request body keys:', Object.keys(req.body));

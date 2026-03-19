@@ -12,6 +12,8 @@ import {
   generalRateLimit, 
   authRateLimit, 
   exportRateLimit,
+  mapsRateLimit,
+  externalApiRateLimit,
   setSecurityHeaders,
   sanitizeRequestBody,
   sanitizeQueryParams,
@@ -64,8 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.set('trust proxy', 1);
 
-  // Waitlist endpoint (public - no auth required)
-  app.post('/api/waitlist', async (req: Request, res: Response) => {
+  // Waitlist endpoint (public - no auth required, but strictly rate limited)
+  app.post('/api/waitlist', externalApiRateLimit, async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
 
@@ -110,9 +112,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get waitlist signups (requires authentication)
+  // Get waitlist signups (admin only)
+  const ADMIN_USER_ID = 14;
   app.get('/api/waitlist', requireAuth, async (req: any, res: Response) => {
     try {
+      const userId = getUserId(req);
+      if (userId !== ADMIN_USER_ID) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
       const signups = await db.select().from(waitlistSignups).orderBy(desc(waitlistSignups.createdAt));
       res.json(signups);
     } catch (error: any) {
@@ -180,35 +187,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/subscription/update', requireAuth, async (req: any, res: Response) => {
-    try {
-      const userId = getUserId(req);
-      const { tier, status, expiresAt } = req.body;
-      
-      if (!tier || !status) {
-        return res.status(400).json({ error: 'Tier and status are required' });
-      }
-
-      // Update user subscription in database
-      await storage.updateUser(userId, {
-        subscriptionTier: tier,
-        subscriptionStatus: status,
-        subscriptionExpiresAt: expiresAt ? new Date(expiresAt) : null
-      });
-
-      // Track subscription change in RevenueCat
-      await RevenueCatService.updateCustomerAttributes(userId.toString(), {
-        subscription_tier: tier,
-        subscription_status: status,
-        subscription_updated: new Date().toISOString()
-      });
-
-      res.json({ success: true, message: 'Subscription updated successfully' });
-    } catch (error: any) {
-      console.error('❌ Subscription update failed:', error);
-      res.status(500).json({ error: 'Failed to update subscription' });
-    }
-  });
+  // Subscription updates are handled exclusively via RevenueCat webhooks (/api/webhooks/revenuecat)
+  // This endpoint is intentionally removed to prevent self-granted subscription upgrades.
 
   // RevenueCat webhook endpoint (no auth required - webhook from external service)
   app.post('/api/webhooks/revenuecat', express.json({ limit: '1mb' }), async (req: Request, res: Response) => {
@@ -235,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Support contact endpoint
-  app.post('/api/support/contact', requireAuth, async (req: any, res: Response) => {
+  app.post('/api/support/contact', requireAuth, externalApiRateLimit, async (req: any, res: Response) => {
     try {
       const userId = getUserId(req);
       const { subject, category, message, urgency } = req.body;
@@ -890,6 +870,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = getUserId(req);
       const gigId = parseInt(req.params.id);
+
+      // Verify ownership before updating
+      const existingGig = await storage.getGig(gigId);
+      if (!existingGig || existingGig.userId !== userId) {
+        return res.status(404).json({ error: 'Gig not found' });
+      }
+
       const updateData = { ...req.body, userId };
       
       // Handle multi-day gig updates
@@ -912,9 +899,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const gigId = parseInt(req.params.id);
       
-      // Check if this is part of a multi-day gig
+      // Verify ownership before deleting
       const gig = await storage.getGig(gigId);
-      if (gig && gig.isMultiDay && gig.multiDayGroupId) {
+      if (!gig || gig.userId !== userId) {
+        return res.status(404).json({ error: 'Gig not found' });
+      }
+
+      if (gig.isMultiDay && gig.multiDayGroupId) {
         await storage.deleteMultiDayGigs(gig.multiDayGroupId);
         res.json({ message: 'Multi-day gig deleted successfully' });
       } else {
@@ -1256,8 +1247,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Receipt proxy route
-  app.get('/api/receipt-proxy/*', async (req: any, res) => {
+  // Receipt proxy route (auth required to prevent anonymous proxying)
+  app.get('/api/receipt-proxy/*', requireAuth, async (req: any, res) => {
     try {
       const receiptPath = req.params[0];
       const { receiptStorage } = await import('./receipt-storage');
@@ -1315,7 +1306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Address autocomplete endpoint using Google Places API
-  app.get('/api/address-autocomplete', requireAuth, 
+  app.get('/api/address-autocomplete', requireAuth, mapsRateLimit,
     validateQueryParams(z.object({
       input: z.string()
         .min(2, 'Input must be at least 2 characters')
@@ -1396,7 +1387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Resolve Place ID to formatted address (for mileage calculation with place names)
-  app.get('/api/place-details', requireAuth,
+  app.get('/api/place-details', requireAuth, mapsRateLimit,
     validateQueryParams(z.object({
       placeId: z.string().min(1, 'Place ID is required').max(500),
       sessionToken: z.string().optional() // Session token completes the billing session
@@ -1447,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Geocode an address to get coordinates (for location biasing)
-  app.get('/api/geocode', requireAuth,
+  app.get('/api/geocode', requireAuth, mapsRateLimit,
     validateQueryParams(z.object({
       address: z.string().min(3, 'Address is required').max(500)
     })),
@@ -1491,7 +1482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Distance calculation endpoint - simplified from over-engineered mileage service
-  app.post('/api/calculate-distance', requireAuth,
+  app.post('/api/calculate-distance', requireAuth, mapsRateLimit,
     validateRequestBody(z.object({
       startAddress: z.string()
         .min(5, 'Start address is required')

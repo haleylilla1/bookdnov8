@@ -52,6 +52,30 @@ export const exportRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
+// Google Maps API rate limiting (prevent bill abuse)
+export const mapsRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 map calls per IP per 15 min
+  message: {
+    error: 'Too many map requests, please slow down.',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// External service rate limiting (Klaviyo/SendGrid endpoints)
+export const externalApiRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // 20 calls per IP per hour
+  message: {
+    error: 'Too many requests, please try again later.',
+    retryAfter: '1 hour'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // =============================================================================
 // INPUT VALIDATION MIDDLEWARE
 // =============================================================================
