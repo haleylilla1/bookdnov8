@@ -130,7 +130,7 @@ export function PaywallScreen() {
               fontSize: 10, fontWeight: 700, color: "#fff",
               fontFamily: "'Montserrat', sans-serif",
               letterSpacing: "0.06em", textTransform: "uppercase",
-            }}>Best Value — Save $8</div>
+            }}>Best Value — Save 17%</div>
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
