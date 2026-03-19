@@ -101,49 +101,38 @@ export function WarmUpScreen() {
         {/* Stat Cards */}
         {/* Top row: two side by side */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-          <div style={{
-            background: GLASS_BG,
-            border: `1px solid ${GLASS_BORDER}`,
-            borderRadius: 16,
-            padding: "18px 16px",
-          }}>
+          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
               fontSize: 30,
-              color: AQUA,
+              color: "#fff",
               lineHeight: 1,
               marginBottom: 10,
             }}>47%</div>
-            <div style={{ fontSize: 11, color: "#9CA3AF", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
               of freelancers had a late or missing payment in their first 6 months
             </div>
           </div>
 
-          <div style={{
-            background: GLASS_BG,
-            border: `1px solid ${GLASS_BORDER}`,
-            borderRadius: 16,
-            padding: "18px 16px",
-          }}>
+          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
               fontSize: 30,
-              color: AQUA,
+              color: "#fff",
               lineHeight: 1,
               marginBottom: 10,
             }}>1 in 5</div>
-            <div style={{ fontSize: 11, color: "#9CA3AF", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
               contractors has at least one unpaid invoice at any given time
             </div>
           </div>
         </div>
 
-        {/* Full-width card — flex row, emerald accent */}
+        {/* Full-width card — flex row */}
         <div style={{
-          background: "rgba(16,185,129,0.06)",
-          border: "1px solid rgba(16,185,129,0.18)",
+          backgroundColor: NAVY,
           borderRadius: 16,
           padding: "18px 20px",
           display: "flex",
@@ -155,11 +144,11 @@ export function WarmUpScreen() {
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
             fontSize: 28,
-            color: EMERALD,
+            color: "#fff",
             flexShrink: 0,
             whiteSpace: "nowrap",
           }}>37 - 42 days</div>
-          <div style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.45 }}>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
             is the average payment delay after invoice submission
           </div>
         </div>
