@@ -68,10 +68,11 @@ function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; file
           width: "100%",
           height: "100%",
           objectFit: "cover",
+          zIndex: 1,
         }}
         onError={(e) => { (e.currentTarget as HTMLVideoElement).style.display = "none"; }}
       />
-      {/* Fallback shown if video fails */}
+      {/* Fallback — sits behind video, visible if video doesn't load */}
       <div style={{
         position: "absolute",
         inset: 0,
@@ -81,7 +82,7 @@ function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; file
         justifyContent: "center",
         gap: 8,
         pointerEvents: "none",
-        zIndex: -1,
+        zIndex: 0,
       }}>
         <span style={{ fontSize: 52 }}>{emoji}</span>
         <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
@@ -195,7 +196,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPanel src="/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
+      <VideoPanel src="/__mockup/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={2} />
@@ -244,7 +245,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPanel src="/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
+      <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={3} />
@@ -296,7 +297,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
 function Screen4({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
-      <VideoPanel src="/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
+      <VideoPanel src="/__mockup/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
 
       <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
         <ProgressDots current={4} />
