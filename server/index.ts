@@ -97,6 +97,21 @@ async function start() {
   // Initialize ultra-simple cache system
   const { ultraSimpleCache } = await import("./ultra-simple-cache");
   ultraSimpleCache.init();
+
+  // Purge expired sessions from the database (runs once at startup + every 24h)
+  async function purgeExpiredSessions() {
+    try {
+      const { db } = await import("./db");
+      const { userSessions } = await import("@shared/schema");
+      const { lt } = await import("drizzle-orm");
+      await db.delete(userSessions).where(lt(userSessions.expiresAt, new Date()));
+      console.log('🧹 Expired sessions purged');
+    } catch (err) {
+      console.error('Session purge failed:', err);
+    }
+  }
+  purgeExpiredSessions();
+  setInterval(purgeExpiredSessions, 24 * 60 * 60 * 1000);
   
   console.log('✅ Server startup: Core systems initialized');
   

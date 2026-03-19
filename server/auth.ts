@@ -439,16 +439,11 @@ export function setupAuthRoutes(app: Express): void {
   
   // REGISTER
   app.post('/api/auth/register', authRateLimit, async (req: Request, res: Response) => {
-    console.log('📱 Registration attempt from:', req.get('User-Agent'));
-    console.log('📱 Request origin:', req.get('Origin'));
-    console.log('📱 Request body keys:', Object.keys(req.body));
-    
     try {
       const { email, password, name } = req.body;
 
       // Input validation
       if (!email || !password || !name) {
-        console.log('❌ Missing fields:', { hasEmail: !!email, hasPassword: !!password, hasName: !!name });
         return res.status(400).json({ 
           error: 'Please fill in all fields: email, password, and full name are required to create your account.' 
         });
@@ -461,9 +456,9 @@ export function setupAuthRoutes(app: Express): void {
         return res.status(400).json({ error: 'Please enter a valid email address' });
       }
 
-      if (password.length < 6) {
+      if (password.length < 8) {
         return res.status(400).json({ 
-          error: 'Your password is too short. Please create a password with at least 6 characters.' 
+          error: 'Your password is too short. Please create a password with at least 8 characters.' 
         });
       }
 
@@ -486,12 +481,8 @@ export function setupAuthRoutes(app: Express): void {
         });
       }
 
-      console.log('✅ Creating user:', sanitizedEmail);
       const user = await Auth.createUser(sanitizedEmail, password, sanitizedName);
-      console.log('✅ User created, ID:', user.id);
-      
       const sessionId = await Auth.createSession(user.id, req.ip, req.get('User-Agent'));
-      console.log('✅ Session created:', sessionId);
 
       // Track user signup in Klaviyo
       try {
@@ -541,16 +532,11 @@ export function setupAuthRoutes(app: Express): void {
 
   // LOGIN
   app.post('/api/auth/login', authRateLimit, async (req: Request, res: Response) => {
-    console.log('📱 Login attempt from:', req.get('User-Agent'));
-    console.log('📱 Request origin:', req.get('Origin'));
-    console.log('📱 Request body keys:', Object.keys(req.body));
-    
     try {
       const { email, password } = req.body;
 
       // Input validation
       if (!email || !password) {
-        console.log('❌ Missing credentials:', { hasEmail: !!email, hasPassword: !!password });
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
@@ -560,19 +546,15 @@ export function setupAuthRoutes(app: Express): void {
         return res.status(400).json({ error: 'Please enter a valid email address' });
       }
 
-      console.log('🔍 Validating user:', sanitizedEmail);
       const user = await Auth.validateUser(sanitizedEmail, password);
       
       if (!user) {
-        console.log('❌ Invalid credentials for:', sanitizedEmail);
         return res.status(401).json({ 
           error: 'Incorrect email or password. Please check your credentials and try again, or use "Forgot Password" to reset.' 
         });
       }
 
-      console.log('✅ User validated, ID:', user.id);
       const sessionId = await Auth.createSession(user.id, req.ip, req.get('User-Agent'));
-      console.log('✅ Session created:', sessionId);
 
       res.cookie('sessionId', sessionId, {
         httpOnly: true,

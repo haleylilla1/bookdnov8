@@ -1634,9 +1634,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simple database health check
+  // Database health check (admin only — reveals platform-wide counts)
   app.get('/api/db-health', requireAuth, async (req: any, res: Response) => {
     try {
+      const userId = getUserId(req);
+      if (userId !== ADMIN_USER_ID) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
       const userCount = await db.select({ count: count() }).from(users);
       const gigCount = await db.select({ count: count() }).from(gigs);
       
