@@ -1,0 +1,64 @@
+SCREEN: "Don't Let Them Forget You" — Notification Warmup Position: Second to last screen in onboarding, before native iOS notification prompt
+
+LAYOUT Standard white screen. Fixed progress dots at top. Scrollable content middle. Fixed navy pill button pinned to bottom always visible.
+
+PROGRESS DOTS 6 dots total. Dots 1–4: aqua (#00B4D8), 40% opacity, 6px wide. Dot 5: active, aqua, 24px wide pill. Dot 6: empty gray (#E8EBF0).
+
+STEP LABEL "DON'T LET THEM FORGET YOU" — 11px, uppercase, bold, letter-spacing 0.1em, aqua (#00B4D8)
+
+HEADLINE "Getting paid is harder than doing the work"
+* Font: Poppins 800, 24px, navy (#03045E)
+* The word "harder" is aqua (#00B4D8), not navy
+
+SUBTITLE "The data is clear — late and missing payments are the norm for independent workers."
+* 13px, gray (#555), line-height 1.55
+
+3 STAT CARDS — all navy (#03045E) background, border-radius 16px
+Two cards side by side (grid 1fr 1fr, gap 10px):
+Card 1 (left):
+* Big number: "47%" — Poppins 800, 30px, white (#ffffff)
+* Label: "of freelancers had a late or missing payment in their first 6 months" — 11px, white 60% opacity
+Card 2 (right):
+* Big number: "1 in 5" — Poppins 800, 30px, white (#ffffff)
+* Label: "contractors has at least one unpaid invoice at any given time" — 11px, white 60% opacity
+Card 3 (full width, flex row):
+* Big number: "37 - 42 days" — Poppins 800, 28px, white (#ffffff), flex-shrink 0, white-space nowrap
+* Label: "is the average payment delay after invoice submission" — 12px, white 60% opacity, sits to the right of the number
+
+SOURCE LINE "Sources: Genius 2025 Freelance Report · Payoneer 2025 Global Freelancer Income Report · Freelancers Union"
+* 9px, #bbb, centered, margin-bottom 16px
+
+QUESTION LABEL "If a gig goes unpaid, when should we remind you?"
+* 13px, bold, navy (#03045E), margin-bottom 10px
+
+3 OPTION CARDS — selectable, one active at a time
+Each card: white background, border 1.5px solid #E8EBF0, border-radius 14px, padding 14px 18px. On selection: border turns aqua (#00B4D8), background turns #EAF9FF.
+Right side of each card: circle check — default empty with gray border, selected fills aqua with white checkmark.
+Option 1:
+* Label: "1 week after last day of work" — 14px bold navy
+* Sublabel: "Best for short gigs and quick turnarounds" — 11px #8A93A8
+Option 2 (default selected):
+* Label: "2 weeks after last day of work" — 14px bold navy
+* Sublabel: "Most popular. Worth checking in." — 11px #8A93A8
+Option 3:
+* Label: "3 weeks after last day of work" — 14px bold navy
+* Sublabel: "Best for larger or longer-term contracts" — 11px #8A93A8
+Interaction: Tapping any option deselects others and selects the tapped one. Save the selected value to user profile/preferences.
+
+CTA BUTTON — pinned to bottom, never scrolls away
+* Full width, navy (#03045E), border-radius 100px (full pill)
+* Main text: "Set my reminder →" — 15px, bold, white
+* Sub text: "We only notify you when it matters — no spam, ever" — 10px, white 60% opacity, display block, margin-top 3px
+* Tapping this saves their reminder preference, then immediately triggers the native iOS push notification permission prompt
+
+HOME INDICATOR 134px wide, 5px tall, dark (#1a1a2e), border-radius 3px, centered, 8px margin-top
+
+FONTS
+* Poppins 800 for stat numbers and headline
+* Montserrat 400/600/700/800 for all other text
+BRAND COLORS
+* Navy: #03045E
+* Aqua: #00B4D8
+* Light aqua bg: #EAF9FF
+* Muted text: #8A93A8
+* Border: #E8EBF0
