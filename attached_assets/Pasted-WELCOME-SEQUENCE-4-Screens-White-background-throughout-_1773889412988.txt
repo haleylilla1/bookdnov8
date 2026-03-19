@@ -1,0 +1,64 @@
+WELCOME SEQUENCE — 4 Screens White background throughout. Videos play in top half, content sits clean below. Auto-advances Screen 1 after 3 seconds or on tap. Screens 2–4 advance via button tap. Progress dots update on each screen.
+
+GLOBAL SPECS
+* Phone frame: 393×852px, border-radius 55px
+* Font: Poppins 800 for headlines and big numbers, Montserrat 400/600/700/800 for all body text
+* Navy: #03045E · Aqua: #00B4D8 · Light aqua bg: #EAF9FF · Muted gray: #8A93A8 · Border: #E8EBF0
+* All buttons: full width, navy #03045E background, white text, border-radius 100px (full pill), 17px padding, Montserrat 700 15px
+* Screen transition: opacity fade 0.5s ease
+* Home indicator: 134px wide, 5px tall, #1a1a2e, border-radius 3px, centered, 10px from bottom
+
+PROGRESS DOTS — appear on screens 2, 3, 4
+4 dots total. Default: 6px wide, 6px tall, border-radius 3px, color #E8EBF0. Done state: same size, color #00B4D8 at 40% opacity. Active state: 22px wide, 6px tall, color #00B4D8 solid.
+* Screen 2: dot 1 done, dot 2 active, dots 3–4 empty
+* Screen 3: dots 1–2 done, dot 3 active, dot 4 empty
+* Screen 4: dots 1–3 done, dot 4 active
+
+SCREEN 1 — Splash
+Full white background. Vertically and horizontally centered. No status bar. No progress dots. Tapping anywhere advances to Screen 2. Auto-advances after 3 seconds if not tapped.
+Logo: Text-based logo — "bookd" in Poppins 800, 56px, navy #03045E, letter-spacing -2px. The "/" at the end is aqua #00B4D8. No image required — render as text.
+Tagline (below logo, 14px gap): "The all-in-one financial tool for independent workers" 14px, Montserrat 600, color #8A93A8, centered, padding 0 44px, line-height 1.6
+Badge (below tagline, 16px gap): Pill shape — background #EAF9FF, border 1px solid #00B4D8, border-radius 100px, padding 7px 18px Text: "FREE TO DOWNLOAD" — 11px, Montserrat 700, color #00B4D8, letter-spacing 0.07em, uppercase
+Tap hint (pinned to bottom, 52px from bottom): "TAP TO CONTINUE" — 11px, Montserrat, color #8A93A8, letter-spacing 0.08em, uppercase Animation: opacity pulses between 0.5 and 1.0 on a 2s ease-in-out infinite loop
+
+SCREEN 2 — Girl doing paperwork
+Top half (flex: 1, position relative, overflow hidden): Video file: girl_working.mp4 Video CSS: position absolute, inset 0, width 100%, height 100%, object-fit cover Placeholder (shown if video fails to load): solid #EAF9FF background, centered paperwork emoji 📋 at 52px, label "girl_working.mp4" in 11px #8A93A8 below
+Bottom half (flex-shrink 0, padding 20px 28px 44px, white background):
+Step label: "THE REALITY" — 10px, Montserrat 700, #00B4D8, uppercase, letter-spacing 0.12em, margin-bottom 8px
+Headline: "Independent workers miss thousands in deductions every year." — Poppins 800, 22px, #03045E, line-height 1.2, margin-bottom 6px — The word "thousands" is aqua #00B4D8
+Body: "Not because they don't qualify — because nothing was organized enough to claim it." — Montserrat 600, 14px, #3a3a5c, line-height 1.5, margin-bottom 6px
+Disclaimer (italic, small): "Bookd is a tracking and organization tool, not a tax advisor. Deduction opportunities vary by individual. Consult a qualified tax professional for advice specific to your situation." — 9px, Montserrat, color #bbb, line-height 1.55, italic, margin-bottom 14px
+Button: "Continue →" — full width, navy pill, white text
+
+SCREEN 3 — Girl driving
+Top half: Video file: girl_driving.mp4 Same specs as Screen 2 top half. Placeholder: solid #EAF9FF, car emoji 🚗 at 52px, label "girl_driving.mp4"
+Bottom half (same padding as Screen 2):
+Step label: "EVERY MILE COUNTS" — same style as Screen 2 step label
+Big number: "$3,770" — Poppins 800, 48px, line-height 1, margin-bottom 6px — "$3,770" is fully aqua #00B4D8 (entire number including dollar sign)
+Stat label: "back at tax time — from logging just 100 miles a week to your gigs." — Montserrat 600, 14px, #3a3a5c, line-height 1.5, margin-bottom 6px
+Stat sub: "The 2026 IRS rate is $0.725/mile. Every drive to a gig is a deduction. Most independent workers never log a single one." — Montserrat 400, 12px, #8A93A8, line-height 1.55, margin-bottom 8px
+Disclaimer (italic): "$3,770 = 100 mi/week × 52 weeks × $0.725 (2026 IRS standard mileage rate, Rev. Proc. 2025-29). Only business miles qualify. Verify all deductions with a tax professional." — 9px, #bbb, italic, line-height 1.55, margin-bottom 14px
+Button: "Continue →" — full width, navy pill, white text
+
+SCREEN 4 — Girl celebrating
+Top half: Video file: girl_cheering.mp4 Same specs as above. Placeholder: solid #EAF9FF, celebration emoji 🎉 at 52px, label "girl_cheering.mp4"
+Bottom half:
+Step label: "BUILT FOR YOU" — same style
+Headline: "Keep more of the money you earned." — Poppins 800, 22px, #03045E, line-height 1.2, margin-bottom 14px — "you earned." is aqua #00B4D8
+Haley card: Background #F8F9FB, border 1.5px solid #E8EBF0, border-radius 16px, padding 14px, margin-bottom 14px, flex row, gap 12px
+Avatar circle: 38×38px, border-radius 50%, background #00B4D8, white letter "H" centered, Poppins 800 15px. In production replace with Haley's actual photo, object-fit cover.
+Right side text column:
+* Name: "Haley" — Montserrat 700, 12px, #03045E, margin-bottom 1px
+* Title: "BOOKD CREATOR" — Montserrat 700, 9px, #00B4D8, uppercase, letter-spacing 0.07em, margin-bottom 5px
+* Quote: "I've been a freelancer for six years and found that tools built for the way we work are hard to come by. Thank you for being here." — Montserrat 400, 11px, #8A93A8, line-height 1.55
+Disclaimer (italic): "Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional." — 9px, #bbb, italic, line-height 1.55, margin-bottom 14px
+Button: "Start saving what you earned →" — full width, navy pill, white text, Montserrat 700 15px
+
+NAVIGATION LOGIC
+
+
+Screen 1 → tap anywhere OR 3 second auto-advance → Screen 2
+Screen 2 → tap "Continue →" → Screen 3
+Screen 3 → tap "Continue →" → Screen 4
+Screen 4 → tap "Start saving what you earned →" → next onboarding screen (quiz begins)
+All transitions: opacity 0 → 1, duration 0.5s, ease timing. Only one screen visible at a time. All screens absolutely positioned inset 0

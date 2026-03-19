@@ -1,0 +1,406 @@
+import { useState, useEffect, useCallback } from "react";
+
+const NAVY = "#03045E";
+const AQUA = "#00B4D8";
+
+/* ── Progress Dots ── */
+function ProgressDots({ current }: { current: 1 | 2 | 3 | 4 }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+      {[1, 2, 3, 4].map((dot) => {
+        const isDone = dot < current;
+        const isActive = dot === current;
+        return (
+          <div key={dot} style={{
+            height: 6,
+            width: isActive ? 22 : 6,
+            borderRadius: 3,
+            backgroundColor: isActive ? AQUA : isDone ? AQUA : "#E8EBF0",
+            opacity: isDone ? 0.4 : 1,
+            transition: "width 0.3s ease",
+          }} />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Navy pill button ── */
+function NavyButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} style={{
+      width: "100%",
+      background: NAVY,
+      border: "none",
+      borderRadius: 100,
+      padding: "17px 24px",
+      cursor: "pointer",
+      boxSizing: "border-box",
+    }}>
+      <span style={{
+        fontSize: 15,
+        fontWeight: 700,
+        color: "#fff",
+        fontFamily: "'Montserrat', sans-serif",
+      }}>{label}</span>
+    </button>
+  );
+}
+
+/* ── Video placeholder top half ── */
+function VideoPlaceholder({ emoji, filename }: { emoji: string; filename: string }) {
+  return (
+    <div style={{
+      flex: 1,
+      background: "#EAF9FF",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      <span style={{ fontSize: 52 }}>{emoji}</span>
+      <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
+        {filename}
+      </span>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════
+   SCREEN 1 — Splash
+════════════════════════════════════ */
+function Screen1({ onAdvance }: { onAdvance: () => void }) {
+  const [pulse, setPulse] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(onAdvance, 3000);
+    return () => clearTimeout(timer);
+  }, [onAdvance]);
+
+  useEffect(() => {
+    let dir = -1;
+    const interval = setInterval(() => {
+      setPulse((p) => {
+        const next = p + dir * 0.05;
+        if (next <= 0.5) { dir = 1; return 0.5; }
+        if (next >= 1.0) { dir = -1; return 1.0; }
+        return next;
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div onClick={onAdvance} style={{
+      position: "absolute", inset: 0,
+      background: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+    }}>
+      {/* Logo */}
+      <div style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontWeight: 800,
+        fontSize: 56,
+        color: NAVY,
+        letterSpacing: "-2px",
+        lineHeight: 1,
+      }}>
+        bookd<span style={{ color: AQUA }}>/</span>
+      </div>
+
+      {/* Tagline */}
+      <p style={{
+        fontSize: 14,
+        fontWeight: 600,
+        color: "#8A93A8",
+        fontFamily: "'Montserrat', sans-serif",
+        textAlign: "center",
+        padding: "0 44px",
+        lineHeight: 1.6,
+        marginTop: 14,
+        marginBottom: 16,
+      }}>
+        The all-in-one financial tool for independent workers
+      </p>
+
+      {/* Badge */}
+      <div style={{
+        background: "#EAF9FF",
+        border: `1px solid ${AQUA}`,
+        borderRadius: 100,
+        padding: "7px 18px",
+      }}>
+        <span style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: AQUA,
+          fontFamily: "'Montserrat', sans-serif",
+          letterSpacing: "0.07em",
+          textTransform: "uppercase" as const,
+        }}>Free to Download</span>
+      </div>
+
+      {/* Tap hint */}
+      <div style={{
+        position: "absolute",
+        bottom: 52,
+        opacity: pulse,
+        transition: "opacity 0.05s linear",
+      }}>
+        <span style={{
+          fontSize: 11,
+          color: "#8A93A8",
+          fontFamily: "'Montserrat', sans-serif",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase" as const,
+        }}>Tap to Continue</span>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════
+   SCREEN 2 — Girl Working
+════════════════════════════════════ */
+function Screen2({ onAdvance }: { onAdvance: () => void }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <VideoPlaceholder emoji="📋" filename="girl_working.mp4" />
+
+      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
+        <ProgressDots current={2} />
+
+        <p style={{
+          fontSize: 10, fontWeight: 700, color: AQUA,
+          fontFamily: "'Montserrat', sans-serif",
+          textTransform: "uppercase" as const, letterSpacing: "0.12em",
+          margin: "0 0 8px",
+        }}>The Reality</p>
+
+        <h2 style={{
+          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 6px",
+        }}>
+          Independent workers miss{" "}
+          <span style={{ color: AQUA }}>thousands</span>
+          {" "}in deductions every year.
+        </h2>
+
+        <p style={{
+          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 6px",
+        }}>
+          Not because they don't qualify — because nothing was organized enough to claim it.
+        </p>
+
+        <p style={{
+          fontSize: 9, color: "#bbb", fontStyle: "italic",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
+        }}>
+          Bookd is a tracking and organization tool, not a tax advisor. Deduction opportunities vary by individual. Consult a qualified tax professional for advice specific to your situation.
+        </p>
+
+        <NavyButton label="Continue →" onClick={onAdvance} />
+      </div>
+
+      <HomeIndicator />
+    </div>
+  );
+}
+
+/* ════════════════════════════════════
+   SCREEN 3 — Girl Driving
+════════════════════════════════════ */
+function Screen3({ onAdvance }: { onAdvance: () => void }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <VideoPlaceholder emoji="🚗" filename="girl_driving.mp4" />
+
+      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
+        <ProgressDots current={3} />
+
+        <p style={{
+          fontSize: 10, fontWeight: 700, color: AQUA,
+          fontFamily: "'Montserrat', sans-serif",
+          textTransform: "uppercase" as const, letterSpacing: "0.12em",
+          margin: "0 0 8px",
+        }}>Every Mile Counts</p>
+
+        <div style={{
+          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+          fontSize: 48, color: AQUA, lineHeight: 1, margin: "0 0 6px",
+        }}>$3,770</div>
+
+        <p style={{
+          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 6px",
+        }}>
+          back at tax time — from logging just 100 miles a week to your gigs.
+        </p>
+
+        <p style={{
+          fontSize: 12, color: "#8A93A8",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 8px",
+        }}>
+          The 2026 IRS rate is $0.725/mile. Every drive to a gig is a deduction. Most independent workers never log a single one.
+        </p>
+
+        <p style={{
+          fontSize: 9, color: "#bbb", fontStyle: "italic",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
+        }}>
+          $3,770 = 100 mi/week × 52 weeks × $0.725 (2026 IRS standard mileage rate, Rev. Proc. 2025-29). Only business miles qualify. Verify all deductions with a tax professional.
+        </p>
+
+        <NavyButton label="Continue →" onClick={onAdvance} />
+      </div>
+
+      <HomeIndicator />
+    </div>
+  );
+}
+
+/* ════════════════════════════════════
+   SCREEN 4 — Girl Celebrating
+════════════════════════════════════ */
+function Screen4({ onAdvance }: { onAdvance: () => void }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <VideoPlaceholder emoji="🎉" filename="girl_cheering.mp4" />
+
+      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
+        <ProgressDots current={4} />
+
+        <p style={{
+          fontSize: 10, fontWeight: 700, color: AQUA,
+          fontFamily: "'Montserrat', sans-serif",
+          textTransform: "uppercase" as const, letterSpacing: "0.12em",
+          margin: "0 0 8px",
+        }}>Built for You</p>
+
+        <h2 style={{
+          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 14px",
+        }}>
+          Keep more of the money{" "}
+          <span style={{ color: AQUA }}>you earned.</span>
+        </h2>
+
+        {/* Haley card */}
+        <div style={{
+          background: "#F8F9FB",
+          border: "1.5px solid #E8EBF0",
+          borderRadius: 16,
+          padding: 14,
+          marginBottom: 14,
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 12,
+        }}>
+          {/* Avatar */}
+          <div style={{
+            width: 38, height: 38, borderRadius: "50%",
+            background: AQUA, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{
+              fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+              fontSize: 15, color: "#fff",
+            }}>H</span>
+          </div>
+
+          {/* Text */}
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontSize: 12, fontWeight: 700, color: NAVY,
+              fontFamily: "'Montserrat', sans-serif", marginBottom: 1,
+            }}>Haley</div>
+            <div style={{
+              fontSize: 9, fontWeight: 700, color: AQUA,
+              fontFamily: "'Montserrat', sans-serif",
+              textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 5,
+            }}>Bookd Creator</div>
+            <div style={{
+              fontSize: 11, color: "#8A93A8",
+              fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55,
+            }}>
+              "I've been a freelancer for six years and found that tools built for the way we work are hard to come by. Thank you for being here."
+            </div>
+          </div>
+        </div>
+
+        <p style={{
+          fontSize: 9, color: "#bbb", fontStyle: "italic",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
+        }}>
+          Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional.
+        </p>
+
+        <NavyButton label="Start saving what you earned →" onClick={onAdvance} />
+      </div>
+
+      <HomeIndicator />
+    </div>
+  );
+}
+
+/* ── Home Indicator ── */
+function HomeIndicator() {
+  return (
+    <div style={{
+      position: "absolute", bottom: 10, left: "50%",
+      transform: "translateX(-50%)",
+      width: 134, height: 5,
+      background: "#1a1a2e", borderRadius: 3,
+    }} />
+  );
+}
+
+/* ════════════════════════════════════
+   ROOT — WelcomeSequence
+════════════════════════════════════ */
+export function WelcomeSequence() {
+  const [screen, setScreen] = useState<1 | 2 | 3 | 4>(1);
+  const [visible, setVisible] = useState<1 | 2 | 3 | 4>(1);
+  const [opacity, setOpacity] = useState(1);
+
+  const advance = useCallback((to: 1 | 2 | 3 | 4) => {
+    setOpacity(0);
+    setTimeout(() => {
+      setScreen(to);
+      setVisible(to);
+      setOpacity(1);
+    }, 500);
+  }, []);
+
+  const next = useCallback(() => {
+    if (screen === 1) advance(2);
+    else if (screen === 2) advance(3);
+    else if (screen === 3) advance(4);
+  }, [screen, advance]);
+
+  return (
+    <div style={{
+      width: 393, height: 852,
+      borderRadius: 55,
+      overflow: "hidden",
+      position: "relative",
+      fontFamily: "'Montserrat', sans-serif",
+      background: "#fff",
+      transition: "opacity 0.5s ease",
+      opacity,
+    }}>
+      {visible === 1 && <Screen1 onAdvance={next} />}
+      {visible === 2 && <Screen2 onAdvance={next} />}
+      {visible === 3 && <Screen3 onAdvance={next} />}
+      {visible === 4 && <Screen4 onAdvance={() => alert("Onboarding begins!")} />}
+    </div>
+  );
+}
