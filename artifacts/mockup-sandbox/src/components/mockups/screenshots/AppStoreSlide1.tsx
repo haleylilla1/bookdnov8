@@ -12,53 +12,44 @@ export function AppStoreSlide1() {
     }}>
       <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap" rel="stylesheet" />
 
-      {/* TOP TEXT ~22% */}
-      <div style={{ padding: "48px 28px 0", flexShrink: 0 }}>
+      {/* TOP TEXT */}
+      <div style={{ padding: "44px 28px 0", flexShrink: 0 }}>
         <h1 style={{
-          fontSize: 40, fontWeight: 900, color: "#fff",
-          lineHeight: 1.1, margin: 0,
-          letterSpacing: "-1px",
+          fontSize: 42, fontWeight: 900, color: "#fff",
+          lineHeight: 1.08, margin: 0, letterSpacing: "-1.2px",
         }}>
           Finances for<br />
           <span style={{ color: CYAN }}>gig workers.</span>
         </h1>
       </div>
 
-      {/* PHONE ~68% */}
+      {/* PHONE — fills remaining space */}
       <div style={{
         flex: 1,
         display: "flex", justifyContent: "center", alignItems: "flex-start",
-        paddingTop: 20,
-        position: "relative",
-        overflow: "visible",
+        paddingTop: 16, position: "relative",
       }}>
         <div style={{
-          position: "absolute", top: "5%", left: "50%",
+          position: "absolute", top: "8%", left: "50%",
           transform: "translateX(-50%)",
-          width: 300, height: 300, borderRadius: "50%",
-          background: "radial-gradient(ellipse, rgba(0,180,216,0.2) 0%, transparent 70%)",
+          width: 320, height: 320, borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(0,180,216,0.22) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
         <img
           src="/__mockup/ss_dashboard_nobg.png"
           style={{
-            width: "92%",
-            height: "auto",
-            display: "block",
+            width: "96%", height: "auto", display: "block",
             position: "relative", zIndex: 1,
-            filter: "drop-shadow(0 12px 40px rgba(0,0,0,0.6))",
+            filter: "drop-shadow(0 16px 48px rgba(0,0,0,0.65))",
           }}
         />
       </div>
 
-      {/* LOGO ROW ~10% */}
-      <div style={{
-        flexShrink: 0,
-        padding: "0 28px 32px",
-        display: "flex", alignItems: "center", gap: 10,
-      }}>
-        <img src="/__mockup/bookd-logo.png" style={{ width: 36, height: 36, borderRadius: 8 }} />
-        <span style={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>bookd</span>
+      {/* LOGO */}
+      <div style={{ flexShrink: 0, padding: "0 28px 28px", display: "flex", alignItems: "center", gap: 10 }}>
+        <img src="/__mockup/bookd-logo.png" style={{ width: 34, height: 34, borderRadius: 8 }} />
+        <span style={{ fontSize: 19, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>bookd</span>
       </div>
     </div>
   );

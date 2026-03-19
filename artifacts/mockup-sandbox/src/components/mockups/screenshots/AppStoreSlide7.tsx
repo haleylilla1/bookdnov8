@@ -1,7 +1,7 @@
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
 
-export function AppStoreSlide3() {
+export function AppStoreSlide7() {
   return (
     <div style={{
       width: 393, height: 852,
@@ -14,8 +14,8 @@ export function AppStoreSlide3() {
 
       <div style={{ padding: "44px 28px 0", flexShrink: 0 }}>
         <h1 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.08, margin: 0, letterSpacing: "-1px" }}>
-          <span style={{ color: CYAN }}>Track your drives.</span><br />
-          <span style={{ color: "#fff" }}>Save thousands in deductions.</span>
+          <span style={{ color: CYAN }}>Know what to set aside per job.</span><br />
+          <span style={{ color: "#fff" }}>No tax surprises at year end.</span>
         </h1>
       </div>
 
@@ -26,7 +26,7 @@ export function AppStoreSlide3() {
           background: "radial-gradient(ellipse, rgba(0,180,216,0.2) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <img src="/__mockup/ss_mileage_nobg.png"
+        <img src="/__mockup/ss_summary_nobg.png"
           style={{ width: "96%", height: "auto", display: "block", position: "relative", zIndex: 1, filter: "drop-shadow(0 16px 48px rgba(0,0,0,0.65))" }}
         />
       </div>

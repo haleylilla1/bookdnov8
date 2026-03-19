@@ -11,5 +11,7 @@ export const modules: ModuleMap = {
   "./components/mockups/screenshots/AppStoreSlide2.tsx": () => import("../components/mockups/screenshots/AppStoreSlide2.tsx"),
   "./components/mockups/screenshots/AppStoreSlide3.tsx": () => import("../components/mockups/screenshots/AppStoreSlide3.tsx"),
   "./components/mockups/screenshots/AppStoreSlide4.tsx": () => import("../components/mockups/screenshots/AppStoreSlide4.tsx"),
-  "./components/mockups/screenshots/AppStoreSlide5.tsx": () => import("../components/mockups/screenshots/AppStoreSlide5.tsx")
+  "./components/mockups/screenshots/AppStoreSlide5.tsx": () => import("../components/mockups/screenshots/AppStoreSlide5.tsx"),
+  "./components/mockups/screenshots/AppStoreSlide6.tsx": () => import("../components/mockups/screenshots/AppStoreSlide6.tsx"),
+  "./components/mockups/screenshots/AppStoreSlide7.tsx": () => import("../components/mockups/screenshots/AppStoreSlide7.tsx")
 };
