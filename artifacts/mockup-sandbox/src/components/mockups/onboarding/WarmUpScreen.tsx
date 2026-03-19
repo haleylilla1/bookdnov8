@@ -24,6 +24,7 @@ export function WarmUpScreen() {
       overflow: "hidden",
       position: "relative",
     }}>
+
       {/* Progress Dots — fixed at top */}
       <div style={{
         display: "flex",
@@ -44,7 +45,6 @@ export function WarmUpScreen() {
               borderRadius: 100,
               backgroundColor: isEmpty ? "#E8EBF0" : AQUA,
               opacity: isActive ? 1 : isEmpty ? 1 : 0.4,
-              transition: "width 0.3s",
             }} />
           );
         })}
@@ -54,9 +54,10 @@ export function WarmUpScreen() {
       <div style={{
         flex: 1,
         overflowY: "auto",
-        padding: "0 24px",
-        paddingBottom: 16,
+        padding: "0 22px",
+        paddingBottom: 8,
       }}>
+
         {/* Step label */}
         <p style={{
           fontSize: 11,
@@ -64,22 +65,20 @@ export function WarmUpScreen() {
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: AQUA,
-          marginBottom: 10,
-          marginTop: 4,
+          margin: "0 0 10px",
           fontFamily: "'Montserrat', sans-serif",
         }}>
           Don't Let Them Forget You
         </p>
 
-        {/* Headline */}
+        {/* Headline — Poppins 800 */}
         <h1 style={{
           fontFamily: "'Poppins', sans-serif",
           fontWeight: 800,
           fontSize: 24,
           color: NAVY,
           lineHeight: 1.25,
-          marginBottom: 12,
-          marginTop: 0,
+          margin: "0 0 12px",
         }}>
           Getting paid is{" "}
           <span style={{ color: AQUA }}>harder</span>
@@ -91,98 +90,73 @@ export function WarmUpScreen() {
           fontSize: 13,
           color: "#555",
           lineHeight: 1.55,
-          marginBottom: 20,
-          marginTop: 0,
+          margin: "0 0 18px",
         }}>
           The data is clear — late and missing payments are the norm for independent workers.
         </p>
 
         {/* Stat Cards */}
-        <div style={{ marginBottom: 10 }}>
-          {/* Top row: two cards side by side */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-            {/* Card 1 */}
-            <div style={{
-              backgroundColor: NAVY,
-              borderRadius: 16,
-              padding: "18px 16px",
-            }}>
-              <div style={{
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: 800,
-                fontSize: 30,
-                color: "#fff",
-                marginBottom: 8,
-                lineHeight: 1,
-              }}>47%</div>
-              <div style={{
-                fontSize: 11,
-                color: "rgba(255,255,255,0.6)",
-                lineHeight: 1.45,
-              }}>
-                of freelancers had a late or missing payment in their first 6 months
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div style={{
-              backgroundColor: NAVY,
-              borderRadius: 16,
-              padding: "18px 16px",
-            }}>
-              <div style={{
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: 800,
-                fontSize: 30,
-                color: "#fff",
-                marginBottom: 8,
-                lineHeight: 1,
-              }}>1 in 5</div>
-              <div style={{
-                fontSize: 11,
-                color: "rgba(255,255,255,0.6)",
-                lineHeight: 1.45,
-              }}>
-                contractors has at least one unpaid invoice at any given time
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 — full width, flex row */}
-          <div style={{
-            backgroundColor: NAVY,
-            borderRadius: 16,
-            padding: "18px 20px",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}>
+        {/* Top row: two side by side */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
-              fontSize: 28,
+              fontSize: 30,
               color: "#fff",
-              flexShrink: 0,
-              whiteSpace: "nowrap",
-            }}>37 - 42 days</div>
+              lineHeight: 1,
+              marginBottom: 10,
+            }}>47%</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+              of freelancers had a late or missing payment in their first 6 months
+            </div>
+          </div>
+
+          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
             <div style={{
-              fontSize: 12,
-              color: "rgba(255,255,255,0.6)",
-              lineHeight: 1.45,
-            }}>
-              is the average payment delay after invoice submission
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 800,
+              fontSize: 30,
+              color: "#fff",
+              lineHeight: 1,
+              marginBottom: 10,
+            }}>1 in 5</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+              contractors has at least one unpaid invoice at any given time
             </div>
           </div>
         </div>
 
-        {/* Source line */}
+        {/* Full-width card — flex row */}
+        <div style={{
+          backgroundColor: NAVY,
+          borderRadius: 16,
+          padding: "18px 20px",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          marginBottom: 10,
+        }}>
+          <div style={{
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 800,
+            fontSize: 28,
+            color: "#fff",
+            flexShrink: 0,
+            whiteSpace: "nowrap",
+          }}>37 - 42 days</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+            is the average payment delay after invoice submission
+          </div>
+        </div>
+
+        {/* Sources */}
         <p style={{
           fontSize: 9,
           color: "#bbb",
           textAlign: "center",
-          marginBottom: 20,
-          marginTop: 10,
           lineHeight: 1.5,
+          margin: "10px 0 18px",
         }}>
           Sources: Genius 2025 Freelance Report · Payoneer 2025 Global Freelancer Income Report · Freelancers Union
         </p>
@@ -192,14 +166,14 @@ export function WarmUpScreen() {
           fontSize: 13,
           fontWeight: 700,
           color: NAVY,
-          marginBottom: 12,
-          marginTop: 0,
+          margin: "0 0 12px",
+          fontFamily: "'Montserrat', sans-serif",
         }}>
           If a gig goes unpaid, when should we remind you?
         </p>
 
-        {/* Option cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+        {/* Option Cards */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
           {options.map((opt) => {
             const isSelected = selected === opt.id;
             return (
@@ -210,16 +184,17 @@ export function WarmUpScreen() {
                   background: isSelected ? AQUA_BG : "#fff",
                   border: `1.5px solid ${isSelected ? AQUA : "#E8EBF0"}`,
                   borderRadius: 14,
-                  padding: "14px 18px",
+                  padding: "14px 16px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   cursor: "pointer",
                   textAlign: "left",
                   width: "100%",
+                  boxSizing: "border-box",
                 }}
               >
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{
                     fontSize: 14,
                     fontWeight: 700,
@@ -233,10 +208,10 @@ export function WarmUpScreen() {
                     fontFamily: "'Montserrat', sans-serif",
                   }}>{opt.sub}</div>
                 </div>
-                {/* Circle check */}
+                {/* Check circle */}
                 <div style={{
-                  width: 24,
-                  height: 24,
+                  width: 26,
+                  height: 26,
                   borderRadius: "50%",
                   border: `2px solid ${isSelected ? AQUA : "#D1D5DB"}`,
                   backgroundColor: isSelected ? AQUA : "transparent",
@@ -247,8 +222,8 @@ export function WarmUpScreen() {
                   marginLeft: 12,
                 }}>
                   {isSelected && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <path d="M2.5 6.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   )}
                 </div>
@@ -258,9 +233,9 @@ export function WarmUpScreen() {
         </div>
       </div>
 
-      {/* CTA Button — pinned to bottom */}
+      {/* CTA Button — pinned to bottom, never scrolls */}
       <div style={{
-        padding: "12px 24px 0",
+        padding: "10px 22px 0",
         flexShrink: 0,
         background: "#fff",
       }}>
@@ -269,15 +244,17 @@ export function WarmUpScreen() {
           background: NAVY,
           borderRadius: 100,
           border: "none",
-          padding: "16px 24px",
+          padding: "13px 24px",
           cursor: "pointer",
           display: "block",
+          boxSizing: "border-box",
         }}>
           <div style={{
             fontSize: 15,
             fontWeight: 700,
             color: "#fff",
             fontFamily: "'Montserrat', sans-serif",
+            lineHeight: 1.3,
           }}>Set my reminder →</div>
           <div style={{
             fontSize: 10,
