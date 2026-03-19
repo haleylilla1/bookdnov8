@@ -196,43 +196,47 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <VideoPanel src="/__mockup/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
 
-      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
-        <ProgressDots current={2} />
+      <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
+        <div>
+          <ProgressDots current={2} />
 
-        <p style={{
-          fontSize: 10, fontWeight: 700, color: AQUA,
-          fontFamily: "'Montserrat', sans-serif",
-          textTransform: "uppercase" as const, letterSpacing: "0.12em",
-          margin: "0 0 8px",
-        }}>The Reality</p>
+          <p style={{
+            fontSize: 10, fontWeight: 700, color: AQUA,
+            fontFamily: "'Montserrat', sans-serif",
+            textTransform: "uppercase" as const, letterSpacing: "0.12em",
+            margin: "0 0 10px",
+          }}>The Reality</p>
 
-        <h2 style={{
-          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 6px",
-        }}>
-          Independent workers miss{" "}
-          <span style={{ color: AQUA }}>thousands</span>
-          {" "}in deductions every year.
-        </h2>
+          <h2 style={{
+            fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+            fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
+          }}>
+            Independent workers miss{" "}
+            <span style={{ color: AQUA }}>thousands</span>
+            {" "}in deductions every year.
+          </h2>
 
-        <p style={{
-          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 6px",
-        }}>
-          Not because they don't qualify — because nothing was organized enough to claim it.
-        </p>
+          <p style={{
+            fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
+          }}>
+            Not because they don't qualify — because nothing was organized enough to claim it.
+          </p>
 
-        <p style={{
-          fontSize: 9, color: "#bbb", fontStyle: "italic",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
-        }}>
-          Bookd is a tracking and organization tool, not a tax advisor. Deduction opportunities vary by individual. Consult a qualified tax professional for advice specific to your situation.
-        </p>
+          <p style={{
+            fontSize: 9, color: "#bbb", fontStyle: "italic",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: 0,
+          }}>
+            Bookd is a tracking and organization tool, not a tax advisor. Deduction opportunities vary by individual. Consult a qualified tax professional for advice specific to your situation.
+          </p>
+        </div>
 
-        <NavyButton label="Continue →" onClick={onAdvance} />
+        <div style={{ paddingBottom: 36 }}>
+          <NavyButton label="Continue →" onClick={onAdvance} />
+        </div>
       </div>
 
       <HomeIndicator />
@@ -245,46 +249,50 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
 
-      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
-        <ProgressDots current={3} />
+      <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
+        <div>
+          <ProgressDots current={3} />
 
-        <p style={{
-          fontSize: 10, fontWeight: 700, color: AQUA,
-          fontFamily: "'Montserrat', sans-serif",
-          textTransform: "uppercase" as const, letterSpacing: "0.12em",
-          margin: "0 0 8px",
-        }}>Every Mile Counts</p>
+          <p style={{
+            fontSize: 10, fontWeight: 700, color: AQUA,
+            fontFamily: "'Montserrat', sans-serif",
+            textTransform: "uppercase" as const, letterSpacing: "0.12em",
+            margin: "0 0 10px",
+          }}>Every Mile Counts</p>
 
-        <div style={{
-          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-          fontSize: 48, color: AQUA, lineHeight: 1, margin: "0 0 6px",
-        }}>$3,770</div>
+          <div style={{
+            fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+            fontSize: 48, color: AQUA, lineHeight: 1, margin: "0 0 10px",
+          }}>$3,770</div>
 
-        <p style={{
-          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 6px",
-        }}>
-          back at tax time — from logging just 100 miles a week to your gigs.
-        </p>
+          <p style={{
+            fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
+          }}>
+            back at tax time — from logging just 100 miles a week to your gigs.
+          </p>
 
-        <p style={{
-          fontSize: 12, color: "#8A93A8",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 8px",
-        }}>
-          The 2026 IRS rate is $0.725/mile. Every drive to a gig is a deduction. Most independent workers never log a single one.
-        </p>
+          <p style={{
+            fontSize: 12, color: "#8A93A8",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 10px",
+          }}>
+            The 2026 IRS rate is $0.725/mile. Every drive to a gig is a deduction. Most independent workers never log a single one.
+          </p>
 
-        <p style={{
-          fontSize: 9, color: "#bbb", fontStyle: "italic",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
-        }}>
-          $3,770 = 100 mi/week × 52 weeks × $0.725 (2026 IRS standard mileage rate, Rev. Proc. 2025-29). Only business miles qualify. Verify all deductions with a tax professional.
-        </p>
+          <p style={{
+            fontSize: 9, color: "#bbb", fontStyle: "italic",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: 0,
+          }}>
+            $3,770 = 100 mi/week × 52 weeks × $0.725 (2026 IRS standard mileage rate, Rev. Proc. 2025-29). Only business miles qualify. Verify all deductions with a tax professional.
+          </p>
+        </div>
 
-        <NavyButton label="Continue →" onClick={onAdvance} />
+        <div style={{ paddingBottom: 36 }}>
+          <NavyButton label="Continue →" onClick={onAdvance} />
+        </div>
       </div>
 
       <HomeIndicator />
@@ -297,10 +305,10 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen4({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <VideoPanel src="/__mockup/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
 
-      <div style={{ flexShrink: 0, padding: "20px 28px 44px", background: "#fff" }}>
+      <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <ProgressDots current={4} />
 
         <p style={{
