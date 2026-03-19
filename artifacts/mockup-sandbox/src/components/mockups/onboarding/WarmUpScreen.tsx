@@ -3,6 +3,9 @@ import { useState } from "react";
 const NAVY = "#03045E";
 const AQUA = "#00B4D8";
 const AQUA_BG = "#EAF9FF";
+const EMERALD = "#10B981";
+const GLASS_BG = "rgba(3,4,94,0.04)";
+const GLASS_BORDER = "rgba(3,4,94,0.09)";
 
 const options = [
   { id: "1w", label: "1 week after last day of work", sub: "Best for short gigs and quick turnarounds" },
@@ -98,38 +101,49 @@ export function WarmUpScreen() {
         {/* Stat Cards */}
         {/* Top row: two side by side */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
+          <div style={{
+            background: GLASS_BG,
+            border: `1px solid ${GLASS_BORDER}`,
+            borderRadius: 16,
+            padding: "18px 16px",
+          }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
               fontSize: 30,
-              color: "#fff",
+              color: AQUA,
               lineHeight: 1,
               marginBottom: 10,
             }}>47%</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "#9CA3AF", lineHeight: 1.45 }}>
               of freelancers had a late or missing payment in their first 6 months
             </div>
           </div>
 
-          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
+          <div style={{
+            background: GLASS_BG,
+            border: `1px solid ${GLASS_BORDER}`,
+            borderRadius: 16,
+            padding: "18px 16px",
+          }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
               fontSize: 30,
-              color: "#fff",
+              color: AQUA,
               lineHeight: 1,
               marginBottom: 10,
             }}>1 in 5</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "#9CA3AF", lineHeight: 1.45 }}>
               contractors has at least one unpaid invoice at any given time
             </div>
           </div>
         </div>
 
-        {/* Full-width card — flex row */}
+        {/* Full-width card — flex row, emerald accent */}
         <div style={{
-          backgroundColor: NAVY,
+          background: "rgba(16,185,129,0.06)",
+          border: "1px solid rgba(16,185,129,0.18)",
           borderRadius: 16,
           padding: "18px 20px",
           display: "flex",
@@ -141,11 +155,11 @@ export function WarmUpScreen() {
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
             fontSize: 28,
-            color: "#fff",
+            color: EMERALD,
             flexShrink: 0,
             whiteSpace: "nowrap",
           }}>37 - 42 days</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+          <div style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.45 }}>
             is the average payment delay after invoice submission
           </div>
         </div>
