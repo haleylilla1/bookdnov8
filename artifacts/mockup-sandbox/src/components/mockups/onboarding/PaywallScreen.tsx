@@ -77,10 +77,9 @@ export function PaywallScreen() {
           }}>What happens next</p>
 
           {[
-            { day: "Today", dot: CYAN,      title: "Free trial begins",    sub: "Full access, nothing charged.",              last: false },
-            { day: "Day 4", dot: "#9ca3af", title: "3-day reminder",       sub: "We'll email you before your trial ends.",    last: false },
-            { day: "Day 6", dot: "#9ca3af", title: "1-day reminder",       sub: "Last chance to cancel for free.",            last: false },
-            { day: "Day 7", dot: NAVY,      title: "Subscription starts",  sub: chargeLabel,                                 last: true  },
+            { day: "Today", dot: CYAN,      title: "Free trial begins",    sub: "Full access, nothing charged.",           last: false },
+            { day: "Day 6", dot: "#9ca3af", title: "Reminder email",       sub: "We'll remind you before your trial ends.", last: false },
+            { day: "Day 7", dot: NAVY,      title: "Subscription starts",  sub: chargeLabel,                                last: true  },
           ].map(({ day, dot, title, sub, last }) => (
             <div key={day} style={{ display: "flex", gap: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 }}>
