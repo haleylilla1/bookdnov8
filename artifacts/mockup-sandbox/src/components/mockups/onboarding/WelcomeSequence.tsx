@@ -47,7 +47,7 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
   );
 }
 
-/* ── Video top half ── */
+/* ── Video panel ── */
 function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; filename: string }) {
   return (
     <div style={{
@@ -73,23 +73,25 @@ function VideoPanel({ src, emoji, filename }: { src: string; emoji: string; file
         }}
         onError={(e) => { (e.currentTarget as HTMLVideoElement).style.display = "none"; }}
       />
-      {/* Fallback — sits behind video, visible if video doesn't load */}
+      {/* Fallback — sits behind video */}
       <div style={{
-        position: "absolute",
-        inset: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        pointerEvents: "none",
-        zIndex: 0,
+        position: "absolute", inset: 0,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        gap: 8, pointerEvents: "none", zIndex: 0,
       }}>
         <span style={{ fontSize: 52 }}>{emoji}</span>
         <span style={{ fontSize: 11, color: "#8A93A8", fontFamily: "'Montserrat', sans-serif" }}>
           {filename}
         </span>
       </div>
+      {/* Gradient fade — dissolves any line at the video's bottom edge */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        height: 80,
+        background: "linear-gradient(to bottom, transparent, #ffffff)",
+        zIndex: 2, pointerEvents: "none",
+      }} />
     </div>
   );
 }
@@ -177,7 +179,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
       <VideoPanel src="/__mockup/girl_working.mp4" emoji="📋" filename="girl_working.mp4" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
@@ -230,7 +232,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen3({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
       <VideoPanel src="/__mockup/girl_driving.mp4" emoji="🚗" filename="girl_driving.mp4" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
@@ -283,42 +285,46 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
 ════════════════════════════════════ */
 function Screen4({ onAdvance }: { onAdvance: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
       <VideoPanel src="/__mockup/girl_cheering.mp4" emoji="🎉" filename="girl_cheering.mp4" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
-        <ProgressDots current={4} />
+        <div>
+          <ProgressDots current={4} />
 
-        <p style={{
-          fontSize: 10, fontWeight: 700, color: AQUA,
-          fontFamily: "'Montserrat', sans-serif",
-          textTransform: "uppercase" as const, letterSpacing: "0.12em",
-          margin: "0 0 8px",
-        }}>Built for You</p>
+          <p style={{
+            fontSize: 10, fontWeight: 700, color: AQUA,
+            fontFamily: "'Montserrat', sans-serif",
+            textTransform: "uppercase" as const, letterSpacing: "0.12em",
+            margin: "0 0 10px",
+          }}>Built for You</p>
 
-        <h2 style={{
-          fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-          fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
-        }}>
-          Keep more of the money{" "}
-          <span style={{ color: AQUA }}>you earned.</span>
-        </h2>
+          <h2 style={{
+            fontFamily: "'Poppins', sans-serif", fontWeight: 800,
+            fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
+          }}>
+            Keep more of the money{" "}
+            <span style={{ color: AQUA }}>you earned.</span>
+          </h2>
 
-        <p style={{
-          fontSize: 14, fontWeight: 600, color: "#3a3a5c",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
-        }}>
-          Built by a freelancer for freelancers — Bookd tracks your income, miles, and expenses so nothing slips through the cracks at tax time.
-        </p>
+          <p style={{
+            fontSize: 14, fontWeight: 600, color: "#3a3a5c",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
+          }}>
+            Built by a freelancer for freelancers — Bookd tracks your income, miles, and expenses so nothing slips through the cracks at tax time.
+          </p>
 
-        <p style={{
-          fontSize: 9, color: "#bbb", fontStyle: "italic",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 20px",
-        }}>
-          Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional.
-        </p>
+          <p style={{
+            fontSize: 9, color: "#bbb", fontStyle: "italic",
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: 0,
+          }}>
+            Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional.
+          </p>
+        </div>
 
-        <NavyButton label="Start saving what you earned →" onClick={onAdvance} />
+        <div style={{ paddingTop: 20, paddingBottom: 36 }}>
+          <NavyButton label="Start saving what you earned →" onClick={onAdvance} />
+        </div>
       </div>
 
       <HomeIndicator />
