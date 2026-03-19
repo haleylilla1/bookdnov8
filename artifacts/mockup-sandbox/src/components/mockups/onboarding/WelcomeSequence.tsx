@@ -215,7 +215,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
           </p>
         </div>
 
-        <div style={{ paddingBottom: 36 }}>
+        <div style={{ paddingTop: 20, paddingBottom: 36 }}>
           <NavyButton label="Continue →" onClick={onAdvance} />
         </div>
       </div>
@@ -271,7 +271,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
           </p>
         </div>
 
-        <div style={{ paddingBottom: 36 }}>
+        <div style={{ paddingTop: 20, paddingBottom: 36 }}>
           <NavyButton label="Continue →" onClick={onAdvance} />
         </div>
       </div>
@@ -352,7 +352,7 @@ function Screen4({ onAdvance }: { onAdvance: () => void }) {
 
         <p style={{
           fontSize: 9, color: "#bbb", fontStyle: "italic",
-          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 14px",
+          fontFamily: "'Montserrat', sans-serif", lineHeight: 1.55, margin: "0 0 20px",
         }}>
           Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional.
         </p>
