@@ -100,7 +100,7 @@ export function GigGapScreenB() {
 
         {/* Navy hero card with annual number + two sliders */}
         <div style={{ background: NAVY, borderRadius: 22, padding: "20px 20px 18px", marginBottom: 14 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px", fontFamily: "'Montserrat', sans-serif" }}>your potential annual deduction value</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px", fontFamily: "'Montserrat', sans-serif" }}>your potential annual deductions</p>
           <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 52, color: "#fff", lineHeight: 1, margin: "0 0 2px" }}>
             {fmt(totalAnnual)}
           </div>
