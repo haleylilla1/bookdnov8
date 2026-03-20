@@ -99,10 +99,10 @@ export function WarmUpScreen() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
           <div style={{
             backgroundColor: "#fff",
-            border: "1.5px solid #E8EBF0",
+            border: `1.5px solid ${AQUA}`,
             borderRadius: 16,
             padding: "16px 14px",
-            borderLeft: `4px solid ${AQUA}`,
+            boxShadow: "0 2px 10px rgba(0,180,216,0.1)",
           }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
@@ -119,10 +119,10 @@ export function WarmUpScreen() {
 
           <div style={{
             backgroundColor: "#fff",
-            border: "1.5px solid #E8EBF0",
+            border: `1.5px solid ${AQUA}`,
             borderRadius: 16,
             padding: "16px 14px",
-            borderLeft: `4px solid ${AQUA}`,
+            boxShadow: "0 2px 10px rgba(0,180,216,0.1)",
           }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
@@ -141,14 +141,14 @@ export function WarmUpScreen() {
         {/* Full-width card — flex row */}
         <div style={{
           backgroundColor: "#fff",
-          border: "1.5px solid #E8EBF0",
-          borderLeft: `4px solid ${AQUA}`,
+          border: `1.5px solid ${AQUA}`,
           borderRadius: 16,
           padding: "16px 18px",
           display: "flex",
           alignItems: "center",
           gap: 16,
           marginBottom: 10,
+          boxShadow: "0 2px 10px rgba(0,180,216,0.1)",
         }}>
           <div style={{
             fontFamily: "'Poppins', sans-serif",
