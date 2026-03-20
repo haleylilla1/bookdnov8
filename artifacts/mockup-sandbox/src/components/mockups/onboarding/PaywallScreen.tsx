@@ -24,7 +24,7 @@ export function PaywallScreen() {
   const [plan, setPlan] = useState<"annual" | "monthly">("annual");
 
   const price = plan === "annual" ? "$40/year" : "$4/month";
-  const billingNote = plan === "annual" ? "Just $3.33/mo — billed annually" : "Billed every month";
+  const billingNote = plan === "annual" ? "Just $3.33/mo billed annually" : "Billed every month";
   const chargeLabel = plan === "annual" ? "$40 charged after trial" : "$4 charged after trial";
 
   return (
