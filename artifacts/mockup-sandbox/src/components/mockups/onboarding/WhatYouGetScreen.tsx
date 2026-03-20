@@ -51,6 +51,16 @@ const FEATURES: { icon: React.ReactNode; title: string; body: string }[] = [
   {
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M4 5h16M7 10h10M10.5 15h3" stroke={NAVY} strokeWidth="2" strokeLinecap="round"/>
+        <path d="M12 15v5" stroke={CYAN} strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: "Only your real income gets taxed",
+    body: "Enter what hit your bank. Bookd auto-separates parking and expense reimbursements so they never inflate your tax bill.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M7 3h10a1 1 0 011 1v16a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" stroke={NAVY} strokeWidth="1.8"/>
         <path d="M9 8h6M9 12h6M9 16h4" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round"/>
       </svg>
@@ -78,18 +88,6 @@ const FEATURES: { icon: React.ReactNode; title: string; body: string }[] = [
     ),
     title: "One tap 1099 report",
     body: "Download a clean income report. Share it or file it yourself.",
-  },
-  {
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="9" cy="7" r="3" stroke={NAVY} strokeWidth="1.8"/>
-        <path d="M3 20c0-3.314 2.686-6 6-6" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round"/>
-        <circle cx="17" cy="10" r="2.5" stroke={NAVY} strokeWidth="1.8"/>
-        <path d="M13 20c0-2.761 1.791-5 4-5s4 2.239 4 5" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round"/>
-      </svg>
-    ),
-    title: "Client management",
-    body: "All your clients, gigs, and history in one organized place.",
   },
 ];
 
