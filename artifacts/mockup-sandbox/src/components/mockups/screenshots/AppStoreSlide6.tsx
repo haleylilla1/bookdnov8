@@ -14,8 +14,8 @@ export function AppStoreSlide6() {
 
       <div style={{ padding: "44px 28px 0", flexShrink: 0 }}>
         <h1 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.08, margin: 0, letterSpacing: "-1px" }}>
-          <span style={{ color: CYAN }}>See who still owes you.</span><br />
-          <span style={{ color: "#fff" }}>Never let a payment slip through.</span>
+          <span style={{ color: CYAN }}>Know the moment payment is late.</span><br />
+          <span style={{ color: "#fff" }}>Stop chasing what you already earned.</span>
         </h1>
       </div>
 
