@@ -18,6 +18,7 @@ const CHECK_ITEMS = [
   "Income & expense logging",
   "Tax estimate calculator",
   "Downloadable 1099 report",
+  "Bookd is 100% deductible — write off $4/mo or $40/yr",
 ];
 
 export function PaywallScreen() {
