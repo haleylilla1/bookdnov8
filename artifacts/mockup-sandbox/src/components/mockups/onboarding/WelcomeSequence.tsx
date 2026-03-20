@@ -250,7 +250,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            At $0.70/mile (current IRS rate), logging 100 miles a week adds up to $3,640 in potential deductions per year. Every mile tracked counts.
+            At $0.725/mile (2026 IRS rate), logging 100 miles a week adds up to $3,770 in potential deductions per year. Every mile tracked counts.
           </p>
 
           <p style={{
