@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronRight, Plus, X, LogOut } from "lucide-react";
 import { OnboardingFlow } from "@/components/onboarding-flow";
+import { WelcomeSequence } from "@/components/welcome-sequence";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/lib/replit-auth";
@@ -191,6 +192,7 @@ export default function Profile({ onDemoComplete }: { onDemoComplete?: () => voi
 
   const [editModal, setEditModal] = useState<EditModal>(null);
   const [showOnboardingDemo, setShowOnboardingDemo] = useState(false);
+  const [showWelcomeDemo, setShowWelcomeDemo] = useState(false);
 
   // Field state for each edit modal
   const [editName, setEditName] = useState("");
@@ -339,6 +341,16 @@ export default function Profile({ onDemoComplete }: { onDemoComplete?: () => voi
 
   return (
     <div style={{ padding: "16px", paddingBottom: "120px", backgroundColor: "#f5f7f5", minHeight: "100vh" }}>
+      {showWelcomeDemo && (
+        <WelcomeSequence
+          onComplete={() => {
+            setShowWelcomeDemo(false);
+            setShowOnboardingDemo(true);
+          }}
+          onLogin={() => setShowWelcomeDemo(false)}
+        />
+      )}
+
       <OnboardingFlow
         isOpen={showOnboardingDemo}
         onComplete={() => {
@@ -475,7 +487,7 @@ export default function Profile({ onDemoComplete }: { onDemoComplete?: () => voi
       {user?.email === 'haleylilla@gmail.com' && (
         <div style={{ marginBottom: "16px" }}>
           <button
-            onClick={() => setShowOnboardingDemo(true)}
+            onClick={() => setShowWelcomeDemo(true)}
             style={{ width: "100%", padding: "14px", backgroundColor: "#ffffff", color: "#6b7280", border: "1px solid #e5e7eb", borderRadius: "14px", fontSize: "14px", cursor: "pointer" }}
           >
             Demo Onboarding
