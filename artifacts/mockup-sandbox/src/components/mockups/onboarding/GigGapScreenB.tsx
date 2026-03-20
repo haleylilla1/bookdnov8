@@ -87,7 +87,7 @@ export function GigGapScreenB() {
 
         <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, lineHeight: 1.25, margin: "0 0 18px" }}>
           See exactly what you{" "}
-          <span style={{ color: CYAN }}>could be keeping.</span>
+          <span style={{ color: CYAN }}>could be keeping by tracking everything.</span>
         </h1>
 
         {/* Navy hero card with annual number + two sliders */}
