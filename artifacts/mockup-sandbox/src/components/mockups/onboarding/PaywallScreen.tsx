@@ -13,12 +13,11 @@ function HomeIndicator() {
   );
 }
 
-const CHECK_ITEMS = [
+const STATIC_CHECK_ITEMS = [
   "Automatic mileage tracking",
   "Income & expense logging",
   "Tax estimate calculator",
   "Downloadable 1099 report",
-  "Bookd is 100% deductible — write off $4/mo or $40/yr",
 ];
 
 export function PaywallScreen() {
@@ -223,7 +222,12 @@ export function PaywallScreen() {
 
         {/* Feature list */}
         <div style={{ marginBottom: 20 }}>
-          {CHECK_ITEMS.map((item) => (
+          {[
+            ...STATIC_CHECK_ITEMS,
+            plan === "annual"
+              ? "Bookd is 100% deductible — write off $40/yr at tax time"
+              : "Bookd is 100% deductible — write off $4/mo at tax time",
+          ].map((item) => (
             <div key={item} style={{
               display: "flex", alignItems: "center", gap: 10,
               marginBottom: 8,
