@@ -324,19 +324,26 @@ export function WelcomeSequence({ onComplete, onLogin }: WelcomeSequenceProps) {
   }, [screen, advance]);
 
   return (
+    // Outer div: always fully opaque white — never lets the page behind bleed through
     <div style={{
       position: "fixed",
       inset: 0,
-      fontFamily: "'Montserrat', sans-serif",
       background: "#fff",
-      transition: "opacity 0.4s ease",
-      opacity,
       zIndex: 9999,
     }}>
-      {screen === 1 && <Screen1 onAdvance={next} />}
-      {screen === 2 && <Screen2 onAdvance={next} onLogin={onLogin} />}
-      {screen === 3 && <Screen3 onAdvance={next} onLogin={onLogin} />}
-      {screen === 4 && <Screen4 onAdvance={next} onLogin={onLogin} />}
+      {/* Inner div: only the content fades, not the backdrop */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        fontFamily: "'Montserrat', sans-serif",
+        transition: "opacity 0.4s ease",
+        opacity,
+      }}>
+        {screen === 1 && <Screen1 onAdvance={next} />}
+        {screen === 2 && <Screen2 onAdvance={next} onLogin={onLogin} />}
+        {screen === 3 && <Screen3 onAdvance={next} onLogin={onLogin} />}
+        {screen === 4 && <Screen4 onAdvance={next} onLogin={onLogin} />}
+      </div>
     </div>
   );
 }
