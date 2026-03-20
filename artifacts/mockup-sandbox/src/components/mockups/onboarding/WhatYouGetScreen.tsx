@@ -77,7 +77,7 @@ const FEATURES: { icon: React.ReactNode; title: string; body: string }[] = [
       </svg>
     ),
     title: "Real-time tax estimator",
-    body: "Your estimated tax bill updates live. No more April surprises.",
+    body: "With your inputted tax rate, know exactly what to set aside per gig, per month, per quarter, and per year.",
   },
   {
     icon: (
