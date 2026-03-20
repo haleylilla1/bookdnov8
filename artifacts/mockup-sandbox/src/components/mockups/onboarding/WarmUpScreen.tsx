@@ -27,7 +27,6 @@ export function WarmUpScreen() {
       overflow: "hidden",
       position: "relative",
     }}>
-
       {/* Progress Dots — fixed at top */}
       <div style={{
         display: "flex",
@@ -52,7 +51,6 @@ export function WarmUpScreen() {
           );
         })}
       </div>
-
       {/* Scrollable Content */}
       <div style={{
         flex: 1,
@@ -148,7 +146,9 @@ export function WarmUpScreen() {
             flexShrink: 0,
             whiteSpace: "nowrap",
           }}>37 - 42 days</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+          <div
+            style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}
+            className="text-[14px]">
             is the average payment delay after invoice submission
           </div>
         </div>
@@ -235,7 +235,6 @@ export function WarmUpScreen() {
           })}
         </div>
       </div>
-
       {/* CTA Button — pinned to bottom, never scrolls */}
       <div style={{
         padding: "10px 22px 0",
