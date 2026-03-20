@@ -8,13 +8,13 @@ const GLASS_BG = "rgba(3,4,94,0.04)";
 const GLASS_BORDER = "rgba(3,4,94,0.09)";
 
 const options = [
-  { id: "1w", label: "1 week after last day of work", sub: "Best for short gigs and quick turnarounds" },
-  { id: "2w", label: "2 weeks after last day of work", sub: "Most popular. Worth checking in." },
-  { id: "3w", label: "3 weeks after last day of work", sub: "Best for larger or longer-term contracts" },
+  { id: "2w", label: "2 weeks after last day of work", sub: "Good for shorter gigs and quick turnarounds" },
+  { id: "3w", label: "3 weeks after last day of work", sub: "Most popular. Gives clients time to process." },
+  { id: "4w", label: "4 weeks after last day of work", sub: "Best for larger or longer-term contracts" },
 ];
 
 export function WarmUpScreen() {
-  const [selected, setSelected] = useState("2w");
+  const [selected, setSelected] = useState("3w");
 
   return (
     <div style={{
@@ -99,30 +99,42 @@ export function WarmUpScreen() {
         {/* Stat Cards */}
         {/* Top row: two side by side */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
+          <div style={{
+            backgroundColor: "#fff",
+            border: "1.5px solid #E8EBF0",
+            borderRadius: 16,
+            padding: "16px 14px",
+            borderLeft: `4px solid ${AQUA}`,
+          }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
-              fontSize: 30,
-              color: "#fff",
+              fontSize: 32,
+              color: NAVY,
               lineHeight: 1,
-              marginBottom: 10,
+              marginBottom: 8,
             }}>47%</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "#4B5563", lineHeight: 1.5 }}>
               of freelancers had a late or missing payment in their first 6 months
             </div>
           </div>
 
-          <div style={{ backgroundColor: NAVY, borderRadius: 16, padding: "18px 16px" }}>
+          <div style={{
+            backgroundColor: "#fff",
+            border: "1.5px solid #E8EBF0",
+            borderRadius: 16,
+            padding: "16px 14px",
+            borderLeft: `4px solid ${AQUA}`,
+          }}>
             <div style={{
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 800,
-              fontSize: 30,
-              color: "#fff",
+              fontSize: 32,
+              color: NAVY,
               lineHeight: 1,
-              marginBottom: 10,
+              marginBottom: 8,
             }}>1 in 5</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}>
+            <div style={{ fontSize: 11, color: "#4B5563", lineHeight: 1.5 }}>
               contractors has at least one unpaid invoice at any given time
             </div>
           </div>
@@ -130,9 +142,11 @@ export function WarmUpScreen() {
 
         {/* Full-width card — flex row */}
         <div style={{
-          backgroundColor: NAVY,
+          backgroundColor: "#fff",
+          border: "1.5px solid #E8EBF0",
+          borderLeft: `4px solid ${AQUA}`,
           borderRadius: 16,
-          padding: "18px 20px",
+          padding: "16px 18px",
           display: "flex",
           alignItems: "center",
           gap: 16,
@@ -141,15 +155,13 @@ export function WarmUpScreen() {
           <div style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
-            fontSize: 28,
-            color: "#fff",
+            fontSize: 26,
+            color: NAVY,
             flexShrink: 0,
             whiteSpace: "nowrap",
-          }}>37 - 42 days</div>
-          <div
-            style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}
-            className="text-[14px] text-center">
-            is the average payment delay after invoice submission
+          }}>37–42 days</div>
+          <div style={{ fontSize: 12, color: "#4B5563", lineHeight: 1.5 }}>
+            average payment delay after invoice submission
           </div>
         </div>
 
