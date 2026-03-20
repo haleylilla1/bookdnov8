@@ -46,13 +46,13 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
   );
 }
 
-function VideoPanel({ src, poster, objectPosition = "center" }: {
-  src: string; poster: string; objectPosition?: string;
+function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
+  src: string; poster: string; objectPosition?: string; height?: number;
 }) {
   return (
     <div style={{
       flexShrink: 0,
-      height: 300,
+      height,
       position: "relative",
       overflow: "hidden",
       background: "#EAF9FF",
@@ -152,10 +152,11 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 
 function Screen2({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top, 44px)" }}>
-      <VideoPanel src="/videos/girl_working2_slow.mp4" poster="/videos/girl_working2_poster.jpg" />
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 28px 0", background: "#fff", overflow: "hidden" }}>
-        <div style={{ flex: 1 }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+        <VideoPanel src="/videos/girl_working2_slow.mp4" poster="/videos/girl_working2_poster.jpg" />
+        <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={2} />
           <p style={{
             fontSize: 10, fontWeight: 700, color: AQUA,
@@ -184,15 +185,15 @@ function Screen2({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
             Bookd is a tracking and organization tool, not a tax advisor. Deduction opportunities vary by individual. Consult a qualified tax professional for advice specific to your situation.
           </p>
         </div>
-        <div style={{ paddingTop: 16, paddingBottom: 24 }}>
-          <NavyButton label="See how →" onClick={onAdvance} />
-          <button onClick={onLogin} style={{
-            background: "none", border: "none", color: "#9ca3af",
-            fontSize: 13, marginTop: 12, cursor: "pointer",
-            display: "block", width: "100%", textAlign: "center",
-            fontFamily: "'Montserrat', sans-serif",
-          }}>Already have an account? Log in</button>
-        </div>
+      </div>
+      <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
+        <NavyButton label="See how →" onClick={onAdvance} />
+        <button onClick={onLogin} style={{
+          background: "none", border: "none", color: "#9ca3af",
+          fontSize: 13, marginTop: 12, cursor: "pointer",
+          display: "block", width: "100%", textAlign: "center",
+          fontFamily: "'Montserrat', sans-serif",
+        }}>Already have an account? Log in</button>
       </div>
     </div>
   );
@@ -200,10 +201,11 @@ function Screen2({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
 
 function Screen3({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top, 44px)" }}>
-      <VideoPanel src="/videos/girl_driving.mp4" poster="/videos/girl_driving_poster.jpg" objectPosition="top" />
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 28px 0", background: "#fff", overflow: "hidden" }}>
-        <div style={{ flex: 1 }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+        <VideoPanel src="/videos/girl_driving.mp4" poster="/videos/girl_driving_poster.jpg" objectPosition="top" />
+        <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={3} />
           <p style={{
             fontSize: 10, fontWeight: 700, color: AQUA,
@@ -233,15 +235,15 @@ function Screen3({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
             $3,770 = 100 mi/week × 52 weeks × $0.725 (2026 IRS standard mileage rate, Rev. Proc. 2025-29). Only business miles qualify. Verify all deductions with a tax professional.
           </p>
         </div>
-        <div style={{ paddingTop: 16, paddingBottom: 24 }}>
-          <NavyButton label="Continue →" onClick={onAdvance} />
-          <button onClick={onLogin} style={{
-            background: "none", border: "none", color: "#9ca3af",
-            fontSize: 13, marginTop: 12, cursor: "pointer",
-            display: "block", width: "100%", textAlign: "center",
-            fontFamily: "'Montserrat', sans-serif",
-          }}>Already have an account? Log in</button>
-        </div>
+      </div>
+      <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
+        <NavyButton label="Continue →" onClick={onAdvance} />
+        <button onClick={onLogin} style={{
+          background: "none", border: "none", color: "#9ca3af",
+          fontSize: 13, marginTop: 12, cursor: "pointer",
+          display: "block", width: "100%", textAlign: "center",
+          fontFamily: "'Montserrat', sans-serif",
+        }}>Already have an account? Log in</button>
       </div>
     </div>
   );
@@ -249,10 +251,11 @@ function Screen3({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
 
 function Screen4({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () => void }) {
   return (
-    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top, 44px)" }}>
-      <VideoPanel src="/videos/girl_cheering.mp4" poster="/videos/girl_cheering_poster.jpg" />
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 28px 0", background: "#fff", overflow: "hidden" }}>
-        <div style={{ flex: 1 }}>
+    <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+        <VideoPanel src="/videos/girl_cheering.mp4" poster="/videos/girl_cheering_poster.jpg" />
+        <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={4} />
           <p style={{
             fontSize: 10, fontWeight: 700, color: AQUA,
@@ -281,15 +284,15 @@ function Screen4({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
             Bookd is a financial tracking and organization tool. It does not provide tax, legal, or financial advice. Results vary. Always consult a qualified tax professional.
           </p>
         </div>
-        <div style={{ paddingTop: 16, paddingBottom: 24 }}>
-          <NavyButton label="Let's get set up →" onClick={onAdvance} />
-          <button onClick={onLogin} style={{
-            background: "none", border: "none", color: "#9ca3af",
-            fontSize: 13, marginTop: 12, cursor: "pointer",
-            display: "block", width: "100%", textAlign: "center",
-            fontFamily: "'Montserrat', sans-serif",
-          }}>Already have an account? Log in</button>
-        </div>
+      </div>
+      <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
+        <NavyButton label="Let's get set up →" onClick={onAdvance} />
+        <button onClick={onLogin} style={{
+          background: "none", border: "none", color: "#9ca3af",
+          fontSize: 13, marginTop: 12, cursor: "pointer",
+          display: "block", width: "100%", textAlign: "center",
+          fontFamily: "'Montserrat', sans-serif",
+        }}>Already have an account? Log in</button>
       </div>
     </div>
   );
