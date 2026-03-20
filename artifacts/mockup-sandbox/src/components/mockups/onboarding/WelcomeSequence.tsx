@@ -197,7 +197,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            Tracking mileage and expenses can save more than you think. Bookd helps with that.
+            This app was built by freelancers who actually get it. Tools for us are often overlooked — so we created something to help track your income, miles, and expenses so you're prepared for tax time.
           </p>
 
           <p style={{
