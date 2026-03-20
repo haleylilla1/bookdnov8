@@ -3,10 +3,13 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
-import { Loader2, ChevronRight, MapPin, Bell } from "lucide-react";
+import { Loader2, ChevronRight, MapPin } from "lucide-react";
 
 const CYAN = "#00b4d8";
 const NAVY = "#03045e";
+const CORAL = "#D84C2A";
+const CORAL_BG = "#FFF5F3";
+const CORAL_BORDER = "#FFE0DA";
 
 const GIG_TYPES = [
   "Brand Ambassador",
@@ -21,13 +24,30 @@ const GIG_TYPES = [
   "Other",
 ];
 
+const REMINDER_OPTIONS = [
+  { id: "2w", label: "2 weeks after last day of work", sub: "Good for shorter gigs and quick turnarounds" },
+  { id: "3w", label: "3 weeks after last day of work", sub: "Most popular. Gives clients time to process." },
+  { id: "4w", label: "4 weeks after last day of work", sub: "Best for larger or longer-term contracts" },
+];
+
+const PAYWALL_CHECK_ITEMS = [
+  "Every mile logged. Money back at tax time.",
+  "Log a gig in 90 seconds. Nothing left behind.",
+  "Know your tax bill all year, not just in April.",
+  "One tap 1099 report.",
+];
+
+const IRS_RATE = 0.725;
+const MILES_MIN = 0, MILES_MAX = 500, MILES_DEFAULT = 100, MILES_STEP = 10;
+const EXP_MIN = 0, EXP_MAX = 500, EXP_DEFAULT = 150, EXP_STEP = 10;
+
 interface OnboardingFlowProps {
   isOpen: boolean;
   onComplete: () => void;
   onClose: () => void;
 }
 
-type Step = "address" | "tax" | "gig-types" | "gig-gap" | "notifications" | "done";
+type Step = "address" | "tax" | "gig-types" | "gig-gap" | "warm-up" | "what-you-get" | "paywall";
 
 interface SetupData {
   homeAddress: string;
@@ -37,14 +57,26 @@ interface SetupData {
   otherJobType: string;
 }
 
+function fmtCents(val: number) {
+  const rounded = Math.round(val * 100) / 100;
+  const whole = Math.floor(rounded);
+  const cents = Math.round((rounded - whole) * 100);
+  if (cents === 0) return `$${whole.toLocaleString()}`;
+  return `$${whole.toLocaleString()}.${String(cents).padStart(2, "0")}`;
+}
+
+function fmt(val: number) {
+  return `$${Math.round(val).toLocaleString()}`;
+}
+
 function ProgressDots({ total, current }: { total: number; current: number }) {
   return (
-    <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "32px" }}>
+    <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "24px" }}>
       {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
           style={{
-            width: i === current ? "20px" : "8px",
+            width: i === current ? "24px" : "8px",
             height: "8px",
             borderRadius: "4px",
             backgroundColor: i < current ? `rgba(0, 180, 216, 0.4)` : i === current ? CYAN : "#e5e7eb",
@@ -56,341 +88,561 @@ function ProgressDots({ total, current }: { total: number; current: number }) {
   );
 }
 
-export function GigGapStep({ onComplete }: { onComplete: () => void }) {
-  const MIN = 500;
-  const MAX = 10000;
-  const DEFAULT = 2500;
+/* ────────────────────────────────────────
+   GigGap Variant B — shared UI
+──────────────────────────────────────── */
+function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
+  onContinue: () => void;
+  ctaLabel: string;
+  showDots?: boolean;
+  dotsIndex?: number;
+}) {
+  const [miles, setMiles] = useState(MILES_DEFAULT);
+  const [expenses, setExpenses] = useState(EXP_DEFAULT);
+  const [milesPulsing, setMilesPulsing] = useState(true);
+  const [expPulsing, setExpPulsing] = useState(false);
 
-  const [income, setIncome] = useState(DEFAULT);
-  const [pulsing, setPulsing] = useState(true);
-
-  const miles = Math.round((income / 1000) * 44);
-  const mileageDeduction = Math.round(miles * 0.725);
-  const businessExpenses = Math.round(income * 0.05);
-  const monthlyMissed = mileageDeduction + businessExpenses;
-  const annualMissed = monthlyMissed * 12;
-
-  const pct = ((income - MIN) / (MAX - MIN)) * 100;
-
-  const formatCurrency = (val: number) =>
-    val >= 1000 ? `$${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k` : `$${val}`;
-
-  const formatDollar = (val: number) => `$${val.toLocaleString()}`;
-
-  const tickValues = [500, 3000, 5000, 8000, 10000];
+  const mileageDeduction = miles * IRS_RATE;
+  const totalMonthly = mileageDeduction + expenses;
+  const totalAnnual = totalMonthly * 12;
+  const milesPct = ((miles - MILES_MIN) / (MILES_MAX - MILES_MIN)) * 100;
+  const expPct = ((expenses - EXP_MIN) / (EXP_MAX - EXP_MIN)) * 100;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "#ffffff",
-        zIndex: 9999,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "env(safe-area-inset-top, 0px)",
-      }}
-    >
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "#ffffff",
+      zIndex: 9999,
+      display: "flex",
+      flexDirection: "column",
+      paddingTop: "env(safe-area-inset-top, 0px)",
+      fontFamily: "'Montserrat', sans-serif",
+    }}>
       <style>{`
-        @keyframes sliderPulse {
-          0%, 100% { box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.3); }
-          50% { box-shadow: 0 0 0 12px rgba(0, 180, 216, 0.08); }
+        @keyframes pulse-b {
+          0%,100% { box-shadow: 0 0 0 4px rgba(0,180,216,0.3); }
+          50%      { box-shadow: 0 0 0 12px rgba(0,180,216,0.08); }
         }
-        .gig-gap-slider.slider-thumb-pulse::-webkit-slider-thumb {
-          animation: sliderPulse 1.5s ease-in-out infinite;
-        }
-        .gig-gap-slider.slider-thumb-pulse::-moz-range-thumb {
-          animation: sliderPulse 1.5s ease-in-out infinite;
-        }
-        .gig-gap-slider.slider-no-pulse::-webkit-slider-thumb {
-          animation: none;
-        }
-        .gig-gap-slider.slider-no-pulse::-moz-range-thumb {
-          animation: none;
-        }
-        .gig-gap-slider {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 100%;
-          height: 8px;
-          border-radius: 4px;
-          outline: none;
-          cursor: pointer;
-          border: none;
-          padding: 0;
-          background: transparent;
-        }
-        .gig-gap-slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: ${CYAN};
-          cursor: pointer;
-          border: 3px solid #ffffff;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .gig-gap-slider::-moz-range-thumb {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: ${CYAN};
-          cursor: pointer;
-          border: 3px solid #ffffff;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+        .slider-b { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px; outline:none; cursor:pointer; border:none; padding:0; background:transparent; }
+        .slider-b::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:${CYAN}; cursor:pointer; border:3px solid rgba(255,255,255,0.25); box-shadow:0 2px 8px rgba(0,0,0,.3); }
+        .slider-b::-moz-range-thumb { width:26px; height:26px; border-radius:50%; background:${CYAN}; cursor:pointer; border:3px solid rgba(255,255,255,0.25); box-shadow:0 2px 8px rgba(0,0,0,.3); }
+        .slider-b.pulse::-webkit-slider-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
+        .slider-b.pulse::-moz-range-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
       `}</style>
 
-      {/* Scrollable content area */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "390px",
-          flex: 1,
-          overflowY: "auto",
-          padding: "0 24px",
-          paddingTop: "56px",
-          paddingBottom: "24px",
-          boxSizing: "border-box",
-        }}
-      >
-        <ProgressDots total={6} current={3} />
+      <div style={{ flex: 1, overflowY: "auto", padding: "52px 24px 24px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+        {showDots && <ProgressDots total={6} current={dotsIndex ?? 3} />}
 
-        <div style={{ marginBottom: "8px" }}>
-          <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            YOUR GIG GAP
-          </span>
-        </div>
-
-        <h1 style={{ fontSize: "26px", fontWeight: 800, color: NAVY, marginBottom: "10px", marginTop: "8px", lineHeight: 1.25 }}>
-          Drag to see how much you could be <span style={{ color: CYAN }}>leaving on the table</span>
-        </h1>
-        <p style={{ fontSize: "15px", color: "#4b5563", marginBottom: "24px", lineHeight: 1.55 }}>
-          Most independent contractors have no idea how much of <span style={{ color: CYAN, fontWeight: 600 }}>their own money</span> they're leaving behind.
+        <p style={{ fontSize: 11, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px" }}>
+          Your Deductions
         </p>
 
-        {/* Income slider card */}
-        <div
-          style={{
-            backgroundColor: "#f8fafc",
-            border: "1px solid #e5e7eb",
-            borderRadius: "16px",
-            padding: "18px 18px 14px",
-            marginBottom: "16px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              YOUR MONTHLY INCOME
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, lineHeight: 1.25, margin: "0 0 18px" }}>
+          See exactly what you{" "}
+          <span style={{ color: CYAN }}>could be keeping by tracking everything.</span>
+        </h1>
+
+        {/* Navy hero card */}
+        <div style={{ background: NAVY, borderRadius: 22, padding: "20px 20px 18px", marginBottom: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px" }}>your potential annual deductions</p>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 52, color: "#fff", lineHeight: 1, margin: "0 0 2px" }}>
+            {fmt(totalAnnual)}
+          </div>
+          <p style={{ fontSize: 13, color: CYAN, margin: "0 0 18px" }}>
+            {fmtCents(totalMonthly)} per month
+          </p>
+
+          {/* Miles slider */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business miles</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
             </div>
-            <div style={{ fontSize: "28px", fontWeight: 800, color: NAVY }}>
-              {formatDollar(income)}
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${milesPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+              <input
+                type="range" min={MILES_MIN} max={MILES_MAX} step={MILES_STEP} value={miles}
+                className={`slider-b${milesPulsing ? " pulse" : ""}`}
+                onChange={(e) => { setMiles(Number(e.target.value)); setMilesPulsing(false); }}
+                style={{ position: "relative", zIndex: 1, background: "transparent" }}
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>0 mi</span>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>500 mi</span>
             </div>
           </div>
 
-          {/* Slider track wrapper */}
-          <div style={{ position: "relative", marginBottom: "8px" }}>
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: 0,
-                transform: "translateY(-50%)",
-                width: "100%",
-                height: "8px",
-                borderRadius: "4px",
-                backgroundColor: "#d1d5db",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: 0,
-                transform: "translateY(-50%)",
-                width: `${pct}%`,
-                height: "8px",
-                borderRadius: "4px",
-                backgroundColor: CYAN,
-                pointerEvents: "none",
-                transition: "width 0.05s ease",
-              }}
-            />
-            <input
-              type="range"
-              min={MIN}
-              max={MAX}
-              step={100}
-              value={income}
-              className={`gig-gap-slider ${pulsing ? "slider-thumb-pulse" : "slider-no-pulse"}`}
-              onChange={(e) => {
-                setIncome(Number(e.target.value));
-                setPulsing(false);
-              }}
-              style={{
-                position: "relative",
-                zIndex: 1,
-                background: "transparent",
-              }}
-            />
-          </div>
-
-          {/* Tick labels */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-            {tickValues.map((v) => (
-              <span key={v} style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 500 }}>
-                {formatCurrency(v)}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Coral summary cards */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "14px" }}>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: "#FFF5F3",
-              border: "1px solid #FFE0DA",
-              borderRadius: "14px",
-              padding: "14px 12px",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#D84C2A", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>
-              MONTHLY
+          {/* Expenses slider */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business expenses</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
             </div>
-            <div style={{ fontSize: "32px", fontWeight: 800, color: "#D84C2A", lineHeight: 1.1, marginBottom: "2px" }}>
-              {formatDollar(monthlyMissed)}
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${expPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+              <input
+                type="range" min={EXP_MIN} max={EXP_MAX} step={EXP_STEP} value={expenses}
+                className={`slider-b${expPulsing ? " pulse" : ""}`}
+                onChange={(e) => { setExpenses(Number(e.target.value)); setExpPulsing(false); }}
+                style={{ position: "relative", zIndex: 1, background: "transparent" }}
+              />
             </div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#D84C2A", opacity: 0.8 }}>
-              typically missed
-            </div>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: "#FFF5F3",
-              border: "1px solid #FFE0DA",
-              borderRadius: "14px",
-              padding: "14px 12px",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#D84C2A", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>
-              ANNUALLY
-            </div>
-            <div style={{ fontSize: "32px", fontWeight: 800, color: "#D84C2A", lineHeight: 1.1, marginBottom: "2px" }}>
-              {formatDollar(annualMissed)}
-            </div>
-            <div style={{ fontSize: "13px", fontWeight: 500, color: "#D84C2A", opacity: 0.8 }}>
-              typically missed
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>$0</span>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>$500</span>
             </div>
           </div>
         </div>
 
-        {/* Breakdown card */}
-        <div
-          style={{
-            backgroundColor: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: "14px",
-            overflow: "hidden",
-            marginBottom: "16px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "16px 18px",
-              borderBottom: "1px solid #f3f4f6",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "17px", fontWeight: 700, color: "#111827" }}>Mileage</div>
-              <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "3px" }}>
-                ~{miles.toLocaleString()} mi/mo · $0.725/mi
+        {/* Breakdown */}
+        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+          {[
+            { title: "Mileage", sub: `${miles} mi × $${IRS_RATE}/mi (IRS 2026 rate)`, mo: mileageDeduction, subColor: "#9ca3af" },
+            { title: "Business expenses", sub: "Phone, equipment, parking, supplies", mo: expenses, subColor: CYAN },
+          ].map(({ title, sub, mo, subColor }, i) => (
+            <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
+                <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>{sub}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmtCents(mo)}/mo</div>
+                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{fmt(mo * 12)}/yr</div>
               </div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "17px", fontWeight: 700, color: NAVY }}>
-                {formatDollar(mileageDeduction)}/mo
-              </div>
-              <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "2px" }}>
-                {formatDollar(mileageDeduction * 12)}/yr
-              </div>
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "16px 18px",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "17px", fontWeight: 700, color: "#111827" }}>Business expenses</div>
-              <div style={{ fontSize: "13px", color: CYAN, marginTop: "3px" }}>
-                Parking, supplies, equipment
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "17px", fontWeight: 700, color: NAVY }}>
-                {formatDollar(businessExpenses)}/mo
-              </div>
-              <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "2px" }}>
-                {formatDollar(businessExpenses * 12)}/yr
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Disclaimer */}
-        <p style={{ fontSize: "11px", color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, marginBottom: "16px", padding: "0 4px" }}>
-          Mileage estimated at 44 miles per $1,000 earned × $0.725/mile (2026 IRS standard rate). Business expenses estimated at 5% of income, based on IRS Schedule C averages for 1099 workers. These are estimates only. Bookd does not guarantee any specific tax savings or deduction outcomes. Individual results will vary.
+        <p style={{ fontSize: 10, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 8px", padding: "0 4px" }}>
+          Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. Expense deduction reflects the amount you entered. These are deduction values, not tax savings. Actual tax savings depend on your rate and filing status.
         </p>
       </div>
 
-      {/* Pinned CTA — outside scroll area */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "390px",
-          padding: "12px 24px",
-          paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-          backgroundColor: "#ffffff",
-          boxSizing: "border-box",
-          flexShrink: 0,
-        }}
-      >
+      {/* Pinned CTA */}
+      <div style={{
+        width: "100%", maxWidth: "390px", margin: "0 auto",
+        padding: "10px 24px",
+        paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
+        background: "#fff", boxSizing: "border-box", flexShrink: 0,
+      }}>
         <button
-          onClick={onComplete}
-          style={{
-            width: "100%",
-            padding: "16px 24px",
-            backgroundColor: NAVY,
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "100px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          onClick={onContinue}
+          style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", textAlign: "center" }}
         >
-          <span style={{ fontSize: "17px", fontWeight: 600 }}>Save more money with Bookd →</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{ctaLabel}</span>
         </button>
       </div>
     </div>
   );
 }
 
+/* ────────────────────────────────────────
+   WarmUp step
+──────────────────────────────────────── */
+function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
+  const [selected, setSelected] = useState("3w");
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, backgroundColor: "#ffffff", zIndex: 9999,
+      display: "flex", flexDirection: "column",
+      paddingTop: "env(safe-area-inset-top, 0px)",
+      fontFamily: "'Montserrat', sans-serif",
+    }}>
+      {/* Progress dots */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, paddingTop: 20, paddingBottom: 4, flexShrink: 0 }}>
+        <ProgressDots total={6} current={4} />
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>
+          Don't Let Them Forget You
+        </p>
+
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 24, color: NAVY, lineHeight: 1.25, margin: "0 0 12px" }}>
+          Getting paid is{" "}
+          <span style={{ color: CYAN }}>harder</span>
+          {" "}than doing the work
+        </h1>
+
+        <p style={{ fontSize: 13, color: "#555", lineHeight: 1.55, margin: "0 0 18px" }}>
+          The data is clear. Late and missing payments are the norm for independent workers.
+        </p>
+
+        {/* Stat cards — top row */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          {[
+            { stat: "47%", desc: "of freelancers had a late or missing payment in their first 6 months" },
+            { stat: "1 in 5", desc: "contractors has at least one unpaid invoice at any given time" },
+          ].map(({ stat, desc }) => (
+            <div key={stat} style={{ backgroundColor: "#fff", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 14px", boxShadow: "0 2px 10px rgba(0,180,216,0.1)" }}>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 32, color: NAVY, lineHeight: 1, marginBottom: 8 }}>{stat}</div>
+              <div style={{ fontSize: 11, color: "#4B5563", lineHeight: 1.5 }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Full-width stat card */}
+        <div style={{ backgroundColor: "#fff", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", gap: 16, marginBottom: 10, boxShadow: "0 2px 10px rgba(0,180,216,0.1)" }}>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 26, color: NAVY, flexShrink: 0, whiteSpace: "nowrap" }}>37–42 days</div>
+          <div style={{ fontSize: 12, color: "#4B5563", lineHeight: 1.5 }}>average payment delay after invoice submission</div>
+        </div>
+
+        <p style={{ fontSize: 9, color: "#bbb", textAlign: "center", lineHeight: 1.5, margin: "10px 0 18px" }}>
+          Sources: Genius 2025 Freelance Report · Payoneer 2025 Global Freelancer Income Report · Freelancers Union
+        </p>
+
+        <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, margin: "0 0 12px" }}>
+          If a gig goes unpaid, when should we remind you?
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+          {REMINDER_OPTIONS.map((opt) => {
+            const isSelected = selected === opt.id;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setSelected(opt.id)}
+                style={{
+                  background: isSelected ? "#EAF9FF" : "#fff",
+                  border: `1.5px solid ${isSelected ? CYAN : "#E8EBF0"}`,
+                  borderRadius: 14, padding: "14px 16px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 3 }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: "#8A93A8" }}>{opt.sub}</div>
+                </div>
+                <div style={{
+                  width: 26, height: 26, borderRadius: "50%",
+                  border: `2px solid ${isSelected ? CYAN : "#D1D5DB"}`,
+                  backgroundColor: isSelected ? CYAN : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0, marginLeft: 12,
+                }}>
+                  {isSelected && (
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <path d="M2.5 6.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Pinned CTA */}
+      <div style={{ padding: "10px 22px", paddingBottom: "calc(16px + env(safe-area-inset-bottom, 0px))", flexShrink: 0, background: "#fff", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <button
+          onClick={() => onNext(selected)}
+          style={{ width: "100%", background: NAVY, borderRadius: 100, border: "none", padding: "13px 24px", cursor: "pointer", display: "block", boxSizing: "border-box" }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>Set my reminder →</div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", marginTop: 3 }}>We only notify you when it matters. No spam, ever.</div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────
+   What You Get step
+──────────────────────────────────────── */
+const FEATURES: { icon: React.ReactNode; title: string; body: string }[] = [
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M3 17h2l1-3h12l1 3h2M5 17v2a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-2" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 14l1.5-6h9L18 14" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="8.5" cy="17" r="0.5" fill={NAVY} />
+        <circle cx="15.5" cy="17" r="0.5" fill={NAVY} />
+      </svg>
+    ),
+    title: "Mileage deduction tracker",
+    body: "Log every drive at the IRS rate. Your tax savings add up automatically.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="5" width="18" height="14" rx="2" stroke={NAVY} strokeWidth="1.8" />
+        <path d="M8 12h8M12 9v6" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "Gig income logging",
+    body: "Add a gig in 20 seconds. See what's paid, pending, or owed at a glance.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M4 5h16M7 10h10M10.5 15h3" stroke={NAVY} strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 15v5" stroke={CYAN} strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "Only your real income gets taxed",
+    body: "Enter what hit your bank. Bookd auto-separates parking and expense reimbursements so they never inflate your tax bill.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M7 3h10a1 1 0 011 1v16a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" stroke={NAVY} strokeWidth="1.8" />
+        <path d="M9 8h6M9 12h6M9 16h4" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "Expense tracking",
+    body: "Capture every business cost in seconds. Organized by category for tax time.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="4" y="3" width="16" height="18" rx="2" stroke={NAVY} strokeWidth="1.8" />
+        <path d="M8 7h8M8 11h8M8 15h5" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M15 14.5l2 2 3-3" stroke={CYAN} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    title: "Real-time tax estimator",
+    body: "With your inputted tax rate, know exactly what to set aside per gig, per month, per quarter, and per year.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "One tap 1099 report",
+    body: "Download a clean income report. Share it or file it yourself.",
+  },
+];
+
+function WhatYouGetStep({ onNext }: { onNext: () => void }) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, backgroundColor: "#ffffff", zIndex: 9999,
+      display: "flex", flexDirection: "column",
+      paddingTop: "env(safe-area-inset-top, 0px)",
+      fontFamily: "'Montserrat', sans-serif",
+    }}>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 26px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+          <ProgressDots total={6} current={5} />
+        </div>
+
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <h1 style={{ fontSize: 30, fontWeight: 900, color: NAVY, margin: 0, lineHeight: 1.1, fontFamily: "'Poppins', sans-serif", letterSpacing: "-0.01em" }}>
+            Everything You'll Get
+          </h1>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {FEATURES.map((f, i) => (
+            <div key={i}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingBottom: 18 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#E0F7FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                  {f.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif", marginBottom: 3, lineHeight: 1.3 }}>{f.title}</div>
+                  <div style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>{f.body}</div>
+                </div>
+              </div>
+              {i < FEATURES.length - 1 && (
+                <div style={{ height: 1, background: "#f0f0f4", marginBottom: 18 }} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pinned CTA */}
+      <div style={{ padding: "10px 26px", paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", flexShrink: 0, maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+        <button
+          onClick={onNext}
+          style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
+            Continue →
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────
+   Paywall step
+──────────────────────────────────────── */
+function PaywallStep({ onComplete }: { onComplete: () => void }) {
+  const [plan, setPlan] = useState<"annual" | "monthly">("annual");
+
+  const price = plan === "annual" ? "$39/year" : "$4/month";
+  const billingNote = plan === "annual" ? "Just $3.25/mo billed annually" : "Billed every month";
+  const chargeLabel = plan === "annual" ? "$39 charged after trial" : "$4 charged after trial";
+
+  const checkItems = [
+    plan === "annual"
+      ? "Bookd is 100% deductible. Write off $39/yr at tax time."
+      : "Bookd is 100% deductible. Write off $4/mo at tax time.",
+    ...PAYWALL_CHECK_ITEMS,
+  ];
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, backgroundColor: "#ffffff", zIndex: 9999,
+      display: "flex", flexDirection: "column",
+      paddingTop: "env(safe-area-inset-top, 0px)",
+      fontFamily: "'Montserrat', sans-serif",
+    }}>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "48px 24px 20px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+
+        <p style={{ fontSize: 11, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.09em", margin: "0 0 8px" }}>7 Days Free</p>
+
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 26, color: NAVY, lineHeight: 1.2, margin: "0 0 6px" }}>
+          Start keeping more of{" "}
+          <span style={{ color: CYAN }}>what you earned.</span>
+        </h1>
+
+        <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.5, margin: "0 0 22px" }}>
+          No charge today. Cancel anytime before your trial ends.
+        </p>
+
+        {/* Trial timeline */}
+        <div style={{ background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: 16, padding: "18px 18px 14px", marginBottom: 20 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 16px" }}>What happens next</p>
+          {[
+            { day: "Today", dot: CYAN,      title: "Free trial begins",   sub: "Full access, nothing charged.",            last: false },
+            { day: "Day 6", dot: "#9ca3af", title: "Reminder email",      sub: "We'll remind you before your trial ends.", last: false },
+            { day: "Day 8", dot: NAVY,      title: "Subscription starts", sub: chargeLabel,                                last: true  },
+          ].map(({ day, dot, title, sub, last }) => (
+            <div key={day} style={{ display: "flex", gap: 14 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: dot, flexShrink: 0, marginTop: 2, boxShadow: dot === CYAN ? "0 0 0 3px rgba(0,180,216,0.2)" : "none" }} />
+                {!last && <div style={{ width: 2, flex: 1, background: "#e5e7eb", margin: "4px 0" }} />}
+              </div>
+              <div style={{ paddingBottom: last ? 0 : 16 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: dot === CYAN ? CYAN : dot === NAVY ? NAVY : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.07em" }}>{day}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#9ca3af", margin: 0, lineHeight: 1.4 }}>{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Plan cards */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          {/* Annual */}
+          <div
+            onClick={() => setPlan("annual")}
+            style={{ borderRadius: 16, border: plan === "annual" ? "2px solid transparent" : "2px solid #e5e7eb", background: plan === "annual" ? NAVY : "#fafafa", padding: "16px 18px", cursor: "pointer", position: "relative", transition: "all 0.2s ease" }}
+          >
+            <div style={{ position: "absolute", top: -11, left: 18, background: CYAN, borderRadius: 100, padding: "3px 12px", fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Best Value — Save 19%</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: plan === "annual" ? "#fff" : NAVY, fontFamily: "'Poppins', sans-serif", marginBottom: 3 }}>Annual</div>
+                <div style={{ fontSize: 12, color: plan === "annual" ? "rgba(255,255,255,0.6)" : "#9ca3af" }}>Just $3.25/mo · billed annually</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: plan === "annual" ? "#fff" : NAVY, fontFamily: "'Poppins', sans-serif", lineHeight: 1 }}>$39</div>
+                  <div style={{ fontSize: 11, color: plan === "annual" ? "rgba(255,255,255,0.5)" : "#9ca3af" }}>/year</div>
+                </div>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${plan === "annual" ? CYAN : "#d1d5db"}`, background: plan === "annual" ? CYAN : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {plan === "annual" && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff" }} />}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly */}
+          <div
+            onClick={() => setPlan("monthly")}
+            style={{ borderRadius: 16, border: plan === "monthly" ? `2px solid ${NAVY}` : "2px solid #e5e7eb", background: plan === "monthly" ? "#f0f4ff" : "#fafafa", padding: "16px 18px", cursor: "pointer", transition: "all 0.2s ease" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif", marginBottom: 3 }}>Monthly</div>
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>Billed every month</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif", lineHeight: 1 }}>$4</div>
+                  <div style={{ fontSize: 11, color: "#9ca3af" }}>/month</div>
+                </div>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${plan === "monthly" ? NAVY : "#d1d5db"}`, background: plan === "monthly" ? NAVY : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {plan === "monthly" && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff" }} />}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Feature checklist */}
+        <div style={{ marginBottom: 20 }}>
+          {checkItems.map((item) => (
+            <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E0F7FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 1L7.18 4.38L10.76 4.45L7.9 6.62L8.94 10.05L6 8L3.06 10.05L4.1 6.62L1.24 4.45L4.82 4.38Z" fill="#00b4d8" />
+                </svg>
+              </div>
+              <span style={{ fontSize: 13, color: "#374151" }}>{item}</span>
+            </div>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 10, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 6px" }}>
+          Cancel anytime in app settings or by emailing support. {billingNote}. Subscription auto-renews unless cancelled.
+        </p>
+      </div>
+
+      {/* Pinned CTA */}
+      <div style={{ padding: "10px 24px", paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto", flexShrink: 0 }}>
+        <button
+          onClick={onComplete}
+          style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "14px 20px 12px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}
+        >
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
+            Start 7-Day Free Trial →
+          </span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+            {price} after trial · cancel anytime
+          </span>
+        </button>
+        <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", margin: "10px 0 0" }}>
+          No charge today
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────
+   Exported GigGapStep (used in home.tsx)
+──────────────────────────────────────── */
+export function GigGapStep({ onComplete }: { onComplete: () => void }) {
+  return (
+    <GigGapBUI
+      onContinue={onComplete}
+      ctaLabel="See what I'm missing →"
+      showDots={false}
+    />
+  );
+}
+
+/* ────────────────────────────────────────
+   Main OnboardingFlow
+──────────────────────────────────────── */
 export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowProps) {
   const [step, setStep] = useState<Step>("address");
   const [data, setData] = useState<SetupData>({
@@ -424,9 +676,14 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     },
   });
 
-  if (!isOpen) return null;
+  const saveReminderMutation = useMutation({
+    mutationFn: async (reminderWeeks: string) => {
+      const res = await apiRequest("POST", "/api/user/preferences", { reminderWeeks });
+      return res.ok ? res.json() : null;
+    },
+  });
 
-  const userName = userData?.name?.split(" ")[0] || "there";
+  if (!isOpen) return null;
 
   const handleSaveAndNavigateToGigGap = async () => {
     const taxValue = data.taxRate === "custom" ? parseInt(data.customTax) || 30 : data.taxRate;
@@ -488,12 +745,41 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     cursor: "default",
   };
 
-  // STEP: Gig Gap
+  /* ── Gig Gap ── */
   if (step === "gig-gap") {
-    return <GigGapStep onComplete={onComplete} />;
+    return (
+      <GigGapBUI
+        onContinue={() => setStep("warm-up")}
+        ctaLabel="Continue →"
+        showDots={true}
+        dotsIndex={3}
+      />
+    );
   }
 
-  // STEP: Address
+  /* ── Warm Up ── */
+  if (step === "warm-up") {
+    return (
+      <WarmUpStep
+        onNext={(reminderWeeks) => {
+          saveReminderMutation.mutate(reminderWeeks);
+          setStep("what-you-get");
+        }}
+      />
+    );
+  }
+
+  /* ── What You Get ── */
+  if (step === "what-you-get") {
+    return <WhatYouGetStep onNext={() => setStep("paywall")} />;
+  }
+
+  /* ── Paywall ── */
+  if (step === "paywall") {
+    return <PaywallStep onComplete={onComplete} />;
+  }
+
+  /* ── Address ── */
   if (step === "address") {
     return (
       <div style={containerStyle}>
@@ -552,7 +838,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     );
   }
 
-  // STEP: Tax Rate
+  /* ── Tax Rate ── */
   if (step === "tax") {
     const options: { label: string; sub: string; value: number | "custom" }[] = [
       { label: "30%", sub: "Safe bet — keeps you covered", value: 30 },
@@ -584,15 +870,10 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
                   key={String(opt.value)}
                   onClick={() => setData({ ...data, taxRate: opt.value })}
                   style={{
-                    padding: "16px 20px",
-                    borderRadius: "14px",
+                    padding: "16px 20px", borderRadius: "14px",
                     border: isSelected ? `2px solid ${CYAN}` : "1.5px solid #e5e7eb",
                     backgroundColor: isSelected ? "#e0f7fa" : "#ffffff",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    textAlign: "left",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", textAlign: "left",
                   }}
                 >
                   <div>
@@ -616,27 +897,11 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
               <label style={{ fontSize: "14px", fontWeight: 500, color: "#374151", display: "block", marginBottom: "6px" }}>Enter your tax rate</label>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  max="60"
-                  placeholder="e.g. 25"
-                  autoFocus
+                  type="number" inputMode="numeric" min="0" max="60" placeholder="e.g. 25" autoFocus
                   value={data.customTax}
                   onChange={(e) => setData({ ...data, customTax: e.target.value })}
                   onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
-                  style={{
-                    width: "100px",
-                    height: "48px",
-                    fontSize: "16px",
-                    padding: "0 14px",
-                    border: "1.5px solid #d1d5db",
-                    borderRadius: "10px",
-                    backgroundColor: "#ffffff",
-                    color: "#111827",
-                    outline: "none",
-                    WebkitAppearance: "none",
-                  }}
+                  style={{ width: "100px", height: "48px", fontSize: "16px", padding: "0 14px", border: "1.5px solid #d1d5db", borderRadius: "10px", backgroundColor: "#ffffff", color: "#111827", outline: "none", WebkitAppearance: "none" }}
                 />
                 <span style={{ fontSize: "20px", fontWeight: 600, color: NAVY }}>%</span>
               </div>
@@ -645,10 +910,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
           <div style={{ flex: 1 }} />
 
-          <button
-            style={btnPrimary}
-            onClick={() => setStep("gig-types")}
-          >
+          <button style={btnPrimary} onClick={() => setStep("gig-types")}>
             Continue <ChevronRight size={18} />
           </button>
 
@@ -663,7 +925,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     );
   }
 
-  // STEP: Gig Types
+  /* ── Gig Types ── */
   if (step === "gig-types") {
     const toggle = (type: string) => {
       setData((prev) => ({
@@ -698,15 +960,12 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
                   key={type}
                   onClick={() => toggle(type)}
                   style={{
-                    padding: "10px 16px",
-                    borderRadius: "100px",
+                    padding: "10px 16px", borderRadius: "100px",
                     border: selected ? `2px solid ${CYAN}` : "1.5px solid #e5e7eb",
                     backgroundColor: selected ? CYAN : "#ffffff",
                     color: selected ? "#ffffff" : "#374151",
-                    fontSize: "14px",
-                    fontWeight: selected ? 600 : 400,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
+                    fontSize: "14px", fontWeight: selected ? 600 : 400,
+                    cursor: "pointer", transition: "all 0.15s ease",
                   }}
                 >
                   {type}
@@ -740,18 +999,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
                   }, 450);
                 }}
                 onBlur={() => setOtherFocused(false)}
-                style={{
-                  width: "100%",
-                  height: "48px",
-                  fontSize: "16px",
-                  padding: "0 14px",
-                  border: `1.5px solid ${CYAN}`,
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                  color: "#111827",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
+                style={{ width: "100%", height: "48px", fontSize: "16px", padding: "0 14px", border: `1.5px solid ${CYAN}`, borderRadius: "12px", backgroundColor: "#ffffff", color: "#111827", outline: "none", boxSizing: "border-box" }}
               />
             </div>
           )}

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import logoImage from "@assets/bookd-logo.png";
+import { WelcomeSequence } from "@/components/welcome-sequence";
 
 const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
   google_denied: "Google sign-in was cancelled.",
@@ -18,6 +19,7 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem('bookd_welcome_seen'));
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -229,6 +231,23 @@ export default function AuthPage() {
     outline: 'none',
     boxSizing: 'border-box' as const,
   };
+
+  if (showWelcome) {
+    return (
+      <WelcomeSequence
+        onComplete={() => {
+          localStorage.setItem('bookd_welcome_seen', '1');
+          setShowWelcome(false);
+          setIsLogin(false);
+        }}
+        onLogin={() => {
+          localStorage.setItem('bookd_welcome_seen', '1');
+          setShowWelcome(false);
+          setIsLogin(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">

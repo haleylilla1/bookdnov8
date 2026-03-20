@@ -513,6 +513,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Save user notification preferences (reminder weeks, etc.)
+  app.post('/api/user/preferences', requireAuth, async (req: any, res: Response) => {
+    try {
+      const userId = getUserId(req);
+      const { reminderWeeks } = req.body;
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      const existingPrefs = (user.notificationPreferences as any) || {};
+      await storage.updateUser(userId, {
+        notificationPreferences: { ...existingPrefs, reminderWeeks },
+      });
+      res.json({ ok: true });
+    } catch {
+      res.status(500).json({ error: 'Failed to save preferences' });
+    }
+  });
+
   // Gig routes with pagination
   app.get('/api/gigs', requireAuth,
     validateQueryParams(z.object({
