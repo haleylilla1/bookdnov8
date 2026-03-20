@@ -188,15 +188,16 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
             fontFamily: "'Poppins', sans-serif", fontWeight: 800,
             fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
           }}>
-            Tracking mileage and expenses can save{" "}
-            <span style={{ color: AQUA }}>more than you think.</span>
+            Independent workers miss{" "}
+            <span style={{ color: AQUA }}>thousands</span>
+            {" "}in deductions every year.
           </h2>
 
           <p style={{
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            Bookd helps with that.
+            Tracking mileage and expenses can save more than you think. Bookd helps with that.
           </p>
 
           <p style={{
