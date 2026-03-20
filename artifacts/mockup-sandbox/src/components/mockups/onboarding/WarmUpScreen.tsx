@@ -148,7 +148,7 @@ export function WarmUpScreen() {
           }}>37 - 42 days</div>
           <div
             style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.45 }}
-            className="text-[14px]">
+            className="text-[14px] text-center">
             is the average payment delay after invoice submission
           </div>
         </div>
