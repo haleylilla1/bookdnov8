@@ -304,7 +304,7 @@ function Screen4({ onAdvance }: { onAdvance: () => void }) {
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
             This app was built with love from freelancers who really <em><span style={{ color: AQUA }}>care</span></em>. Tools for us are often overlooked, so we created something to help track your income, miles, and expenses so you're prepared for tax time.{" "}
-            <span style={{ color: AQUA }}>We're so happy you're here.</span>
+            <span style={{ color: AQUA }}>Thanks for being here!</span>
           </p>
 
           <p style={{
