@@ -146,11 +146,11 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
 
         {/* Navy hero card */}
         <div style={{ background: NAVY, borderRadius: 20, padding: "16px 18px 14px", marginBottom: 10 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>potential annual deductions</p>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 40, color: "#fff", lineHeight: 1, margin: "0 0 2px" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>potential annual deductions</p>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 40, color: "#fff", lineHeight: 1, margin: "0 0 8px" }}>
             {fmt(totalAnnual)}
           </div>
-          <p style={{ fontSize: 12, color: CYAN, margin: "0 0 14px" }}>
+          <p style={{ fontSize: 12, color: CYAN, margin: "0 0 16px" }}>
             {fmtCents(totalMonthly)} per month
           </p>
 
