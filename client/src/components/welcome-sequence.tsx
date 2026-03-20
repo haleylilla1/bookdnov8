@@ -154,7 +154,7 @@ function Screen2({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
       <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden", paddingTop: 70 }}>
         <VideoPanel src="/videos/girl_working2_slow.mp4" poster="/videos/girl_working2_poster.jpg" />
         <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={2} />
@@ -203,7 +203,7 @@ function Screen3({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
       <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden", paddingTop: 70 }}>
         <VideoPanel src="/videos/girl_driving.mp4" poster="/videos/girl_driving_poster.jpg" objectPosition="top" />
         <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={3} />
@@ -253,7 +253,7 @@ function Screen4({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column" }}>
       <div style={{ height: "env(safe-area-inset-top, 44px)", flexShrink: 0 }} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0, overflow: "hidden", paddingTop: 70 }}>
         <VideoPanel src="/videos/girl_cheering.mp4" poster="/videos/girl_cheering_poster.jpg" />
         <div style={{ padding: "18px 28px 0" }}>
           <ProgressDots current={4} />
