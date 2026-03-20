@@ -23,9 +23,9 @@ const STATIC_CHECK_ITEMS = [
 export function PaywallScreen() {
   const [plan, setPlan] = useState<"annual" | "monthly">("annual");
 
-  const price = plan === "annual" ? "$40/year" : "$4/month";
-  const billingNote = plan === "annual" ? "Just $3.33/mo billed annually" : "Billed every month";
-  const chargeLabel = plan === "annual" ? "$40 charged after trial" : "$4 charged after trial";
+  const price = plan === "annual" ? "$39/year" : "$4/month";
+  const billingNote = plan === "annual" ? "Just $3.25/mo billed annually" : "Billed every month";
+  const chargeLabel = plan === "annual" ? "$39 charged after trial" : "$4 charged after trial";
 
   return (
     <div style={{
@@ -79,7 +79,7 @@ export function PaywallScreen() {
           {[
             { day: "Today", dot: CYAN,      title: "Free trial begins",    sub: "Full access, nothing charged.",           last: false },
             { day: "Day 6", dot: "#9ca3af", title: "Reminder email",       sub: "We'll remind you before your trial ends.", last: false },
-            { day: "Day 7", dot: NAVY,      title: "Subscription starts",  sub: chargeLabel,                                last: true  },
+            { day: "Day 8", dot: NAVY,      title: "Subscription starts",  sub: chargeLabel,                                last: true  },
           ].map(({ day, dot, title, sub, last }) => (
             <div key={day} style={{ display: "flex", gap: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 }}>
@@ -130,7 +130,7 @@ export function PaywallScreen() {
               fontSize: 10, fontWeight: 700, color: "#fff",
               fontFamily: "'Montserrat', sans-serif",
               letterSpacing: "0.06em", textTransform: "uppercase",
-            }}>Best Value — Save 17%</div>
+            }}>Best Value — Save 19%</div>
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
@@ -143,7 +143,7 @@ export function PaywallScreen() {
                   fontSize: 12,
                   color: plan === "annual" ? "rgba(255,255,255,0.6)" : "#9ca3af",
                   fontFamily: "'Montserrat', sans-serif",
-                }}>{plan === "annual" ? "Just $3.33/mo · billed annually" : "$3.33/mo · billed annually"}</div>
+                }}>{plan === "annual" ? "Just $3.25/mo · billed annually" : "$3.25/mo · billed annually"}</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ textAlign: "right" }}>
@@ -151,7 +151,7 @@ export function PaywallScreen() {
                     fontSize: 22, fontWeight: 800,
                     color: plan === "annual" ? "#fff" : NAVY,
                     fontFamily: "'Poppins', sans-serif", lineHeight: 1,
-                  }}>$40</div>
+                  }}>$39</div>
                   <div style={{
                     fontSize: 11,
                     color: plan === "annual" ? "rgba(255,255,255,0.5)" : "#9ca3af",
@@ -224,7 +224,7 @@ export function PaywallScreen() {
         <div style={{ marginBottom: 20 }}>
           {[
             plan === "annual"
-              ? "Bookd is 100% deductible. Write off $40/yr at tax time."
+              ? "Bookd is 100% deductible. Write off $39/yr at tax time."
               : "Bookd is 100% deductible. Write off $4/mo at tax time.",
             ...STATIC_CHECK_ITEMS,
           ].map((item) => (
