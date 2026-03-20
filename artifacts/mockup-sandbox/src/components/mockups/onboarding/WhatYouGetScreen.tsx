@@ -46,7 +46,7 @@ const FEATURES: { icon: React.ReactNode; title: string; body: string }[] = [
       </svg>
     ),
     title: "Gig income logging",
-    body: "Add a gig in 90 seconds. See what's paid, pending, or owed at a glance.",
+    body: "Add a gig in 20 seconds. See what's paid, pending, or owed at a glance.",
   },
   {
     icon: (
@@ -113,13 +113,6 @@ export function WhatYouGetScreen() {
 
         {/* Header */}
         <div style={{ marginBottom: 28, textAlign: "center" }}>
-          <div style={{
-            fontSize: 11, fontWeight: 700, color: CYAN,
-            letterSpacing: "0.12em", textTransform: "uppercase",
-            fontFamily: "'Montserrat', sans-serif", marginBottom: 8,
-          }}>
-            Everything included
-          </div>
           <h1 style={{
             fontSize: 30, fontWeight: 900, color: NAVY, margin: 0,
             lineHeight: 1.1, fontFamily: "'Poppins', sans-serif",
