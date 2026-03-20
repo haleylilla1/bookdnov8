@@ -14,8 +14,8 @@ export function AppStoreSlide3() {
 
       <div style={{ padding: "44px 28px 0", flexShrink: 0 }}>
         <h1 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.08, margin: 0, letterSpacing: "-1px" }}>
-          <span style={{ color: CYAN }}>Track your drives.</span><br />
-          <span style={{ color: "#fff" }}>Save thousands in deductions.</span>
+          <span style={{ color: CYAN }}>Automatically track your drive.</span><br />
+          <span style={{ color: "#fff" }}>Save $0.725 per mile.</span>
         </h1>
       </div>
 
