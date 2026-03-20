@@ -7,6 +7,7 @@ export const modules: ModuleMap = {
   "./components/mockups/onboarding/PaywallScreen.tsx": () => import("../components/mockups/onboarding/PaywallScreen.tsx"),
   "./components/mockups/onboarding/WarmUpScreen.tsx": () => import("../components/mockups/onboarding/WarmUpScreen.tsx"),
   "./components/mockups/onboarding/WelcomeSequence.tsx": () => import("../components/mockups/onboarding/WelcomeSequence.tsx"),
+  "./components/mockups/onboarding/WhatYouGetScreen.tsx": () => import("../components/mockups/onboarding/WhatYouGetScreen.tsx"),
   "./components/mockups/screenshots/AppStoreSlide1.tsx": () => import("../components/mockups/screenshots/AppStoreSlide1.tsx"),
   "./components/mockups/screenshots/AppStoreSlide2.tsx": () => import("../components/mockups/screenshots/AppStoreSlide2.tsx"),
   "./components/mockups/screenshots/AppStoreSlide3.tsx": () => import("../components/mockups/screenshots/AppStoreSlide3.tsx"),
