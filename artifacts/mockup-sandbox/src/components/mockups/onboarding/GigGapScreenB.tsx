@@ -113,7 +113,7 @@ export function GigGapScreenB() {
           {/* Miles slider */}
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em", fontFamily: "'Montserrat', sans-serif" }}>Miles to gigs each month</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em", fontFamily: "'Montserrat', sans-serif" }}>your monthly business miles</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
             </div>
             <div style={{ position: "relative" }}>
