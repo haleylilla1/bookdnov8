@@ -14,10 +14,10 @@ function HomeIndicator() {
 }
 
 const STATIC_CHECK_ITEMS = [
-  "Every mile logged = money back at tax time",
-  "Log a gig in 90 seconds — nothing left behind",
-  "Know your tax bill all year, not just in April",
-  "One-tap 1099 report — no accountant required",
+  "Every mile logged. Money back at tax time.",
+  "Log a gig in 90 seconds. Nothing left behind.",
+  "Know your tax bill all year, not just in April.",
+  "One tap 1099 report.",
 ];
 
 export function PaywallScreen() {
@@ -223,10 +223,10 @@ export function PaywallScreen() {
         {/* Feature list */}
         <div style={{ marginBottom: 20 }}>
           {[
-            ...STATIC_CHECK_ITEMS,
             plan === "annual"
-              ? "Bookd is 100% deductible — write off $40/yr at tax time"
-              : "Bookd is 100% deductible — write off $4/mo at tax time",
+              ? "Bookd is 100% deductible. Write off $40/yr at tax time."
+              : "Bookd is 100% deductible. Write off $4/mo at tax time.",
+            ...STATIC_CHECK_ITEMS,
           ].map((item) => (
             <div key={item} style={{
               display: "flex", alignItems: "center", gap: 10,
