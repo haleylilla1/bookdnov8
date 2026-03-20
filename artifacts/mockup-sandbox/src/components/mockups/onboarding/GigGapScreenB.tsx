@@ -2,7 +2,6 @@ import { useState } from "react";
 
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
-const CORAL = "#D84C2A";
 const CORAL_BG = "#FFF5F3";
 const CORAL_BORDER = "#FFE0DA";
 
