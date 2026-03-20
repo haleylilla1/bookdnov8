@@ -431,24 +431,32 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       paddingTop: "env(safe-area-inset-top, 0px)",
       fontFamily: "'Montserrat', sans-serif",
     }}>
-      {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "44px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-          <ProgressDots total={6} current={5} />
+      {/* Scrollable content — flex column so the spacer between header and features fills dead space */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+
+        {/* Header block */}
+        <div style={{ flexShrink: 0 }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <ProgressDots total={6} current={5} />
+          </div>
+
+          <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
+            What's included
+          </p>
+
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY, margin: "0 0 4px", lineHeight: 1.2, fontFamily: "'Poppins', sans-serif" }}>
+            Everything You'll Get
+          </h1>
+          <p style={{ fontSize: 13, color: "#6b7280", margin: 0, lineHeight: 1.5 }}>
+            All the tools you need to keep more of what you earn.
+          </p>
         </div>
 
-        <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
-          What's included
-        </p>
+        {/* Flexible spacer: expands to fill available height, capped so it doesn't get absurdly tall */}
+        <div style={{ flex: 1, minHeight: 28, maxHeight: 56 }} />
 
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY, margin: "0 0 4px", lineHeight: 1.2, fontFamily: "'Poppins', sans-serif" }}>
-          Everything You'll Get
-        </h1>
-        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 24px", lineHeight: 1.5 }}>
-          All the tools you need to keep more of what you earn.
-        </p>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        {/* Features list — sits naturally above the CTA */}
+        <div style={{ flexShrink: 0 }}>
           {FEATURES.map((f, i) => (
             <div key={i}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingBottom: 14 }}>
