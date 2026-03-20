@@ -295,8 +295,8 @@ function Screen4({ onAdvance }: { onAdvance: () => void }) {
             fontFamily: "'Poppins', sans-serif", fontWeight: 800,
             fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
           }}>
-            Keep more of the money{" "}
-            <span style={{ color: AQUA }}>you earned.</span>
+            Bookd helps you keep more of the{" "}
+            <span style={{ color: AQUA }}>money you earned.</span>
           </h2>
 
           <p style={{
