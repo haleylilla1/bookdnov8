@@ -233,13 +233,16 @@ export function PaywallScreen() {
               marginBottom: 8,
             }}>
               <div style={{
-                width: 20, height: 20, borderRadius: "50%",
-                background: "#E8FAF7",
+                width: 24, height: 24, borderRadius: "50%",
+                background: "#E0F7FF",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
               }}>
-                <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                  <path d="M1 4.5L4 7.5L10 1" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M6 1L7.18 4.38L10.76 4.45L7.9 6.62L8.94 10.05L6 8L3.06 10.05L4.1 6.62L1.24 4.45L4.82 4.38Z"
+                    fill="#00b4d8"
+                  />
                 </svg>
               </div>
               <span style={{ fontSize: 13, color: "#374151", fontFamily: "'Montserrat', sans-serif" }}>{item}</span>
