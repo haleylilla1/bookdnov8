@@ -171,7 +171,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
 function Screen2({ onAdvance }: { onAdvance: () => void }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", display: "flex", flexDirection: "column", paddingTop: 80 }}>
-      <VideoPanel src="/__mockup/girl_working.mp4" poster="/__mockup/girl_working_poster.jpg" />
+      <VideoPanel src="/__mockup/girl_working2.mp4" poster="/__mockup/girl_working2_poster.jpg" />
 
       <div style={{ display: "flex", flexDirection: "column", padding: "20px 28px 0", background: "#fff" }}>
         <div>
