@@ -262,7 +262,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
         </div>
 
         <div style={{ paddingTop: 20, paddingBottom: 36 }}>
-          <NavyButton label="See how →" onClick={onAdvance} />
+          <NavyButton label="Continue →" onClick={onAdvance} />
         </div>
       </div>
 
