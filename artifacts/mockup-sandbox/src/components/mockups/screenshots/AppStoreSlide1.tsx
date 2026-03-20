@@ -2,14 +2,11 @@ const NAVY = "#03045e";
 const CYAN = "#00b4d8";
 
 const WORKER_TYPES = [
-  "independent contractors.",
-  "1099 workers.",
-  "freelancers.",
-  "gig workers.",
+  "independent contractors",
+  "1099 workers",
+  "freelancers",
+  "gig workers",
 ];
-
-const CYCLE_DURATION = 12;
-const WORD_DURATION = CYCLE_DURATION / WORKER_TYPES.length;
 
 export function AppStoreSlide1() {
   return (
@@ -20,41 +17,31 @@ export function AppStoreSlide1() {
       fontFamily: "'Poppins', sans-serif",
       overflow: "hidden",
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap" rel="stylesheet" />
-      <style>{`
-        @keyframes cycleWord {
-          0%   { opacity: 0; transform: translateY(28px); }
-          8%   { opacity: 1; transform: translateY(0); }
-          24%  { opacity: 1; transform: translateY(0); }
-          32%  { opacity: 0; transform: translateY(-28px); }
-          100% { opacity: 0; transform: translateY(28px); }
-        }
-      `}</style>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
 
       {/* TOP TEXT */}
       <div style={{ padding: "36px 28px 0", flexShrink: 0 }}>
-        <h1 style={{
-          fontSize: 42, fontWeight: 900, color: "#fff",
-          lineHeight: 1.08, margin: 0, letterSpacing: "-1.2px",
+        <p style={{
+          fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.55)",
+          margin: "0 0 6px", letterSpacing: "0.5px", textTransform: "uppercase",
         }}>
           Finances for
-        </h1>
-        <div style={{
-          height: 52, overflow: "hidden",
-          position: "relative", marginTop: 2,
-        }}>
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {WORKER_TYPES.map((type, i) => (
-            <span key={type} style={{
-              position: "absolute", left: 0, top: 0,
-              fontSize: 42, fontWeight: 900,
-              color: CYAN, letterSpacing: "-1.2px",
-              lineHeight: 1.08,
-              opacity: 0,
-              animation: `cycleWord ${CYCLE_DURATION}s ${i * WORD_DURATION}s infinite`,
-              whiteSpace: "nowrap",
-            }}>
-              {type}
-            </span>
+            <div key={type} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{
+                width: 6, height: 6, borderRadius: "50%",
+                background: CYAN, flexShrink: 0,
+                marginTop: 2,
+              }} />
+              <span style={{
+                fontSize: 28, fontWeight: 800, color: i === 0 ? "#fff" : CYAN,
+                letterSpacing: "-0.8px", lineHeight: 1.15,
+              }}>
+                {type}{i < WORKER_TYPES.length - 1 ? "," : "."}
+              </span>
+            </div>
           ))}
         </div>
       </div>
@@ -63,7 +50,7 @@ export function AppStoreSlide1() {
       <div style={{
         flex: 1,
         display: "flex", justifyContent: "center", alignItems: "flex-start",
-        paddingTop: 12, position: "relative",
+        paddingTop: 14, position: "relative",
       }}>
         <div style={{
           position: "absolute", top: "6%", left: "50%",
