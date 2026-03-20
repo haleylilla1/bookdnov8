@@ -133,7 +133,6 @@ export function GigGapScreen() {
         .gig-slider.pulsing::-webkit-slider-thumb { animation: sliderPulse 1.5s ease-in-out infinite; }
         .gig-slider.pulsing::-moz-range-thumb    { animation: sliderPulse 1.5s ease-in-out infinite; }
       `}</style>
-
       <div style={{ flex: 1, overflowY: "auto", padding: "52px 24px 24px", boxSizing: "border-box" }}>
         <ProgressDots />
 
@@ -155,9 +154,7 @@ export function GigGapScreen() {
         <p style={{
           fontSize: 13, color: "#4b5563", lineHeight: 1.5,
           margin: "0 0 18px", fontFamily: "'Montserrat', sans-serif",
-        }}>
-          Enter your typical miles and expenses — see exactly what you could deduct this year.
-        </p>
+        }}>Enter your typical miles and expenses. See what you could potentially deduct this year by tracking.</p>
 
         {/* Two sliders card */}
         <div style={{
@@ -183,24 +180,24 @@ export function GigGapScreen() {
         {/* Hero deduction number */}
         <div style={{
           background: CORAL_BG, border: `1px solid ${CORAL_BORDER}`,
-          borderRadius: 18, padding: "20px 20px 16px",
+          borderRadius: 18, padding: "18px 20px 14px",
           marginBottom: 14, textAlign: "center",
         }}>
           <div style={{
             fontSize: 11, fontWeight: 700, color: CORAL_TEXT,
             textTransform: "uppercase", letterSpacing: "0.08em",
-            marginBottom: 6, fontFamily: "'Montserrat', sans-serif",
-          }}>Total monthly deduction</div>
+            marginBottom: 4, fontFamily: "'Montserrat', sans-serif",
+          }}>Annual deduction value</div>
           <div style={{
-            fontSize: 56, fontWeight: 800, color: CORAL_TEXT,
+            fontSize: 58, fontWeight: 800, color: CORAL_TEXT,
             lineHeight: 1, fontFamily: "'Poppins', sans-serif",
             marginBottom: 4,
-          }}>{formatDollar(totalMonthly)}</div>
+          }}>{formatDollar(totalAnnual)}</div>
           <div style={{
-            fontSize: 14, color: CORAL_TEXT, opacity: 0.75,
+            fontSize: 13, color: CORAL_TEXT, opacity: 0.65,
             fontFamily: "'Montserrat', sans-serif",
           }}>
-            {formatDollar(totalAnnual)}<span style={{ fontSize: 12 }}> /year</span>
+            {formatDollar(totalMonthly)} per month
           </div>
         </div>
 
@@ -249,24 +246,18 @@ export function GigGapScreen() {
           Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. Expense deduction reflects the amount you entered. These are deduction values, not tax savings — actual tax savings depend on your rate and filing status.
         </p>
       </div>
-
       {/* Pinned CTA */}
       <div style={{ padding: "12px 24px 36px", background: "#fff", boxSizing: "border-box" }}>
         <button style={{
           width: "100%", background: NAVY, border: "none",
-          borderRadius: 100, padding: "14px 20px 12px",
-          cursor: "pointer", display: "flex",
-          flexDirection: "column", alignItems: "center", gap: 3,
+          borderRadius: 100, padding: "15px 20px",
+          cursor: "pointer", textAlign: "center",
         }}>
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
-            Bookd tracks all of this automatically →
-          </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "'Montserrat', sans-serif" }}>
-            Log a gig in 90 seconds. Download your full report at tax time.
+            Continue →
           </span>
         </button>
       </div>
-
       <HomeIndicator />
     </div>
   );

@@ -5,18 +5,22 @@ const CYAN = "#00b4d8";
 const CORAL = "#D84C2A";
 const CORAL_BG = "#FFF5F3";
 const CORAL_BORDER = "#FFE0DA";
-const MISSED_COLOR = "#475569";
+const SLATE = "#475569";
 
-const MIN = 500;
-const MAX = 10000;
-const DEFAULT = 2500;
+const MILES_MIN = 0;
+const MILES_MAX = 500;
+const MILES_DEFAULT = 100;
+const MILES_STEP = 10;
+
+const EXP_MIN = 0;
+const EXP_MAX = 500;
+const EXP_DEFAULT = 150;
+const EXP_STEP = 10;
+
+const IRS_RATE = 0.725;
 
 function fmt(val: number) {
-  return `$${val.toLocaleString()}`;
-}
-
-function fmtShort(val: number) {
-  return val >= 1000 ? `$${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k` : `$${val}`;
+  return `$${Math.round(val).toLocaleString()}`;
 }
 
 function ProgressDots() {
@@ -44,20 +48,21 @@ function HomeIndicator() {
 }
 
 export function GigGapScreenC() {
-  const [income, setIncome] = useState(DEFAULT);
-  const [pulsing, setPulsing] = useState(true);
+  const [miles, setMiles] = useState(MILES_DEFAULT);
+  const [expenses, setExpenses] = useState(EXP_DEFAULT);
+  const [milesPulsing, setMilesPulsing] = useState(true);
+  const [expPulsing, setExpPulsing] = useState(false);
 
-  const miles = Math.round((income / 1000) * 44);
-  const mileageDeduction = Math.round(miles * 0.725);
-  const businessExpenses = Math.round(income * 0.05);
-  const monthlyMissed = mileageDeduction + businessExpenses;
-  const annualMissed = monthlyMissed * 12;
-  const annualIncome = income * 12;
+  const mileageDeduction = miles * IRS_RATE;
+  const totalMonthly = mileageDeduction + expenses;
+  const totalAnnual = totalMonthly * 12;
 
-  const missedPct = Math.round((annualMissed / annualIncome) * 100);
-  const keptPct = 100 - missedPct;
+  const milesPct = ((miles - MILES_MIN) / (MILES_MAX - MILES_MIN)) * 100;
+  const expPct = ((expenses - EXP_MIN) / (EXP_MAX - EXP_MIN)) * 100;
 
-  const sliderPct = ((income - MIN) / (MAX - MIN)) * 100;
+  const totalForBar = mileageDeduction + expenses;
+  const mileageBarPct = totalForBar > 0 ? Math.round((mileageDeduction / totalForBar) * 100) : 50;
+  const expBarPct = 100 - mileageBarPct;
 
   return (
     <div style={{
@@ -84,102 +89,109 @@ export function GigGapScreenC() {
         <ProgressDots />
 
         <p style={{ fontSize: 11, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px", fontFamily: "'Montserrat', sans-serif" }}>
-          Your Gig Gap
+          Your Deductions
         </p>
 
         <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, lineHeight: 1.25, margin: "0 0 6px" }}>
-          Of every dollar you earn,{" "}
-          <span style={{ color: CYAN }}>this much disappears.</span>
+          Here's where your{" "}
+          <span style={{ color: CYAN }}>deductions come from.</span>
         </h1>
-        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 18px", lineHeight: 1.5, fontFamily: "'Montserrat', sans-serif" }}>
-          Drag to see your personal gig gap.
+        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 16px", lineHeight: 1.5, fontFamily: "'Montserrat', sans-serif" }}>
+          Drag both sliders — see your breakdown live.
         </p>
 
-        {/* Income slider card */}
-        <div style={{ background: "#f8fafc", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 18px 14px", marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "'Montserrat', sans-serif" }}>Monthly income</span>
-            <span style={{ fontSize: 26, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(income)}</span>
+        {/* Two sliders card */}
+        <div style={{ background: "#f8fafc", border: `1.5px solid ${CYAN}`, borderRadius: 16, padding: "16px 18px 14px", marginBottom: 14 }}>
+          {/* Miles slider */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "'Montserrat', sans-serif" }}>Miles to gigs</span>
+              <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
+            </div>
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "#d1d5db", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${milesPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+              <input
+                type="range" min={MILES_MIN} max={MILES_MAX} step={MILES_STEP} value={miles}
+                className={`slider-c${milesPulsing ? " pulse" : ""}`}
+                onChange={(e) => { setMiles(Number(e.target.value)); setMilesPulsing(false); }}
+                style={{ position: "relative", zIndex: 1, background: "transparent" }}
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontFamily: "'Montserrat', sans-serif" }}>0 mi</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontFamily: "'Montserrat', sans-serif" }}>500 mi</span>
+            </div>
           </div>
-          <div style={{ position: "relative", marginBottom: 6 }}>
-            <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "#d1d5db", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${sliderPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
-            <input
-              type="range" min={MIN} max={MAX} step={100} value={income}
-              className={`slider-c${pulsing ? " pulse" : ""}`}
-              onChange={(e) => { setIncome(Number(e.target.value)); setPulsing(false); }}
-              style={{ position: "relative", zIndex: 1, background: "transparent" }}
-            />
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            {[500, 3000, 5000, 8000, 10000].map((v) => (
-              <span key={v} style={{ fontSize: 10, color: "#9ca3af", fontFamily: "'Montserrat', sans-serif" }}>{fmtShort(v)}</span>
-            ))}
+
+          <div style={{ borderTop: "1px solid #e5e7eb", marginBottom: 14 }} />
+
+          {/* Expenses slider */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "'Montserrat', sans-serif" }}>Work expenses</span>
+              <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
+            </div>
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "#d1d5db", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${expPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+              <input
+                type="range" min={EXP_MIN} max={EXP_MAX} step={EXP_STEP} value={expenses}
+                className={`slider-c${expPulsing ? " pulse" : ""}`}
+                onChange={(e) => { setExpenses(Number(e.target.value)); setExpPulsing(false); }}
+                style={{ position: "relative", zIndex: 1, background: "transparent" }}
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontFamily: "'Montserrat', sans-serif" }}>$0</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontFamily: "'Montserrat', sans-serif" }}>$500</span>
+            </div>
           </div>
         </div>
 
-        {/* Split bar — navy (kept) vs slate (missed), no aggressive colors */}
-        <div style={{ marginBottom: 16 }}>
+        {/* Split bar — mileage (navy) vs expenses (slate) */}
+        <div style={{ marginBottom: 14 }}>
           <div style={{ display: "flex", height: 40, borderRadius: 12, overflow: "hidden", marginBottom: 8 }}>
-            <div style={{ flex: keptPct, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{keptPct}% kept</span>
+            <div style={{ flex: mileageBarPct, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease", minWidth: mileageBarPct < 10 ? 0 : undefined }}>
+              {mileageBarPct >= 15 && <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{mileageBarPct}% miles</span>}
             </div>
-            <div style={{ flex: missedPct, background: MISSED_COLOR, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{missedPct}% gone</span>
+            <div style={{ flex: expBarPct, background: SLATE, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s ease", minWidth: expBarPct < 10 ? 0 : undefined }}>
+              {expBarPct >= 15 && <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{expBarPct}% expenses</span>}
             </div>
           </div>
           <div style={{ display: "flex", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div style={{ width: 10, height: 10, borderRadius: 2, background: NAVY }} />
-              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>You keep</span>
+              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>Mileage</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, background: MISSED_COLOR }} />
-              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>Unclaimed deductions</span>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: SLATE }} />
+              <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "'Montserrat', sans-serif" }}>Expenses</span>
             </div>
           </div>
         </div>
 
-        {/* Monthly + Annually — same style as original A */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-          {[{ label: "Monthly", val: monthlyMissed }, { label: "Annually", val: annualMissed }].map(({ label, val }) => (
-            <div key={label} style={{ flex: 1, background: CORAL_BG, border: `1px solid ${CORAL_BORDER}`, borderRadius: 14, padding: "14px 12px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: CORAL, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontFamily: "'Montserrat', sans-serif" }}>{label}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: CORAL, lineHeight: 1.1, marginBottom: 2, fontFamily: "'Poppins', sans-serif" }}>{fmt(val)}</div>
-              <div style={{ fontSize: 12, color: CORAL, opacity: 0.7, fontFamily: "'Montserrat', sans-serif" }}>typically missed</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Breakdown */}
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
-          {[
-            { title: "Mileage", sub: `~${miles.toLocaleString()} mi/mo · $0.725/mi`, mo: mileageDeduction, yr: mileageDeduction * 12, subColor: "#9ca3af" },
-            { title: "Business expenses", sub: "Parking, supplies, equipment", mo: businessExpenses, yr: businessExpenses * 12, subColor: CYAN },
-          ].map(({ title, sub, mo, yr, subColor }, i) => (
-            <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
-                <div style={{ fontSize: 12, color: subColor, marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{sub}</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(mo)}/mo</div>
-                <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{fmt(yr)}/yr</div>
-              </div>
-            </div>
-          ))}
+        {/* Annual + monthly summary */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+          <div style={{ flex: 2, background: CORAL_BG, border: `1px solid ${CORAL_BORDER}`, borderRadius: 14, padding: "14px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: CORAL, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontFamily: "'Montserrat', sans-serif" }}>Per year</div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: CORAL, lineHeight: 1.1, fontFamily: "'Poppins', sans-serif" }}>{fmt(totalAnnual)}</div>
+          </div>
+          <div style={{ flex: 1, background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: 14, padding: "14px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontFamily: "'Montserrat', sans-serif" }}>Per month</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: NAVY, lineHeight: 1.1, fontFamily: "'Poppins', sans-serif" }}>{fmt(totalMonthly)}</div>
+          </div>
         </div>
 
         <p style={{ fontSize: 10, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 8px", padding: "0 4px", fontFamily: "'Montserrat', sans-serif" }}>
-          Mileage estimated at 44 mi per $1,000 earned × $0.725/mi (2026 IRS rate). Expenses estimated at 5% of income. Estimates only — results vary.
+          Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. Expense deduction reflects the amount you entered. These are deduction values, not tax savings — actual tax savings depend on your rate and filing status.
         </p>
       </div>
 
       {/* Pinned CTA */}
       <div style={{ padding: "10px 24px 36px", background: "#fff" }}>
-        <button style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "14px 20px 12px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>Save more money with Bookd →</span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "'Montserrat', sans-serif" }}>Set up Bookd and start keeping what you earned</span>
+        <button style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", textAlign: "center" }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>Continue →</span>
         </button>
       </div>
 

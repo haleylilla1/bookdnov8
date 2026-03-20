@@ -275,7 +275,7 @@ export function WarmUpScreen() {
             color: "rgba(255,255,255,0.6)",
             marginTop: 3,
             fontFamily: "'Montserrat', sans-serif",
-          }}>We only notify you when it matters — no spam, ever</div>
+          }}>We only notify you when it matters. No spam, ever.</div>
         </button>
 
         {/* Home indicator */}
