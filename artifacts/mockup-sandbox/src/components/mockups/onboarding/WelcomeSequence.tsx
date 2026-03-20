@@ -209,7 +209,7 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
         </div>
 
         <div style={{ paddingTop: 20, paddingBottom: 36 }}>
-          <NavyButton label="Continue →" onClick={onAdvance} />
+          <NavyButton label="See how →" onClick={onAdvance} />
         </div>
       </div>
 
@@ -262,7 +262,7 @@ function Screen3({ onAdvance }: { onAdvance: () => void }) {
         </div>
 
         <div style={{ paddingTop: 20, paddingBottom: 36 }}>
-          <NavyButton label="Continue →" onClick={onAdvance} />
+          <NavyButton label="See how →" onClick={onAdvance} />
         </div>
       </div>
 
