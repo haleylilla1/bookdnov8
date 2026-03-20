@@ -14,10 +14,10 @@ function HomeIndicator() {
 }
 
 const STATIC_CHECK_ITEMS = [
-  "Automatic mileage tracking",
-  "Income & expense logging",
-  "Tax estimate calculator",
-  "Downloadable 1099 report",
+  "Every mile logged = money back at tax time",
+  "Log a gig in 90 seconds — nothing left behind",
+  "Know your tax bill all year, not just in April",
+  "One-tap 1099 report — no accountant required",
 ];
 
 export function PaywallScreen() {
