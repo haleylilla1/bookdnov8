@@ -92,9 +92,7 @@ export function WarmUpScreen() {
           color: "#555",
           lineHeight: 1.55,
           margin: "0 0 18px",
-        }}>
-          The data is clear — late and missing payments are the norm for independent workers.
-        </p>
+        }}>The data is clear. Late and missing payments are the norm for independent workers.</p>
 
         {/* Stat Cards */}
         {/* Top row: two side by side */}
