@@ -188,16 +188,15 @@ function Screen2({ onAdvance }: { onAdvance: () => void }) {
             fontFamily: "'Poppins', sans-serif", fontWeight: 800,
             fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
           }}>
-            Independent workers miss{" "}
-            <span style={{ color: AQUA }}>thousands</span>
-            {" "}in deductions every year.
+            Tracking mileage and expenses can save{" "}
+            <span style={{ color: AQUA }}>more than you think.</span>
           </h2>
 
           <p style={{
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            Not because they don't qualify — because nothing was organized enough to claim it.
+            Bookd helps with that.
           </p>
 
           <p style={{
