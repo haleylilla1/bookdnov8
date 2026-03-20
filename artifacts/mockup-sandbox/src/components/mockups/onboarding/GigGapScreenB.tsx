@@ -21,6 +21,14 @@ function fmt(val: number) {
   return `$${Math.round(val).toLocaleString()}`;
 }
 
+function fmtCents(val: number) {
+  const rounded = Math.round(val * 100) / 100;
+  const whole = Math.floor(rounded);
+  const cents = Math.round((rounded - whole) * 100);
+  if (cents === 0) return `$${whole.toLocaleString()}`;
+  return `$${whole.toLocaleString()}.${String(cents).padStart(2, "0")}`;
+}
+
 function ProgressDots() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
@@ -99,7 +107,7 @@ export function GigGapScreenB() {
             {fmt(totalAnnual)}
           </div>
           <p style={{ fontSize: 13, color: CYAN, margin: "0 0 18px", fontFamily: "'Montserrat', sans-serif" }}>
-            {fmt(totalMonthly)} per month
+            {fmtCents(totalMonthly)} per month
           </p>
 
           {/* Miles slider */}
@@ -159,7 +167,7 @@ export function GigGapScreenB() {
                 <div style={{ fontSize: 11, color: subColor, marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{sub}</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmt(mo)}/mo</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmtCents(mo)}/mo</div>
                 <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2, fontFamily: "'Montserrat', sans-serif" }}>{fmt(mo * 12)}/yr</div>
               </div>
             </div>
