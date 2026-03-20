@@ -78,7 +78,6 @@ export function GigGapScreenB() {
         .slider-b.pulse::-webkit-slider-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
         .slider-b.pulse::-moz-range-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
       `}</style>
-
       <div style={{ flex: 1, overflowY: "auto", padding: "52px 24px 24px", boxSizing: "border-box" }}>
         <ProgressDots />
 
@@ -106,7 +105,7 @@ export function GigGapScreenB() {
           {/* Miles slider */}
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em", fontFamily: "'Montserrat', sans-serif" }}>Miles to gigs</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em", fontFamily: "'Montserrat', sans-serif" }}>Miles to gigs each month</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
             </div>
             <div style={{ position: "relative" }}>
@@ -171,14 +170,12 @@ export function GigGapScreenB() {
           Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. Expense deduction reflects the amount you entered. These are deduction values, not tax savings — actual tax savings depend on your rate and filing status.
         </p>
       </div>
-
       {/* Pinned CTA */}
       <div style={{ padding: "10px 24px 36px", background: "#fff" }}>
         <button style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", textAlign: "center" }}>
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>Continue →</span>
         </button>
       </div>
-
       <HomeIndicator />
     </div>
   );
