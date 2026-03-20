@@ -131,33 +131,34 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
         .slider-b.pulse::-moz-range-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
       `}</style>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "52px 24px 24px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "36px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
         {showDots && <ProgressDots total={6} current={dotsIndex ?? 3} />}
 
-        <p style={{ fontSize: 11, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px" }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 6px" }}>
           Your Deductions
         </p>
 
-        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, lineHeight: 1.25, margin: "0 0 18px" }}>
-          See exactly what you{" "}
-          <span style={{ color: CYAN }}>could be keeping by tracking everything.</span>
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 18, color: NAVY, lineHeight: 1.3, margin: "0 0 12px" }}>
+          See what you{" "}
+          <span style={{ color: CYAN }}>could be keeping</span>
+          {" "}by tracking everything.
         </h1>
 
         {/* Navy hero card */}
-        <div style={{ background: NAVY, borderRadius: 22, padding: "20px 20px 18px", marginBottom: 14 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px" }}>your potential annual deductions</p>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 52, color: "#fff", lineHeight: 1, margin: "0 0 2px" }}>
+        <div style={{ background: NAVY, borderRadius: 20, padding: "16px 18px 14px", marginBottom: 10 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>potential annual deductions</p>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 40, color: "#fff", lineHeight: 1, margin: "0 0 2px" }}>
             {fmt(totalAnnual)}
           </div>
-          <p style={{ fontSize: 13, color: CYAN, margin: "0 0 18px" }}>
+          <p style={{ fontSize: 12, color: CYAN, margin: "0 0 14px" }}>
             {fmtCents(totalMonthly)} per month
           </p>
 
           {/* Miles slider */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business miles</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business miles</span>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
             </div>
             <div style={{ position: "relative" }}>
               <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
@@ -177,9 +178,9 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
 
           {/* Expenses slider */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business expenses</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business expenses</span>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
             </div>
             <div style={{ position: "relative" }}>
               <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
@@ -199,26 +200,26 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
         </div>
 
         {/* Breakdown */}
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", marginBottom: 8 }}>
           {[
             { title: "Mileage", sub: `${miles} mi × $${IRS_RATE}/mi (IRS 2026 rate)`, mo: mileageDeduction, subColor: "#9ca3af" },
             { title: "Business expenses", sub: "Phone, equipment, parking, supplies", mo: expenses, subColor: CYAN },
           ].map(({ title, sub, mo, subColor }, i) => (
-            <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
+            <div key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderBottom: i === 0 ? "1px solid #f3f4f6" : "none" }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
-                <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>{sub}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", fontFamily: "'Poppins', sans-serif" }}>{title}</div>
+                <div style={{ fontSize: 10, color: subColor, marginTop: 1 }}>{sub}</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmtCents(mo)}/mo</div>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{fmt(mo * 12)}/yr</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{fmtCents(mo)}/mo</div>
+                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{fmt(mo * 12)}/yr</div>
               </div>
             </div>
           ))}
         </div>
 
-        <p style={{ fontSize: 10, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 8px", padding: "0 4px" }}>
-          Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. Expense deduction reflects the amount you entered. These are deduction values, not tax savings. Actual tax savings depend on your rate and filing status.
+        <p style={{ fontSize: 9, color: "#b0b0b0", textAlign: "center", lineHeight: 1.55, margin: "0 0 6px", padding: "0 4px" }}>
+          Mileage deduction uses the 2026 IRS standard rate of $0.725/mile. These are deduction values, not tax savings. Actual savings depend on your rate and filing status.
         </p>
       </div>
 
@@ -431,31 +432,36 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       fontFamily: "'Montserrat', sans-serif",
     }}>
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 26px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "44px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
           <ProgressDots total={6} current={5} />
         </div>
 
-        <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <h1 style={{ fontSize: 30, fontWeight: 900, color: NAVY, margin: 0, lineHeight: 1.1, fontFamily: "'Poppins', sans-serif", letterSpacing: "-0.01em" }}>
-            Everything You'll Get
-          </h1>
-        </div>
+        <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
+          What's included
+        </p>
+
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY, margin: "0 0 4px", lineHeight: 1.2, fontFamily: "'Poppins', sans-serif" }}>
+          Everything You'll Get
+        </h1>
+        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 24px", lineHeight: 1.5 }}>
+          All the tools you need to keep more of what you earn.
+        </p>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           {FEATURES.map((f, i) => (
             <div key={i}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingBottom: 18 }}>
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#E0F7FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingBottom: 14 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: "#E0F7FF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                   {f.icon}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif", marginBottom: 3, lineHeight: 1.3 }}>{f.title}</div>
-                  <div style={{ fontSize: 12.5, color: "#6b7280", lineHeight: 1.5 }}>{f.body}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif", marginBottom: 2, lineHeight: 1.3 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>{f.body}</div>
                 </div>
               </div>
               {i < FEATURES.length - 1 && (
-                <div style={{ height: 1, background: "#f0f0f4", marginBottom: 18 }} />
+                <div style={{ height: 1, background: "#f0f0f4", marginBottom: 14 }} />
               )}
             </div>
           ))}
@@ -463,10 +469,10 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       </div>
 
       {/* Pinned CTA */}
-      <div style={{ padding: "10px 26px", paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", flexShrink: 0, maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+      <div style={{ padding: "10px 24px", paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", flexShrink: 0, maxWidth: "390px", width: "100%", margin: "0 auto" }}>
         <button
           onClick={onNext}
-          style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
             Continue →
