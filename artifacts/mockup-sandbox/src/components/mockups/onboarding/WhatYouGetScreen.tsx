@@ -125,7 +125,7 @@ export function WhatYouGetScreen() {
             lineHeight: 1.1, fontFamily: "'Poppins', sans-serif",
             letterSpacing: "-0.01em",
           }}>
-            What you get<br />with Bookd
+            Everything You'll Get
           </h1>
         </div>
 
