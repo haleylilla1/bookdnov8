@@ -47,7 +47,7 @@ interface OnboardingFlowProps {
   onClose: () => void;
 }
 
-type Step = "address" | "tax" | "gig-types" | "gig-gap" | "warm-up" | "what-you-get" | "paywall";
+type Step = "address" | "tax" | "gig-types" | "gig-gap" | "warm-up" | "what-you-get" | "goals" | "paywall";
 
 interface SetupData {
   homeAddress: string;
@@ -132,7 +132,7 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
       `}</style>
 
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
-        {showDots && <ProgressDots total={6} current={dotsIndex ?? 3} />}
+        {showDots && <ProgressDots total={7} current={dotsIndex ?? 3} />}
 
         <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 6px" }}>
           Your Deductions
@@ -263,7 +263,7 @@ function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
     }}>
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <ProgressDots total={6} current={4} />
+        <ProgressDots total={7} current={4} />
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>
           Don't Let Them Forget You
         </p>
@@ -440,7 +440,7 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
         {/* Header block */}
         <div style={{ flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-            <ProgressDots total={6} current={5} />
+            <ProgressDots total={7} current={5} />
           </div>
 
           <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
@@ -658,6 +658,87 @@ export function GigGapStep({ onComplete }: { onComplete: () => void }) {
 }
 
 /* ────────────────────────────────────────
+   Goals Step
+──────────────────────────────────────── */
+const GOAL_OPTIONS = [
+  { id: "income",  label: "Track income & expenses",    sub: "Know exactly what I'm making after every gig" },
+  { id: "taxes",   label: "Maximize my tax deductions", sub: "Keep more of what I earn — legally" },
+  { id: "paid",    label: "Get paid on time",           sub: "Stop chasing clients for money I've already earned" },
+  { id: "mileage", label: "Track business mileage",     sub: "Never miss a deductible mile or drive" },
+  { id: "season",  label: "Prepare for tax season",     sub: "Stay organized all year so April isn't a nightmare" },
+  { id: "clarity", label: "Understand my true earnings",sub: "See net income after expenses, taxes, and miles" },
+];
+
+function GoalsStep({ onNext }: { onNext: (goals: string[]) => void }) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  function toggle(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const isReady = selected.size > 0;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, backgroundColor: "#ffffff", zIndex: 9999, display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top, 0px)", fontFamily: "'Montserrat', sans-serif" }}>
+      <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <ProgressDots total={7} current={6} />
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>Your Goals</p>
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 24, color: NAVY, lineHeight: 1.25, margin: "0 0 10px" }}>
+          What do you want <span style={{ color: CYAN }}>to improve</span> most?
+        </h1>
+        <p style={{ fontSize: 13, color: "#555", lineHeight: 1.55, margin: "0 0 18px" }}>
+          Pick everything that applies — we'll make sure Bookd works for your situation.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+          {GOAL_OPTIONS.map((opt) => {
+            const isOn = selected.has(opt.id);
+            return (
+              <button key={opt.id} onClick={() => toggle(opt.id)} style={{
+                background: isOn ? "#EAF9FF" : "#fff",
+                border: `1.5px solid ${isOn ? CYAN : "#E8EBF0"}`,
+                borderRadius: 14, padding: "14px 16px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box",
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 3 }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: "#8A93A8" }}>{opt.sub}</div>
+                </div>
+                <div style={{ width: 26, height: 26, borderRadius: 6, border: `2px solid ${isOn ? CYAN : "#D1D5DB"}`, backgroundColor: isOn ? CYAN : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 12 }}>
+                  {isOn && (
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <path d="M2.5 6.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{ padding: "10px 22px", paddingBottom: "calc(16px + env(safe-area-inset-bottom, 0px))", flexShrink: 0, background: "#fff", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <button onClick={() => isReady && onNext(Array.from(selected))} style={{
+          width: "100%", background: isReady ? NAVY : "#e5e7eb",
+          borderRadius: 100, border: "none", padding: "13px 24px",
+          cursor: isReady ? "pointer" : "default",
+          boxShadow: isReady ? "0 4px 16px rgba(3,4,94,0.22)" : "none",
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: isReady ? "#fff" : "#9ca3af", lineHeight: 1.3, fontFamily: "'Poppins', sans-serif" }}>Let's get started →</div>
+          <div style={{ fontSize: 10, color: isReady ? "rgba(255,255,255,0.6)" : "#c0c0c0", marginTop: 3 }}>
+            {isReady ? `${selected.size} goal${selected.size > 1 ? "s" : ""} selected — we've got you` : "Select at least one goal to continue"}
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────
    Main OnboardingFlow
 ──────────────────────────────────────── */
 export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowProps) {
@@ -788,7 +869,23 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
   /* ── What You Get ── */
   if (step === "what-you-get") {
-    return <WhatYouGetStep onNext={() => setStep("paywall")} />;
+    return <WhatYouGetStep onNext={() => setStep("goals")} />;
+  }
+
+  /* ── Goals ── */
+  if (step === "goals") {
+    return (
+      <GoalsStep
+        onNext={async (goals) => {
+          try {
+            await apiRequest("POST", "/api/user/setup", { onboardingGoals: goals.join(",") });
+          } catch {
+            // non-blocking — continue to paywall even if save fails
+          }
+          setStep("paywall");
+        }}
+      />
+    );
   }
 
   /* ── Paywall ── */
@@ -801,7 +898,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     return (
       <div style={containerStyle}>
         <div style={innerStyle}>
-          <ProgressDots total={6} current={0} />
+          <ProgressDots total={7} current={0} />
 
           <div style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "#e0f7fa", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -872,7 +969,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     return (
       <div style={containerStyle}>
         <div style={innerStyle}>
-          <ProgressDots total={6} current={1} />
+          <ProgressDots total={7} current={1} />
 
           <div style={{ marginBottom: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 2 of 3</span>
@@ -962,7 +1059,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     return (
       <div ref={containerRef} style={containerStyle}>
         <div style={{ ...innerStyle, paddingBottom: otherFocused ? "360px" : "48px" }}>
-          <ProgressDots total={6} current={2} />
+          <ProgressDots total={7} current={2} />
 
           <div style={{ marginBottom: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 3 of 3</span>

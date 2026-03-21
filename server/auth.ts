@@ -440,7 +440,7 @@ export function setupAuthRoutes(app: Express): void {
   // REGISTER
   app.post('/api/auth/register', authRateLimit, async (req: Request, res: Response) => {
     try {
-      const { email, password, name } = req.body;
+      const { email, password, name, phone } = req.body;
 
       // Input validation
       if (!email || !password || !name) {
@@ -482,6 +482,9 @@ export function setupAuthRoutes(app: Express): void {
       }
 
       const user = await Auth.createUser(sanitizedEmail, password, sanitizedName);
+      if (phone && typeof phone === 'string' && phone.trim()) {
+        await db.update(users).set({ phone: phone.trim() }).where(eq(users.id, user.id));
+      }
       const sessionId = await Auth.createSession(user.id, req.ip, req.get('User-Agent'));
 
       // Track user signup in Klaviyo

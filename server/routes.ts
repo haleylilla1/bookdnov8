@@ -449,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/setup', requireAuth, async (req: any, res: Response) => {
     try {
       const userId = getUserId(req);
-      const { name, homeAddress, gigTypes, clientName, defaultTaxPercentage } = req.body;
+      const { name, homeAddress, gigTypes, clientName, defaultTaxPercentage, onboardingGoals } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) {
@@ -482,6 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (updatedGigTypes.length > 0) updateData.customGigTypes = updatedGigTypes;
       updateData.workPreferences = { ...workPreferences, preferredClients: updatedClients };
+      if (onboardingGoals) updateData.onboardingGoals = onboardingGoals;
 
       await storage.updateUser(userId, updateData);
       

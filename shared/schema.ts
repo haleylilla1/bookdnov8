@@ -64,6 +64,7 @@ export const users = pgTable("users", {
   deletedAt: timestamp("deleted_at"),
   emailVerified: boolean("email_verified").default(false),
   onboardingCompleted: boolean("onboarding_completed").default(false),
+  onboardingGoals: text("onboarding_goals"),
   
   // User preferences and notification settings
   notificationPreferences: jsonb("notification_preferences").default({

@@ -235,10 +235,10 @@ export default function AuthPage() {
   if (showWelcome) {
     return (
       <WelcomeSequence
+        showRegistration={true}
         onComplete={() => {
           localStorage.setItem('bookd_welcome_seen', '1');
-          setShowWelcome(false);
-          setIsLogin(false);
+          window.location.href = '/';
         }}
         onLogin={() => {
           localStorage.setItem('bookd_welcome_seen', '1');
