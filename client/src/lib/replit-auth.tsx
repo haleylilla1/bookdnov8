@@ -87,14 +87,16 @@ export function useAuth() {
         console.error('Failed to logout RevenueCat user:', err);
       });
       localStorage.removeItem('bookd_session');
+      localStorage.setItem('bookd_welcome_seen', '1'); // skip intro videos, go straight to login
       queryClient.clear();
-      window.location.href = '/';
+      window.location.href = '/auth';
     },
     onError: () => {
       // Force logout even if API call fails
       localStorage.removeItem('bookd_session');
+      localStorage.setItem('bookd_welcome_seen', '1');
       queryClient.clear();
-      window.location.href = '/';
+      window.location.href = '/auth';
     },
   });
 
@@ -125,6 +127,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
+    // Anyone reaching the AuthGuard has been here before — skip intro videos
+    localStorage.setItem('bookd_welcome_seen', '1');
     // Preserve reset_token param so password reset links still work after redirect
     const params = new URLSearchParams(window.location.search);
     const resetToken = params.get('reset_token');
