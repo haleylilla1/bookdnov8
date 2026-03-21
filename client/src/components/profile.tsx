@@ -185,7 +185,7 @@ function SheetInput({ label, value, onChange, placeholder, type = "text" }: {
 
 type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | "addClient" | null;
 
-export default function Profile({ onDemoComplete }: { onDemoComplete?: () => void }) {
+export default function Profile({ onDemoComplete, isActive }: { onDemoComplete?: () => void; isActive?: boolean }) {
   const { toast } = useToast();
   const { logout } = useAuth();
   const queryClient = useQueryClient();

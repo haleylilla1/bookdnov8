@@ -381,21 +381,6 @@ export default function Home() {
     setTourStep(null);
   };
 
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case "calendar": return <CalendarView onGotPaid={(gig) => {
-        setGotPaidSelectedGig(gig);
-        openGotPaidSheet();
-      }} />;
-      case "dashboard": return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} tourStep={tourStep} onTourNext={handleTourNext} />;
-      case "profile": return <Profile onDemoComplete={startTour} />;
-      case "gig-form": return <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />;
-      case "expense-form": return <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />;
-      case "gig-gap-tool": return <GigGapStep onComplete={() => setCurrentScreen("dashboard")} />;
-      default: return <Dashboard onOpenAddGig={() => setCurrentScreen("gig-form")} onOpenAddExpense={() => setCurrentScreen("expense-form")} tourStep={tourStep} onTourNext={handleTourNext} />;
-    }
-  };
-
   const isMainScreen = currentScreen === "calendar" || currentScreen === "dashboard" || currentScreen === "profile";
 
   return (
@@ -420,16 +405,79 @@ export default function Home() {
       <DesktopSidebar currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
 
       {/* Main Content Area */}
-      <div className="lg:ml-64">
+      <div className="lg:ml-64" style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
         {/* App Header - hidden on desktop */}
-        <div className="lg:hidden">
+        <div className="lg:hidden" style={{ flexShrink: 0 }}>
           <AppHeader currentScreen={currentScreen} onScreenChange={setCurrentScreen} />
         </div>
 
-        {/* Main Content */}
-        <main className="screen-content main-content-area">
-          {renderScreen()}
-        </main>
+        {/* Always-mounted tab screens — instant crossfade on switch */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}>
+          {/* Dashboard */}
+          <div style={{
+            position: "absolute", inset: 0, overflowY: "auto",
+            opacity: currentScreen === "dashboard" ? 1 : 0,
+            pointerEvents: currentScreen === "dashboard" ? "auto" : "none",
+            transition: "opacity 150ms ease",
+            zIndex: currentScreen === "dashboard" ? 1 : 0,
+          }}>
+            <Dashboard
+              isActive={currentScreen === "dashboard"}
+              onOpenAddGig={() => setCurrentScreen("gig-form")}
+              onOpenAddExpense={() => setCurrentScreen("expense-form")}
+              tourStep={tourStep}
+              onTourNext={handleTourNext}
+            />
+          </div>
+
+          {/* Calendar */}
+          <div style={{
+            position: "absolute", inset: 0, overflowY: "auto",
+            opacity: currentScreen === "calendar" ? 1 : 0,
+            pointerEvents: currentScreen === "calendar" ? "auto" : "none",
+            transition: "opacity 150ms ease",
+            zIndex: currentScreen === "calendar" ? 1 : 0,
+          }}>
+            <CalendarView
+              isActive={currentScreen === "calendar"}
+              onGotPaid={(gig) => {
+                setGotPaidSelectedGig(gig);
+                openGotPaidSheet();
+              }}
+            />
+          </div>
+
+          {/* Profile */}
+          <div style={{
+            position: "absolute", inset: 0, overflowY: "auto",
+            opacity: currentScreen === "profile" ? 1 : 0,
+            pointerEvents: currentScreen === "profile" ? "auto" : "none",
+            transition: "opacity 150ms ease",
+            zIndex: currentScreen === "profile" ? 1 : 0,
+          }}>
+            <Profile isActive={currentScreen === "profile"} onDemoComplete={startTour} />
+            <div className="lg:hidden">
+              <LegalFooter className="border-t border-gray-200 bg-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* Overlay screens — full-screen on top of tab layer */}
+        {currentScreen === "gig-form" && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, backgroundColor: "#f5f7f5" }}>
+            <SimpleGigForm onClose={() => setCurrentScreen("dashboard")} />
+          </div>
+        )}
+        {currentScreen === "expense-form" && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, backgroundColor: "#f5f7f5" }}>
+            <AddExpenseForm onClose={() => setCurrentScreen("dashboard")} />
+          </div>
+        )}
+        {currentScreen === "gig-gap-tool" && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, backgroundColor: "#f5f7f5" }}>
+            <GigGapStep onComplete={() => setCurrentScreen("dashboard")} />
+          </div>
+        )}
 
         {/* iOS Bottom Sheet — add menu */}
         {fabOpen && currentScreen !== "profile" && isMainScreen && (
@@ -623,11 +671,6 @@ export default function Home() {
             </div>
           </div>
         )}
-
-        {/* Legal Footer - mobile only */}
-        <div className="lg:hidden">
-          <LegalFooter className="border-t border-gray-200 bg-white" />
-        </div>
 
         {/* Unified bottom bar — FABs always sit exactly above nav, never covered */}
         <div className="lg:hidden" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", zIndex: 50 }}>

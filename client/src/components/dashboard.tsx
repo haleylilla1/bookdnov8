@@ -71,7 +71,7 @@ const cardVariants = {
   },
 };
 
-export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, onTourNext }: { onOpenAddGig?: () => void; onOpenAddExpense?: () => void; tourStep?: number | null; onTourNext?: () => void } = {}) {
+export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, onTourNext, isActive }: { onOpenAddGig?: () => void; onOpenAddExpense?: () => void; tourStep?: number | null; onTourNext?: () => void; isActive?: boolean } = {}) {
   const [, setLocation] = useLocation();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("monthly");
   const [editingGoal, setEditingGoal] = useState<"monthly" | "quarterly" | "annual" | null>(null);
@@ -99,9 +99,19 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
     retry: 1,
   });
 
-  // Debug user authentication
+  // Smart refetch when tab becomes active again
+  const lastDashboardActiveRef = useRef<number>(Date.now());
   useEffect(() => {
-  }, [user, userLoading, userError]);
+    if (!isActive) return;
+    const now = Date.now();
+    const elapsed = now - lastDashboardActiveRef.current;
+    lastDashboardActiveRef.current = now;
+    if (elapsed > 30_000) {
+      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+    }
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper to invalidate all dashboard-related caches
   const invalidateDashboardCaches = () => {

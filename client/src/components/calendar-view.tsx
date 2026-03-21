@@ -50,7 +50,7 @@ const getGigStatusColor = (status: string) => {
 // Helper to get month key for tracking loaded months
 const getMonthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-export default function CalendarView({ onGotPaid }: { onGotPaid?: (gig: Gig) => void } = {}) {
+export default function CalendarView({ onGotPaid, isActive }: { onGotPaid?: (gig: Gig) => void; isActive?: boolean } = {}) {
   const [editingGig, setEditingGig] = useState<(Gig & { isMultiDay?: boolean | null; startDate?: string | null; endDate?: string | null; gigIds?: number[] }) | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,6 +70,22 @@ export default function CalendarView({ onGotPaid }: { onGotPaid?: (gig: Gig) => 
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Smart refetch when calendar tab becomes active again
+  const lastCalendarActiveRef = useRef<number>(Date.now());
+  useEffect(() => {
+    if (!isActive) return;
+    const now = Date.now();
+    const elapsed = now - lastCalendarActiveRef.current;
+    lastCalendarActiveRef.current = now;
+    if (elapsed > 30_000) {
+      setAllGigs([]);
+      setLoadedMonths(new Set());
+      queryClient.removeQueries({ queryKey: ["/api/gigs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+    }
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initial load - fetch recent 50 gigs
   const { data: initialGigsResponse, isLoading } = useQuery<{ gigs: Gig[], total: number }>({
