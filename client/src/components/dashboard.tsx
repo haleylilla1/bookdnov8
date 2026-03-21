@@ -99,21 +99,21 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
     retry: 1,
   });
 
-  // Smart refetch when tab becomes active — invalidate only if cache is actually stale
+  // Smart refetch when tab becomes active — use prefix matching to handle variable query keys
   useEffect(() => {
     if (!isActive) return;
     const STALE_TIME = 30_000; // matches individual query staleTime
-    const keys: string[][] = [
-      ["/api/gigs"],
-      ["/api/dashboard/summary"],
-      ["/api/expenses"],
-    ];
-    const anyStale = keys.some(key => {
-      const state = queryClient.getQueryState(key);
-      return !state?.dataUpdatedAt || Date.now() - state.dataUpdatedAt > STALE_TIME;
+    const queryCache = queryClient.getQueryCache();
+    const prefixes = ["/api/gigs", "/api/dashboard/summary", "/api/expenses"];
+
+    const anyStale = prefixes.some(prefix => {
+      const queries = queryCache.findAll({ queryKey: [prefix] });
+      if (queries.length === 0) return false; // not yet loaded; will auto-fetch naturally
+      return queries.some(q => !q.state.dataUpdatedAt || Date.now() - q.state.dataUpdatedAt > STALE_TIME);
     });
+
     if (anyStale) {
-      keys.forEach(key => queryClient.invalidateQueries({ queryKey: key }));
+      prefixes.forEach(prefix => queryClient.invalidateQueries({ queryKey: [prefix] }));
     }
   }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
