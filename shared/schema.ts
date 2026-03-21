@@ -94,7 +94,15 @@ export const users = pgTable("users", {
   // RevenueCat subscription management
   revenuecatCustomerId: text("revenuecat_customer_id"),
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
-  
+
+  // Legacy agency portal fields — kept to match DB, not actively used
+  bio: text("bio"),
+  headshotUrls: text("headshot_urls").array(),
+  resumeUrl: varchar("resume_url", { length: 500 }),
+  w2Documents: text("w2_documents").array(),
+  emergencyNotifications: boolean("emergency_notifications").default(true),
+  preferredCities: text("preferred_cities").array(),
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
@@ -179,6 +187,10 @@ export const gigs = pgTable("gigs", {
   taxRateUsed: decimal("tax_rate_used", { precision: 6, scale: 2 }),
   taxTreatment: text("tax_treatment"), // 'default', 'custom', 'w2'
   isW2: boolean("is_w2").default(false),
+
+  // Legacy field — kept to match DB, not actively used
+  includeInResume: boolean("include_in_resume").default(true),
+
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   // CRITICAL SCALABILITY INDEXES for 1,000+ users with 10,000+ records each
@@ -261,7 +273,7 @@ export const allocations = pgTable("allocations", {
 
 export const weeklyStats = pgTable("weekly_stats", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull(),
   weekStartDate: date("week_start_date").notNull(), // Monday of the week
   weekEndDate: date("week_end_date").notNull(), // Sunday of the week
   actualEarnings: decimal("actual_earnings", { precision: 10, scale: 2 }).default("0"),
@@ -274,7 +286,7 @@ export const weeklyStats = pgTable("weekly_stats", {
 
 export const monthlyStats = pgTable("monthly_stats", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull(),
   month: integer("month").notNull(), // 1-12
   year: integer("year").notNull(),
   actualEarnings: decimal("actual_earnings", { precision: 10, scale: 2 }).default("0"),
@@ -287,7 +299,7 @@ export const monthlyStats = pgTable("monthly_stats", {
 
 export const yearlyStats = pgTable("yearly_stats", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull(),
   year: integer("year").notNull(),
   actualEarnings: decimal("actual_earnings", { precision: 10, scale: 2 }).default("0"),
   projectedEarnings: decimal("projected_earnings", { precision: 10, scale: 2 }).default("0"),
