@@ -657,7 +657,7 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
               </div>
             )}
 
-            {/* Job Location (Optional) */}
+            {/* Job Location (optional) */}
             <FormField
               control={form.control}
               name="gigAddress"
@@ -708,31 +708,6 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
 
 
 
-            {/* Duties */}
-            <FormField
-              control={form.control}
-              name="duties"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Key Duties</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Event setup, customer interaction, cleanup..."
-                      className="min-h-[60px]"
-                      enterKeyHint="done"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          e.currentTarget.blur();
-                        }
-                      }}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             {/* Status */}
             <FormField
