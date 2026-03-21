@@ -71,12 +71,16 @@ export default function CalendarView({ onGotPaid, isActive }: { onGotPaid?: (gig
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Smart refetch when calendar tab becomes active — invalidate only if cache is actually stale
+  // Smart refetch when calendar tab becomes active — use prefix matching across all gig queries
   useEffect(() => {
     if (!isActive) return;
     const STALE_TIME = 5 * 60 * 1000; // matches initial query staleTime
-    const state = queryClient.getQueryState(["/api/gigs", "initial"]);
-    if (!state?.dataUpdatedAt || Date.now() - state.dataUpdatedAt > STALE_TIME) {
+    const queryCache = queryClient.getQueryCache();
+    const gigQueries = queryCache.findAll({ queryKey: ["/api/gigs"] });
+    // Reset only when all loaded gig queries are stale (or none have been loaded yet)
+    const allStale = gigQueries.length === 0 ||
+      gigQueries.every(q => !q.state.dataUpdatedAt || Date.now() - q.state.dataUpdatedAt > STALE_TIME);
+    if (allStale) {
       setAllGigs([]);
       setLoadedMonths(new Set());
       queryClient.removeQueries({ queryKey: ["/api/gigs"] });
