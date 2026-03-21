@@ -10,6 +10,7 @@ import AppHeader from "@/components/app-header";
 import DesktopSidebar from "@/components/desktop-sidebar";
 import LegalFooter from "@/components/legal-footer";
 import { OnboardingFlow, GigGapStep } from "@/components/onboarding-flow";
+import WelcomeSequence from "@/components/welcome-sequence";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
@@ -240,6 +241,8 @@ function TourOverlay({ step, onNext, onSkip }: {
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showDemoWelcome, setShowDemoWelcome] = useState(false);
+  const [showDemoOnboarding, setShowDemoOnboarding] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [tourStep, setTourStep] = useState<number | null>(null);
   const [pendingTour, setPendingTour] = useState(false);
@@ -392,6 +395,25 @@ export default function Home() {
         onClose={() => setShowOnboarding(false)}
       />
 
+      {/* Demo overlays — rendered at root level so they appear above header/nav */}
+      {showDemoWelcome && (
+        <WelcomeSequence
+          onComplete={() => {
+            setShowDemoWelcome(false);
+            setShowDemoOnboarding(true);
+          }}
+          onLogin={() => setShowDemoWelcome(false)}
+        />
+      )}
+      <OnboardingFlow
+        isOpen={showDemoOnboarding}
+        onComplete={() => {
+          setShowDemoOnboarding(false);
+          startTour();
+        }}
+        onClose={() => setShowDemoOnboarding(false)}
+      />
+
       {/* Tooltip Tour Overlay */}
       {tourStep !== null && (
         <TourOverlay
@@ -455,7 +477,7 @@ export default function Home() {
             transition: "opacity 150ms ease",
             zIndex: currentScreen === "profile" ? 1 : 0,
           }}>
-            <Profile isActive={currentScreen === "profile"} onDemoComplete={startTour} />
+            <Profile isActive={currentScreen === "profile"} onDemoComplete={startTour} onStartDemo={() => setShowDemoWelcome(true)} />
             <div className="lg:hidden">
               <LegalFooter className="border-t border-gray-200 bg-white" />
             </div>

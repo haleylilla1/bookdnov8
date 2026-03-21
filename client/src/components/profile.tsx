@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronRight, Plus, X, LogOut } from "lucide-react";
-import { OnboardingFlow } from "@/components/onboarding-flow";
-import { WelcomeSequence } from "@/components/welcome-sequence";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/lib/replit-auth";
@@ -185,14 +183,12 @@ function SheetInput({ label, value, onChange, placeholder, type = "text" }: {
 
 type EditModal = "name" | "password" | "taxRate" | "homeAddress" | "businessInfo" | "addGigType" | "addClient" | null;
 
-export default function Profile({ onDemoComplete, isActive }: { onDemoComplete?: () => void; isActive?: boolean }) {
+export default function Profile({ onDemoComplete, isActive, onStartDemo }: { onDemoComplete?: () => void; isActive?: boolean; onStartDemo?: () => void }) {
   const { toast } = useToast();
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   const [editModal, setEditModal] = useState<EditModal>(null);
-  const [showOnboardingDemo, setShowOnboardingDemo] = useState(false);
-  const [showWelcomeDemo, setShowWelcomeDemo] = useState(false);
 
   // Field state for each edit modal
   const [editName, setEditName] = useState("");
@@ -351,25 +347,6 @@ export default function Profile({ onDemoComplete, isActive }: { onDemoComplete?:
 
   return (
     <div style={{ padding: "16px", paddingBottom: "120px", backgroundColor: "#f5f7f5", minHeight: "100vh" }}>
-      {showWelcomeDemo && (
-        <WelcomeSequence
-          onComplete={() => {
-            setShowWelcomeDemo(false);
-            setShowOnboardingDemo(true);
-          }}
-          onLogin={() => setShowWelcomeDemo(false)}
-        />
-      )}
-
-      <OnboardingFlow
-        isOpen={showOnboardingDemo}
-        onComplete={() => {
-          setShowOnboardingDemo(false);
-          onDemoComplete?.();
-        }}
-        onClose={() => setShowOnboardingDemo(false)}
-      />
-
       {/* Page Title */}
       <div style={{ marginBottom: "24px", paddingTop: "4px" }}>
         <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.2 }}>Settings</h1>
@@ -497,7 +474,7 @@ export default function Profile({ onDemoComplete, isActive }: { onDemoComplete?:
       {user?.email === 'haleylilla@gmail.com' && (
         <div style={{ marginBottom: "16px" }}>
           <button
-            onClick={() => setShowWelcomeDemo(true)}
+            onClick={() => onStartDemo?.()}
             style={{ width: "100%", padding: "14px", backgroundColor: "#ffffff", color: "#6b7280", border: "1px solid #e5e7eb", borderRadius: "14px", fontSize: "14px", cursor: "pointer" }}
           >
             Demo Onboarding
