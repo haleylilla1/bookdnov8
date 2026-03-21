@@ -6,6 +6,7 @@ export const modules: ModuleMap = {
   "./components/mockups/onboarding/GigGapScreenC.tsx": () => import("../components/mockups/onboarding/GigGapScreenC.tsx"),
   "./components/mockups/onboarding/GigGapScreenGlossy.tsx": () => import("../components/mockups/onboarding/GigGapScreenGlossy.tsx"),
   "./components/mockups/onboarding/PaywallScreen.tsx": () => import("../components/mockups/onboarding/PaywallScreen.tsx"),
+  "./components/mockups/onboarding/RegistrationScreen.tsx": () => import("../components/mockups/onboarding/RegistrationScreen.tsx"),
   "./components/mockups/onboarding/WarmUpScreen.tsx": () => import("../components/mockups/onboarding/WarmUpScreen.tsx"),
   "./components/mockups/onboarding/WelcomeSequence.tsx": () => import("../components/mockups/onboarding/WelcomeSequence.tsx"),
   "./components/mockups/onboarding/WhatYouGetScreen.tsx": () => import("../components/mockups/onboarding/WhatYouGetScreen.tsx"),
