@@ -262,21 +262,20 @@ function Screen4({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
             fontFamily: "'Montserrat', sans-serif",
             textTransform: "uppercase" as const, letterSpacing: "0.12em",
             margin: "0 0 10px",
-          }}>All in One Place</p>
+          }}>Built for You</p>
           <h2 style={{
             fontFamily: "'Poppins', sans-serif", fontWeight: 800,
             fontSize: 22, color: NAVY, lineHeight: 1.2, margin: "0 0 10px",
           }}>
-            Stop guessing what you{" "}
-            <span style={{ color: AQUA }}>actually made.</span>
+            Bookd helps you keep more of the{" "}
+            <span style={{ color: AQUA }}>money you earned.</span>
           </h2>
           <p style={{
             fontSize: 14, fontWeight: 600, color: "#3a3a5c",
             fontFamily: "'Montserrat', sans-serif", lineHeight: 1.5, margin: "0 0 10px",
           }}>
-            Bookd tracks your income, expenses, and miles in one place — so you're always{" "}
-            <span style={{ color: AQUA }}>ready for tax time</span>{" "}
-            and never caught off guard.
+            This app was built with love from freelancers who really <em><span style={{ color: AQUA }}>care</span></em>. Tools for us are often overlooked, so we created something to help track your income, miles, and expenses so you're prepared for tax time.{" "}
+            <span style={{ color: AQUA }}>Thanks for being here!</span>
           </p>
           <p style={{
             fontSize: 9, color: "#bbb", fontStyle: "italic",
