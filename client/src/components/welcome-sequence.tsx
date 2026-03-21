@@ -420,7 +420,7 @@ export function RegistrationStep({ onDone, onLogin }: { onDone: () => void; onLo
         {/* Phone with +1 prefix */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 5, letterSpacing: "0.02em" }}>Phone number <span style={{ color: "#9ca3af", fontWeight: 400 }}>(optional)</span></label>
-          <div style={fieldStyle(false)}>
+          <div style={regFieldStyle(false)}>
             <div style={{ padding: "0 12px", borderRight: "1px solid #e5e7eb", height: 50, display: "flex", alignItems: "center", gap: 6, flexShrink: 0, fontSize: 14, fontWeight: 600, color: "#374151" }}>
               🇺🇸 <span style={{ color: "#9ca3af" }}>+1</span>
             </div>
