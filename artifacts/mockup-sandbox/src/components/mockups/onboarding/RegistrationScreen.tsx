@@ -1,15 +1,33 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
 const ERROR = "#ef4444";
 
+function ProgressDots({ total, current }: { total: number; current: number }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", gap: 7, marginBottom: 28 }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div key={i} style={{
+          width: i === current ? 22 : 8,
+          height: 8,
+          borderRadius: 4,
+          background: i === current ? CYAN : "transparent",
+          border: `2px solid ${i === current ? CYAN : NAVY}`,
+          transition: "all 0.3s ease",
+        }} />
+      ))}
+    </div>
+  );
+}
+
 function Field({
-  label, placeholder, type = "text", value, onChange, prefix, suffix, error,
+  label, placeholder, type = "text", value, onChange, prefix, suffix, error, inputRef, onEnter,
 }: {
   label: string; placeholder: string; type?: string;
   value: string; onChange: (v: string) => void;
   prefix?: React.ReactNode; suffix?: React.ReactNode; error?: string;
+  inputRef?: React.RefObject<HTMLInputElement>; onEnter?: () => void;
 }) {
   const [focused, setFocused] = useState(false);
   const borderColor = error ? ERROR : focused ? CYAN : "#e5e7eb";
@@ -41,12 +59,14 @@ function Field({
           </div>
         )}
         <input
+          ref={inputRef}
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          onKeyDown={(e) => { if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); } }}
           style={{
             flex: 1, height: 50, border: "none", outline: "none",
             padding: "0 14px", fontSize: 15, color: "#111827",
@@ -93,6 +113,11 @@ export function RegistrationScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [touched, setTouched] = useState(false);
 
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+
   const passwordTooShort = password.length > 0 && password.length < 8;
   const passwordMismatch = touched && confirm.length > 0 && password !== confirm;
   const passwordMatch = confirm.length > 0 && password === confirm && password.length >= 8;
@@ -113,34 +138,46 @@ export function RegistrationScreen() {
     }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Montserrat:wght@400;500;600;700&display=swap');`}</style>
 
-      {/* Top safe area */}
-      <div style={{ height: 44, flexShrink: 0 }} />
+      <div style={{ height: 56, flexShrink: 0 }} />
 
-      {/* Scrollable form area */}
-      <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "20px 28px 0", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "0 28px 0", boxSizing: "border-box" }}>
 
-        {/* Real logo */}
-        <img
-          src="/__mockup/bookd-logo.png"
-          alt="bookd"
-          style={{ height: 36, width: "auto", marginBottom: 24, display: "block" }}
-        />
+        <ProgressDots total={7} current={0} />
+
+        <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 6px" }}>
+          Get Started
+        </p>
 
         <h1 style={{
           fontFamily: "'Poppins', sans-serif", fontWeight: 800,
-          fontSize: 26, color: NAVY, lineHeight: 1.2, margin: "0 0 6px",
+          fontSize: 24, color: NAVY, lineHeight: 1.2, margin: "0 0 6px",
         }}>
-          Create your account
+          Create your{" "}
+          <span style={{ color: CYAN }}>account</span>
         </h1>
-        <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 24px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 22px", lineHeight: 1.5 }}>
           Takes about 2 minutes. We'll get you set up right away.
         </p>
 
         {/* Full name */}
-        <Field label="Full name" placeholder="Jane Smith" value={name} onChange={setName} />
+        <Field
+          label="Full name"
+          placeholder="Jane Smith"
+          value={name}
+          onChange={setName}
+          onEnter={() => emailRef.current?.focus()}
+        />
 
         {/* Email */}
-        <Field label="Email address" placeholder="jane@example.com" type="email" value={email} onChange={setEmail} />
+        <Field
+          label="Email address"
+          placeholder="jane@example.com"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          inputRef={emailRef}
+          onEnter={() => phoneRef.current?.focus()}
+        />
 
         {/* Phone */}
         <Field
@@ -149,6 +186,8 @@ export function RegistrationScreen() {
           type="tel"
           value={phone}
           onChange={setPhone}
+          inputRef={phoneRef}
+          onEnter={() => passwordRef.current?.focus()}
           prefix={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🇺🇸 <span style={{ color: "#9ca3af" }}>+1</span></span>}
         />
 
@@ -159,6 +198,8 @@ export function RegistrationScreen() {
           type={showPass ? "text" : "password"}
           value={password}
           onChange={setPassword}
+          inputRef={passwordRef}
+          onEnter={() => confirmRef.current?.focus()}
           error={passwordTooShort ? "Must be at least 8 characters" : undefined}
           suffix={
             <button onClick={() => setShowPass(!showPass)} style={{ background: "none", border: "none", padding: "0 10px", cursor: "pointer", display: "flex", alignItems: "center", height: 50 }}>
@@ -182,10 +223,12 @@ export function RegistrationScreen() {
             overflow: "hidden",
           }}>
             <input
+              ref={confirmRef}
               type={showConfirm ? "text" : "password"}
               placeholder="Re-enter your password"
               value={confirm}
               onChange={(e) => { setConfirm(e.target.value); setTouched(true); }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
               style={{
                 flex: 1, height: 50, border: "none", outline: "none",
                 padding: "0 14px", fontSize: 15, color: "#111827",
@@ -193,25 +236,17 @@ export function RegistrationScreen() {
                 fontFamily: "'Montserrat', sans-serif",
               }}
             />
-            {/* Match indicator */}
-            {confirm.length > 0 && (
-              <div style={{ padding: "0 12px", display: "flex", alignItems: "center" }}>
-                {passwordMatch ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 6L9 17l-5-5" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : (
-                  <button onClick={() => setShowConfirm(!showConfirm)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
-                    <EyeIcon visible={showConfirm} />
-                  </button>
-                )}
-              </div>
-            )}
-            {confirm.length === 0 && (
-              <button onClick={() => setShowConfirm(!showConfirm)} style={{ background: "none", border: "none", padding: "0 10px", cursor: "pointer", display: "flex", alignItems: "center", height: 50 }}>
-                <EyeIcon visible={showConfirm} />
-              </button>
-            )}
+            <div style={{ padding: "0 12px", display: "flex", alignItems: "center" }}>
+              {passwordMatch ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 6L9 17l-5-5" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <button onClick={() => setShowConfirm(!showConfirm)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
+                  <EyeIcon visible={showConfirm} />
+                </button>
+              )}
+            </div>
           </div>
           {passwordMismatch && (
             <p style={{ fontSize: 11, color: ERROR, margin: "4px 0 0 2px", fontFamily: "'Montserrat', sans-serif" }}>

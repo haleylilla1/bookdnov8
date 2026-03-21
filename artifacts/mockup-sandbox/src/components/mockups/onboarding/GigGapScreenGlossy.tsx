@@ -44,7 +44,7 @@ export function GigGapScreenGlossy() {
       `}</style>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "52px 20px 16px", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "56px 20px 16px", boxSizing: "border-box" }}>
 
         {/* Progress dots */}
         <div style={{ display: "flex", gap: 6, marginBottom: 24, justifyContent: "center" }}>

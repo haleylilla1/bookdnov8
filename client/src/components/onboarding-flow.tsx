@@ -120,15 +120,15 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
       fontFamily: "'Montserrat', sans-serif",
     }}>
       <style>{`
-        @keyframes pulse-b {
-          0%,100% { box-shadow: 0 0 0 4px rgba(0,180,216,0.3); }
-          50%      { box-shadow: 0 0 0 12px rgba(0,180,216,0.08); }
+        @keyframes pulse-g {
+          0%,100% { box-shadow: 0 0 0 4px rgba(3,4,94,0.2); }
+          50%      { box-shadow: 0 0 0 12px rgba(3,4,94,0.05); }
         }
-        .slider-b { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px; outline:none; cursor:pointer; border:none; padding:0; background:transparent; }
-        .slider-b::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:${CYAN}; cursor:pointer; border:3px solid rgba(255,255,255,0.25); box-shadow:0 2px 8px rgba(0,0,0,.3); }
-        .slider-b::-moz-range-thumb { width:26px; height:26px; border-radius:50%; background:${CYAN}; cursor:pointer; border:3px solid rgba(255,255,255,0.25); box-shadow:0 2px 8px rgba(0,0,0,.3); }
-        .slider-b.pulse::-webkit-slider-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
-        .slider-b.pulse::-moz-range-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
+        .slider-g { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px; outline:none; cursor:pointer; border:none; padding:0; background:transparent; }
+        .slider-g::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:${NAVY}; cursor:pointer; border:3px solid rgba(255,255,255,0.9); box-shadow:0 2px 8px rgba(3,4,94,.25); }
+        .slider-g::-moz-range-thumb { width:26px; height:26px; border-radius:50%; background:${NAVY}; cursor:pointer; border:3px solid rgba(255,255,255,0.9); box-shadow:0 2px 8px rgba(3,4,94,.25); }
+        .slider-g.pulse::-webkit-slider-thumb { animation: pulse-g 1.5s ease-in-out infinite; }
+        .slider-g.pulse::-moz-range-thumb { animation: pulse-g 1.5s ease-in-out infinite; }
       `}</style>
 
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
@@ -144,57 +144,64 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
           {" "}by tracking everything.
         </h1>
 
-        {/* Navy hero card */}
-        <div style={{ background: NAVY, borderRadius: 20, padding: "16px 18px 14px", marginBottom: 10 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>potential annual deductions</p>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 40, color: "#fff", lineHeight: 1, margin: "0 0 8px" }}>
-            {fmt(totalAnnual)}
-          </div>
-          <p style={{ fontSize: 12, color: CYAN, margin: "0 0 16px" }}>
-            {fmtCents(totalMonthly)} per month
-          </p>
+        {/* Glossy hero card */}
+        <div style={{ position: "relative", background: "linear-gradient(145deg, #ffffff 0%, #e4f6fc 55%, #cdf0f8 100%)", borderRadius: 20, padding: "16px 18px 14px", marginBottom: 10, border: "1.5px solid rgba(255,255,255,0.85)", boxShadow: "0 8px 32px rgba(0,180,216,0.14), 0 2px 8px rgba(3,4,94,0.06), inset 0 1px 0 rgba(255,255,255,0.95)", overflow: "hidden" }}>
+          {/* Glass highlight sheen */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "45%", background: "linear-gradient(to bottom, rgba(255,255,255,0.65) 0%, transparent 100%)", borderRadius: "20px 20px 0 0", pointerEvents: "none", zIndex: 1 }} />
 
-          {/* Miles slider */}
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business miles</span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(3,4,94,0.4)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>potential annual deductions</p>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 40, color: NAVY, lineHeight: 1, margin: "0 0 6px" }}>
+              {fmt(totalAnnual)}
             </div>
-            <div style={{ position: "relative" }}>
-              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${milesPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
-              <input
-                type="range" min={MILES_MIN} max={MILES_MAX} step={MILES_STEP} value={miles}
-                className={`slider-b${milesPulsing ? " pulse" : ""}`}
-                onChange={(e) => { setMiles(Number(e.target.value)); setMilesPulsing(false); }}
-                style={{ position: "relative", zIndex: 1, background: "transparent" }}
-              />
+            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 16px" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,180,216,0.25)" }} />
+              <p style={{ fontSize: 12, color: CYAN, margin: 0, fontWeight: 600 }}>{fmtCents(totalMonthly)} per month</p>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,180,216,0.25)" }} />
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>0 mi</span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>500 mi</span>
-            </div>
-          </div>
 
-          {/* Expenses slider */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business expenses</span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
+            {/* Miles slider */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(3,4,94,0.5)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business miles</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>{miles} mi</span>
+              </div>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(3,4,94,0.1)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${milesPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+                <input
+                  type="range" min={MILES_MIN} max={MILES_MAX} step={MILES_STEP} value={miles}
+                  className={`slider-g${milesPulsing ? " pulse" : ""}`}
+                  onChange={(e) => { setMiles(Number(e.target.value)); setMilesPulsing(false); }}
+                  style={{ position: "relative", zIndex: 1, background: "transparent" }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                <span style={{ fontSize: 10, color: "rgba(3,4,94,0.25)" }}>0 mi</span>
+                <span style={{ fontSize: 10, color: "rgba(3,4,94,0.25)" }}>500 mi</span>
+              </div>
             </div>
-            <div style={{ position: "relative" }}>
-              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.15)", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${expPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
-              <input
-                type="range" min={EXP_MIN} max={EXP_MAX} step={EXP_STEP} value={expenses}
-                className={`slider-b${expPulsing ? " pulse" : ""}`}
-                onChange={(e) => { setExpenses(Number(e.target.value)); setExpPulsing(false); }}
-                style={{ position: "relative", zIndex: 1, background: "transparent" }}
-              />
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>$0</span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>$500</span>
+
+            {/* Expenses slider */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(3,4,94,0.5)", textTransform: "uppercase", letterSpacing: "0.07em" }}>monthly business expenses</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: NAVY, fontFamily: "'Poppins', sans-serif" }}>${expenses}</span>
+              </div>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: "100%", height: 6, borderRadius: 3, background: "rgba(3,4,94,0.1)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: `${expPct}%`, height: 6, borderRadius: 3, background: CYAN, pointerEvents: "none", transition: "width 0.05s ease" }} />
+                <input
+                  type="range" min={EXP_MIN} max={EXP_MAX} step={EXP_STEP} value={expenses}
+                  className={`slider-g${expPulsing ? " pulse" : ""}`}
+                  onChange={(e) => { setExpenses(Number(e.target.value)); setExpPulsing(false); }}
+                  style={{ position: "relative", zIndex: 1, background: "transparent" }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                <span style={{ fontSize: 10, color: "rgba(3,4,94,0.25)" }}>$0</span>
+                <span style={{ fontSize: 10, color: "rgba(3,4,94,0.25)" }}>$500</span>
+              </div>
             </div>
           </div>
         </div>
