@@ -67,6 +67,7 @@ function LoginForm({ onGetStarted }: { onGetStarted: () => void }) {
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+  const [googleBanner, setGoogleBanner] = useState(false);
   const { toast } = useToast();
 
   const isReady = email.includes("@") && password.length >= 6;
@@ -215,8 +216,8 @@ function LoginForm({ onGetStarted }: { onGetStarted: () => void }) {
 
         <button
           type="button"
-          onClick={() => { window.location.href = "/api/auth/google"; }}
-          style={{ width: "100%", border: "1.5px solid #e5e7eb", borderRadius: 12, height: 52, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 28 }}
+          onClick={() => setGoogleBanner(true)}
+          style={{ width: "100%", border: "1.5px solid #e5e7eb", borderRadius: 12, height: 52, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: googleBanner ? 8 : 28 }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -226,6 +227,11 @@ function LoginForm({ onGetStarted }: { onGetStarted: () => void }) {
           </svg>
           <span style={{ fontSize: 15, fontWeight: 600, color: "#374151", fontFamily: "'Montserrat', sans-serif" }}>Continue with Google</span>
         </button>
+        {googleBanner && (
+          <div style={{ background: "#fff8e1", border: "1px solid #fbbf24", borderRadius: 10, padding: "10px 14px", marginBottom: 20, textAlign: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#92400e", fontFamily: "'Montserrat', sans-serif" }}>Google sign-in is not available yet — please use email & password.</span>
+          </div>
+        )}
 
         <p style={{ textAlign: "center", fontSize: 14, color: "#6b7280", margin: 0 }}>
           Don't have an account?{" "}
