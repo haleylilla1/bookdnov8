@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, type CSSProperties } from "react";
 import logoImage from "@assets/bookd-logo.png";
 import { hapticMedium, hapticLight } from "@/lib/haptics";
 
@@ -50,6 +50,32 @@ function NavyButton({ label, onClick }: { label: string; onClick: () => void }) 
 function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
   src: string; poster: string; objectPosition?: string; height?: number;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [useFallback, setUseFallback] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // Imperatively call play() so iOS honors autoplay even without a prior gesture
+    const p = video.play();
+    if (p !== undefined) {
+      p.catch(() => {
+        // Autoplay was blocked — silently swap to the poster screenshot, no play button
+        setUseFallback(true);
+      });
+    }
+  }, []);
+
+  const mediaStyle: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition,
+    zIndex: 1,
+  };
+
   return (
     <div style={{
       flexShrink: 0,
@@ -58,23 +84,21 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
       overflow: "hidden",
       background: "#EAF9FF",
     }}>
-      <video
-        src={src}
-        poster={poster}
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition,
-          zIndex: 1,
-        }}
-      />
+      {useFallback ? (
+        <img src={poster} alt="" style={mediaStyle} />
+      ) : (
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={() => setUseFallback(true)}
+          style={mediaStyle}
+        />
+      )}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         height: 32,

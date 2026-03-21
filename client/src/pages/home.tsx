@@ -10,7 +10,7 @@ import AppHeader from "@/components/app-header";
 import DesktopSidebar from "@/components/desktop-sidebar";
 import LegalFooter from "@/components/legal-footer";
 import { OnboardingFlow, GigGapStep } from "@/components/onboarding-flow";
-import WelcomeSequence from "@/components/welcome-sequence";
+import { WelcomeSequence } from "@/components/welcome-sequence";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
