@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { hapticLight } from "@/lib/haptics";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -304,6 +305,7 @@ export default function CalendarView({ onGotPaid }: { onGotPaid?: (gig: Gig) => 
 
   // Handle day click
   const handleDayClick = (date: Date) => {
+    hapticLight();
     try {
       const dayGigs = getGigsForDate(date);
       if (dayGigs.length > 0) {

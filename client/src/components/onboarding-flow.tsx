@@ -4,6 +4,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 import { Loader2, ChevronRight, MapPin } from "lucide-react";
+import { hapticMedium } from "@/lib/haptics";
 
 const CYAN = "#00b4d8";
 const NAVY = "#03045e";
@@ -238,7 +239,7 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
         background: "#fff", boxSizing: "border-box", flexShrink: 0,
       }}>
         <button
-          onClick={onContinue}
+          onClick={() => { hapticMedium(); onContinue(); }}
           style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", textAlign: "center" }}
         >
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>{ctaLabel}</span>
@@ -311,7 +312,7 @@ function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
             return (
               <button
                 key={opt.id}
-                onClick={() => setSelected(opt.id)}
+                onClick={() => { hapticMedium(); setSelected(opt.id); }}
                 style={{
                   background: isSelected ? "#EAF9FF" : "#fff",
                   border: `1.5px solid ${isSelected ? CYAN : "#E8EBF0"}`,
@@ -346,7 +347,7 @@ function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
       {/* Pinned CTA */}
       <div style={{ padding: "10px 22px", paddingBottom: "calc(16px + env(safe-area-inset-bottom, 0px))", flexShrink: 0, background: "#fff", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         <button
-          onClick={() => onNext(selected)}
+          onClick={() => { hapticMedium(); onNext(selected); }}
           style={{ width: "100%", background: NAVY, borderRadius: 100, border: "none", padding: "13px 24px", cursor: "pointer", display: "block", boxSizing: "border-box" }}
         >
           <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>Set my reminder →</div>
@@ -482,7 +483,7 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       {/* Pinned CTA */}
       <div style={{ padding: "10px 24px", paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", flexShrink: 0, maxWidth: "390px", width: "100%", margin: "0 auto" }}>
         <button
-          onClick={onNext}
+          onClick={() => { hapticMedium(); onNext(); }}
           style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "15px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
@@ -560,7 +561,7 @@ function PaywallStep({ onComplete }: { onComplete: () => void }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
           {/* Annual */}
           <div
-            onClick={() => setPlan("annual")}
+            onClick={() => { hapticMedium(); setPlan("annual"); }}
             style={{ borderRadius: 16, border: plan === "annual" ? "2px solid transparent" : "2px solid #e5e7eb", background: plan === "annual" ? NAVY : "#fafafa", padding: "16px 18px", cursor: "pointer", position: "relative", transition: "all 0.2s ease" }}
           >
             <div style={{ position: "absolute", top: -11, left: 18, background: CYAN, borderRadius: 100, padding: "3px 12px", fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Best Value — Save 19%</div>
@@ -583,7 +584,7 @@ function PaywallStep({ onComplete }: { onComplete: () => void }) {
 
           {/* Monthly */}
           <div
-            onClick={() => setPlan("monthly")}
+            onClick={() => { hapticMedium(); setPlan("monthly"); }}
             style={{ borderRadius: 16, border: plan === "monthly" ? `2px solid ${NAVY}` : "2px solid #e5e7eb", background: plan === "monthly" ? "#f0f4ff" : "#fafafa", padding: "16px 18px", cursor: "pointer", transition: "all 0.2s ease" }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -626,7 +627,7 @@ function PaywallStep({ onComplete }: { onComplete: () => void }) {
       {/* Pinned CTA */}
       <div style={{ padding: "10px 24px", paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))", background: "#fff", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto", flexShrink: 0 }}>
         <button
-          onClick={onComplete}
+          onClick={() => { hapticMedium(); onComplete(); }}
           style={{ width: "100%", background: NAVY, border: "none", borderRadius: 100, padding: "14px 20px 12px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}
         >
           <span style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
@@ -699,7 +700,7 @@ function GoalsStep({ onNext }: { onNext: (goals: string[]) => void }) {
           {GOAL_OPTIONS.map((opt) => {
             const isOn = selected.has(opt.id);
             return (
-              <button key={opt.id} onClick={() => toggle(opt.id)} style={{
+              <button key={opt.id} onClick={() => { hapticMedium(); toggle(opt.id); }} style={{
                 background: isOn ? "#EAF9FF" : "#fff",
                 border: `1.5px solid ${isOn ? CYAN : "#E8EBF0"}`,
                 borderRadius: 14, padding: "14px 16px",
@@ -723,7 +724,7 @@ function GoalsStep({ onNext }: { onNext: (goals: string[]) => void }) {
         </div>
       </div>
       <div style={{ padding: "10px 22px", paddingBottom: "calc(16px + env(safe-area-inset-bottom, 0px))", flexShrink: 0, background: "#fff", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <button onClick={() => isReady && onNext(Array.from(selected))} style={{
+        <button onClick={() => { hapticMedium(); isReady && onNext(Array.from(selected)); }} style={{
           width: "100%", background: isReady ? NAVY : "#e5e7eb",
           borderRadius: 100, border: "none", padding: "13px 24px",
           cursor: isReady ? "pointer" : "default",
@@ -943,14 +944,14 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
           <button
             style={data.homeAddress.trim() ? btnPrimary : btnDisabled}
-            onClick={() => data.homeAddress.trim() && setStep("tax")}
+            onClick={() => { hapticMedium(); data.homeAddress.trim() && setStep("tax"); }}
           >
             Continue <ChevronRight size={18} />
           </button>
 
           <button
             style={{ background: "none", border: "none", color: "#9ca3af", fontSize: "14px", marginTop: "16px", cursor: "pointer", padding: "8px", textAlign: "center", width: "100%" }}
-            onClick={() => setStep("tax")}
+            onClick={() => { hapticMedium(); setStep("tax"); }}
           >
             Skip for now
           </button>
@@ -989,7 +990,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
               return (
                 <button
                   key={String(opt.value)}
-                  onClick={() => setData({ ...data, taxRate: opt.value })}
+                  onClick={() => { hapticMedium(); setData({ ...data, taxRate: opt.value }); }}
                   style={{
                     padding: "16px 20px", borderRadius: "14px",
                     border: isSelected ? `2px solid ${CYAN}` : "1.5px solid #e5e7eb",
@@ -1031,13 +1032,13 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
           <div style={{ flex: 1 }} />
 
-          <button style={btnPrimary} onClick={() => setStep("gig-types")}>
+          <button style={btnPrimary} onClick={() => { hapticMedium(); setStep("gig-types"); }}>
             Continue <ChevronRight size={18} />
           </button>
 
           <button
             style={{ background: "none", border: "none", color: "#9ca3af", fontSize: "14px", marginTop: "16px", cursor: "pointer", padding: "8px", textAlign: "center", width: "100%" }}
-            onClick={() => setStep("gig-types")}
+            onClick={() => { hapticMedium(); setStep("gig-types"); }}
           >
             Skip for now
           </button>
@@ -1079,7 +1080,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
               return (
                 <button
                   key={type}
-                  onClick={() => toggle(type)}
+                  onClick={() => { hapticMedium(); toggle(type); }}
                   style={{
                     padding: "10px 16px", borderRadius: "100px",
                     border: selected ? `2px solid ${CYAN}` : "1.5px solid #e5e7eb",
@@ -1129,7 +1130,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
           <button
             style={saveMutation.isPending ? btnDisabled : btnPrimary}
-            onClick={handleSaveAndNavigateToGigGap}
+            onClick={() => { hapticMedium(); handleSaveAndNavigateToGigGap(); }}
             disabled={saveMutation.isPending}
           >
             {saveMutation.isPending ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : null}
@@ -1138,7 +1139,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
           <button
             style={{ background: "none", border: "none", color: "#9ca3af", fontSize: "14px", marginTop: "16px", cursor: "pointer", padding: "8px", textAlign: "center", width: "100%" }}
-            onClick={handleSaveAndNavigateToGigGap}
+            onClick={() => { hapticMedium(); handleSaveAndNavigateToGigGap(); }}
             disabled={saveMutation.isPending}
           >
             Skip for now

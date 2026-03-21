@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { hapticMedium, hapticLight } from "@/lib/haptics";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -803,7 +804,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           return (
             <button
               key={p}
-              onClick={() => setSelectedPeriod(p)}
+              onClick={() => { hapticMedium(); setSelectedPeriod(p); }}
               style={{
                 padding: "8px 20px",
                 width: "110px",
@@ -957,7 +958,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
 
         {/* Taxable Income */}
         <div
-          onClick={() => setShowEarningsBreakdown(true)}
+          onClick={() => { hapticLight(); setShowEarningsBreakdown(true); }}
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
@@ -970,7 +971,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
 
         {/* Expected Earnings */}
         <div
-          onClick={() => setShowProjectedBreakdown(true)}
+          onClick={() => { hapticLight(); setShowProjectedBreakdown(true); }}
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
@@ -984,7 +985,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
         {/* Tax Estimate */}
         <div
           id="tour-tax-card"
-          onClick={() => setShowTaxBreakdown(true)}
+          onClick={() => { hapticLight(); setShowTaxBreakdown(true); }}
           style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
         >
           <div>
@@ -1001,7 +1002,7 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
           const miles = mileageDollars > 0 ? Math.round(mileageDollars / 0.725) : 0;
           return (
             <div
-              onClick={() => setShowMileageBreakdown(true)}
+              onClick={() => { hapticLight(); setShowMileageBreakdown(true); }}
               style={{ backgroundColor: "#ffffff", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
             >
               <div>
