@@ -6,14 +6,13 @@ const ERROR = "#ef4444";
 
 function ProgressDots({ total, current }: { total: number; current: number }) {
   return (
-    <div style={{ display: "flex", justifyContent: "center", gap: 7, marginBottom: 28 }}>
+    <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "24px" }}>
       {Array.from({ length: total }).map((_, i) => (
         <div key={i} style={{
-          width: i === current ? 22 : 8,
-          height: 8,
-          borderRadius: 4,
-          background: i === current ? CYAN : "transparent",
-          border: `2px solid ${i === current ? CYAN : NAVY}`,
+          width: i === current ? "24px" : "8px",
+          height: "8px",
+          borderRadius: "4px",
+          backgroundColor: i < current ? "rgba(0,180,216,0.4)" : i === current ? CYAN : "#e5e7eb",
           transition: "all 0.3s ease",
         }} />
       ))}
