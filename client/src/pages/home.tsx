@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
 import { Plus, Briefcase, Receipt, ChevronRight, DollarSign, Check, Sparkles } from "lucide-react";
 import GotPaidSheet from "@/components/got-paid-sheet";
+import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
 
@@ -458,7 +459,7 @@ export default function Home() {
 
               {/* Add a gig */}
               <button
-                onClick={() => { setFabOpen(false); setCurrentScreen("gig-form"); }}
+                onClick={() => { hapticLight(); setFabOpen(false); setCurrentScreen("gig-form"); }}
                 style={{
                   width: "100%",
                   display: "flex",
@@ -486,7 +487,7 @@ export default function Home() {
 
               {/* Add an expense */}
               <button
-                onClick={() => { setFabOpen(false); setCurrentScreen("expense-form"); }}
+                onClick={() => { hapticLight(); setFabOpen(false); setCurrentScreen("expense-form"); }}
                 style={{
                   width: "100%",
                   display: "flex",
@@ -637,6 +638,7 @@ export default function Home() {
               <button
                 id="fab-paid"
                 onClick={() => {
+                  hapticSuccess();
                   setFabOpen(false);
                   openGotPaidSheet();
                 }}
@@ -661,7 +663,7 @@ export default function Home() {
               {/* + button */}
               <button
                 id="fab-toggle"
-                onClick={() => setFabOpen(!fabOpen)}
+                onClick={() => { hapticLight(); setFabOpen(!fabOpen); }}
                 style={{
                   width: "64px",
                   height: "64px",

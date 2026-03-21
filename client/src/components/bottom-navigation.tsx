@@ -1,5 +1,6 @@
 import { TrendingUp, Calendar, User } from "lucide-react";
 import type { Screen } from "@/pages/home";
+import { hapticLight } from "@/lib/haptics";
 
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
@@ -36,7 +37,7 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
           <button
             key={item.id}
             id={`${item.id}-tab`}
-            onClick={() => onScreenChange(item.id)}
+            onClick={() => { hapticLight(); onScreenChange(item.id); }}
             style={{
               flex: 1,
               display: "flex",
