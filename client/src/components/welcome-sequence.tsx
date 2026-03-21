@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import logoImage from "@assets/bookd-logo.png";
+import { hapticMedium, hapticLight } from "@/lib/haptics";
 
 const NAVY = "#03045E";
 const AQUA = "#00B4D8";
@@ -27,7 +28,7 @@ function ProgressDots({ current }: { current: 2 | 3 | 4 }) {
 
 function NavyButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{
+    <button onClick={() => { hapticMedium(); onClick(); }} style={{
       width: "100%",
       background: NAVY,
       border: "none",
@@ -106,7 +107,7 @@ function Screen1({ onAdvance }: { onAdvance: () => void }) {
   }, []);
 
   return (
-    <div onClick={onAdvance} style={{
+    <div onClick={() => { hapticMedium(); onAdvance(); }} style={{
       position: "absolute", inset: 0,
       background: "#fff",
       display: "flex",
@@ -188,7 +189,7 @@ function Screen2({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
       </div>
       <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
         <NavyButton label="See how →" onClick={onAdvance} />
-        <button onClick={onLogin} style={{
+        <button onClick={() => { hapticLight(); onLogin(); }} style={{
           background: "none", border: "none", color: "#9ca3af",
           fontSize: 13, marginTop: 12, cursor: "pointer",
           display: "block", width: "100%", textAlign: "center",
@@ -238,7 +239,7 @@ function Screen3({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
       </div>
       <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
         <NavyButton label="Continue →" onClick={onAdvance} />
-        <button onClick={onLogin} style={{
+        <button onClick={() => { hapticLight(); onLogin(); }} style={{
           background: "none", border: "none", color: "#9ca3af",
           fontSize: 13, marginTop: 12, cursor: "pointer",
           display: "block", width: "100%", textAlign: "center",
@@ -287,7 +288,7 @@ function Screen4({ onAdvance, onLogin }: { onAdvance: () => void; onLogin: () =>
       </div>
       <div style={{ padding: "12px 28px", paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))", flexShrink: 0 }}>
         <NavyButton label="Let's get set up →" onClick={onAdvance} />
-        <button onClick={onLogin} style={{
+        <button onClick={() => { hapticLight(); onLogin(); }} style={{
           background: "none", border: "none", color: "#9ca3af",
           fontSize: 13, marginTop: 12, cursor: "pointer",
           display: "block", width: "100%", textAlign: "center",
