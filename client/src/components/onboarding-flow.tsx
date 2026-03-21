@@ -811,7 +811,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
             Where are you based?
           </h1>
           <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "28px", lineHeight: 1.5 }}>
-            We use your home address to calculate mileage deductions for your gigs — one of the biggest tax breaks for freelancers.
+            We use your home address to calculate mileage deductions for your gigs.
           </p>
 
           <div style={{ marginBottom: "12px" }}>
@@ -824,9 +824,15 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
             />
           </div>
 
-          <p style={{ fontSize: "12px", color: "#9ca3af", textAlign: "center", marginBottom: "20px" }}>
-            🔒 We never share or sell your data.
-          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "20px" }}>
+            <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1.5" y="7" width="11" height="8" rx="2" fill={NAVY} />
+              <path d="M4 7V5C4 3.343 5.343 2 7 2C8.657 2 10 3.343 10 5V7" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+              <circle cx="7" cy="11" r="1.2" fill="#00b4d8" />
+              <rect x="6.35" y="11" width="1.3" height="2" rx="0.65" fill="#00b4d8" />
+            </svg>
+            <span style={{ fontSize: "12px", color: "#9ca3af" }}>We never share or sell your data.</span>
+          </div>
 
           <p style={{ fontSize: "13px", color: "#10b981", lineHeight: 1.55, marginBottom: "8px" }}>
             <strong>TIP:</strong> For 2026, the IRS standard mileage rate for business use of a vehicle is <strong>72.5 cents per mile</strong>. Independent contractors (1099 workers) can use this rate to deduct business-related driving expenses.
