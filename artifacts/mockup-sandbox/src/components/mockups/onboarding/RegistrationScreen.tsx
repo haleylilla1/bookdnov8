@@ -2,33 +2,36 @@ import { useState } from "react";
 
 const NAVY = "#03045e";
 const CYAN = "#00b4d8";
+const ERROR = "#ef4444";
 
 function Field({
-  label, placeholder, type = "text", value, onChange, prefix,
+  label, placeholder, type = "text", value, onChange, prefix, suffix, error,
 }: {
   label: string; placeholder: string; type?: string;
-  value: string; onChange: (v: string) => void; prefix?: React.ReactNode;
+  value: string; onChange: (v: string) => void;
+  prefix?: React.ReactNode; suffix?: React.ReactNode; error?: string;
 }) {
   const [focused, setFocused] = useState(false);
+  const borderColor = error ? ERROR : focused ? CYAN : "#e5e7eb";
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div style={{ marginBottom: error ? 6 : 14 }}>
       <label style={{
         display: "block", fontSize: 12, fontWeight: 600,
-        color: focused ? CYAN : "#6b7280",
-        marginBottom: 6, letterSpacing: "0.02em",
+        color: error ? ERROR : focused ? CYAN : "#6b7280",
+        marginBottom: 5, letterSpacing: "0.02em",
         transition: "color 0.15s",
         fontFamily: "'Montserrat', sans-serif",
       }}>{label}</label>
       <div style={{
         display: "flex", alignItems: "center",
-        border: `1.5px solid ${focused ? CYAN : "#e5e7eb"}`,
+        border: `1.5px solid ${borderColor}`,
         borderRadius: 12, background: "#fff",
         transition: "border-color 0.15s",
         overflow: "hidden",
       }}>
         {prefix && (
           <div style={{
-            padding: "0 12px", borderRight: `1px solid ${focused ? CYAN : "#e5e7eb"}`,
+            padding: "0 12px", borderRight: `1px solid ${borderColor}`,
             color: "#374151", fontSize: 14, fontWeight: 600,
             fontFamily: "'Montserrat', sans-serif",
             height: 50, display: "flex", alignItems: "center",
@@ -51,7 +54,17 @@ function Field({
             fontFamily: "'Montserrat', sans-serif",
           }}
         />
+        {suffix && (
+          <div style={{ padding: "0 4px", display: "flex", alignItems: "center" }}>
+            {suffix}
+          </div>
+        )}
       </div>
+      {error && (
+        <p style={{ fontSize: 11, color: ERROR, margin: "4px 0 10px 2px", fontFamily: "'Montserrat', sans-serif" }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -75,9 +88,21 @@ export function RegistrationScreen() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-  const isReady = name.trim() && email.includes("@") && phone.length >= 7 && password.length >= 6;
+  const passwordTooShort = password.length > 0 && password.length < 8;
+  const passwordMismatch = touched && confirm.length > 0 && password !== confirm;
+  const passwordMatch = confirm.length > 0 && password === confirm && password.length >= 8;
+
+  const isReady =
+    name.trim().length > 0 &&
+    email.includes("@") &&
+    phone.length >= 7 &&
+    password.length >= 8 &&
+    password === confirm;
 
   return (
     <div style={{
@@ -92,22 +117,14 @@ export function RegistrationScreen() {
       <div style={{ height: 44, flexShrink: 0 }} />
 
       {/* Scrollable form area */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 28px 0", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "20px 28px 0", boxSizing: "border-box" }}>
 
-        {/* Logo mark */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10, background: NAVY,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10l4 4 8-8" stroke={CYAN} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <span style={{ fontSize: 18, fontWeight: 700, color: NAVY, fontFamily: "'Poppins', sans-serif", letterSpacing: "-0.02em" }}>
-            bookd
-          </span>
-        </div>
+        {/* Real logo */}
+        <img
+          src="/__mockup/bookd-logo.png"
+          alt="bookd"
+          style={{ height: 36, width: "auto", marginBottom: 24, display: "block" }}
+        />
 
         <h1 style={{
           fontFamily: "'Poppins', sans-serif", fontWeight: 800,
@@ -115,26 +132,15 @@ export function RegistrationScreen() {
         }}>
           Create your account
         </h1>
-        <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 28px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 24px", lineHeight: 1.5 }}>
           Takes about 2 minutes. We'll get you set up right away.
         </p>
 
-        {/* Name */}
-        <Field
-          label="Full name"
-          placeholder="Jane Smith"
-          value={name}
-          onChange={setName}
-        />
+        {/* Full name */}
+        <Field label="Full name" placeholder="Jane Smith" value={name} onChange={setName} />
 
         {/* Email */}
-        <Field
-          label="Email address"
-          placeholder="jane@example.com"
-          type="email"
-          value={email}
-          onChange={setEmail}
-        />
+        <Field label="Email address" placeholder="jane@example.com" type="email" value={email} onChange={setEmail} />
 
         {/* Phone */}
         <Field
@@ -147,22 +153,39 @@ export function RegistrationScreen() {
         />
 
         {/* Password */}
-        <div style={{ marginBottom: 8 }}>
+        <Field
+          label="Password"
+          placeholder="At least 8 characters"
+          type={showPass ? "text" : "password"}
+          value={password}
+          onChange={setPassword}
+          error={passwordTooShort ? "Must be at least 8 characters" : undefined}
+          suffix={
+            <button onClick={() => setShowPass(!showPass)} style={{ background: "none", border: "none", padding: "0 10px", cursor: "pointer", display: "flex", alignItems: "center", height: 50 }}>
+              <EyeIcon visible={showPass} />
+            </button>
+          }
+        />
+
+        {/* Confirm password */}
+        <div style={{ marginBottom: 4 }}>
           <label style={{
             display: "block", fontSize: 12, fontWeight: 600,
-            color: "#6b7280", marginBottom: 6, letterSpacing: "0.02em",
+            color: passwordMismatch ? ERROR : passwordMatch ? "#10b981" : "#6b7280",
+            marginBottom: 5, letterSpacing: "0.02em",
             fontFamily: "'Montserrat', sans-serif",
-          }}>Password</label>
+          }}>Confirm password</label>
           <div style={{
             display: "flex", alignItems: "center",
-            border: `1.5px solid #e5e7eb`, borderRadius: 12,
-            background: "#fff", overflow: "hidden",
+            border: `1.5px solid ${passwordMismatch ? ERROR : passwordMatch ? "#10b981" : "#e5e7eb"}`,
+            borderRadius: 12, background: "#fff",
+            overflow: "hidden",
           }}>
             <input
-              type={showPass ? "text" : "password"}
-              placeholder="At least 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type={showConfirm ? "text" : "password"}
+              placeholder="Re-enter your password"
+              value={confirm}
+              onChange={(e) => { setConfirm(e.target.value); setTouched(true); }}
               style={{
                 flex: 1, height: 50, border: "none", outline: "none",
                 padding: "0 14px", fontSize: 15, color: "#111827",
@@ -170,25 +193,45 @@ export function RegistrationScreen() {
                 fontFamily: "'Montserrat', sans-serif",
               }}
             />
-            <button
-              onClick={() => setShowPass(!showPass)}
-              style={{ background: "none", border: "none", padding: "0 14px", cursor: "pointer", display: "flex", alignItems: "center" }}
-            >
-              <EyeIcon visible={showPass} />
-            </button>
+            {/* Match indicator */}
+            {confirm.length > 0 && (
+              <div style={{ padding: "0 12px", display: "flex", alignItems: "center" }}>
+                {passwordMatch ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 6L9 17l-5-5" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  <button onClick={() => setShowConfirm(!showConfirm)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
+                    <EyeIcon visible={showConfirm} />
+                  </button>
+                )}
+              </div>
+            )}
+            {confirm.length === 0 && (
+              <button onClick={() => setShowConfirm(!showConfirm)} style={{ background: "none", border: "none", padding: "0 10px", cursor: "pointer", display: "flex", alignItems: "center", height: 50 }}>
+                <EyeIcon visible={showConfirm} />
+              </button>
+            )}
           </div>
-          <p style={{ fontSize: 11, color: "#9ca3af", margin: "6px 0 0", fontFamily: "'Montserrat', sans-serif" }}>
-            Must be at least 6 characters
-          </p>
+          {passwordMismatch && (
+            <p style={{ fontSize: 11, color: ERROR, margin: "4px 0 0 2px", fontFamily: "'Montserrat', sans-serif" }}>
+              Passwords don't match
+            </p>
+          )}
+          {passwordMatch && (
+            <p style={{ fontSize: 11, color: "#10b981", margin: "4px 0 0 2px", fontFamily: "'Montserrat', sans-serif" }}>
+              Passwords match ✓
+            </p>
+          )}
         </div>
 
         {/* Privacy note */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, margin: "20px 0 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, margin: "18px 0 8px" }}>
           <svg width="12" height="14" viewBox="0 0 14 16" fill="none">
             <rect x="1.5" y="7" width="11" height="8" rx="2" fill={NAVY} />
-            <path d="M4 7V5C4 3.343 5.343 2 7 2C8.657 2 10 3.343 10 5V7" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-            <circle cx="7" cy="11" r="1.2" fill={CYAN} />
-            <rect x="6.35" y="11" width="1.3" height="2" rx="0.65" fill={CYAN} />
+            <path d="M4 7V5C4 3.343 5.343 2 7 2C8.657 2 10 3.343 10 5V7" stroke={NAVY} strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+            <circle cx="7" cy="11" r="1.2" fill={CYAN}/>
+            <rect x="6.35" y="11" width="1.3" height="2" rx="0.65" fill={CYAN}/>
           </svg>
           <span style={{ fontSize: 11, color: "#9ca3af" }}>We never share or sell your data.</span>
         </div>
