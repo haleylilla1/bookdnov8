@@ -87,7 +87,7 @@ function LoginForm({ onGetStarted }: { onGetStarted: () => void }) {
         toast({ title: data.error || "Login failed. Please try again.", variant: "destructive" });
         return;
       }
-      if (data.sessionId) localStorage.setItem("sessionId", data.sessionId);
+      if (data.sessionId) localStorage.setItem("bookd_session", data.sessionId);
       window.location.href = "/";
     } catch {
       toast({ title: "Unable to connect. Check your internet connection.", variant: "destructive" });

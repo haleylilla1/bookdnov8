@@ -356,7 +356,7 @@ export function RegistrationStep({ onDone, onLogin }: { onDone: () => void; onLo
         setLoading(false);
         return;
       }
-      if (data.sessionId) localStorage.setItem("sessionId", data.sessionId);
+      if (data.sessionId) localStorage.setItem("bookd_session", data.sessionId);
       onDone();
     } catch {
       setError("Network error. Please check your connection and try again.");
