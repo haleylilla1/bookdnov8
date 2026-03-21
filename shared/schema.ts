@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, date, decimal, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, date, decimal, timestamp, varchar, jsonb, index, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -29,11 +29,13 @@ export const userSessions = pgTable("user_sessions", {
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  token: varchar("token").notNull().unique(),
+  token: varchar("token").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   expiresAt: timestamp("expires_at").notNull(),
   used: boolean("used").default(false),
-});
+}, (table) => [
+  unique("password_reset_tokens_token_key").on(table.token),
+]);
 
 // Enhanced users table with multi-provider auth support
 export const users = pgTable("users", {
@@ -51,8 +53,8 @@ export const users = pgTable("users", {
   businessEmail: text("business_email"),
   
   // Multi-provider auth fields
-  replitId: varchar("replit_id").unique(),
-  googleId: varchar("google_id").unique(),
+  replitId: varchar("replit_id"),
+  googleId: varchar("google_id"),
   passwordHash: varchar("password_hash"), // For email/password auth
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -100,6 +102,8 @@ export const users = pgTable("users", {
   index("idx_users_email").on(table.email), // Login queries
   index("idx_users_replit_id").on(table.replitId), // Replit auth
   index("idx_users_active").on(table.isActive), // Active users only
+  unique("users_replit_id_key").on(table.replitId),
+  unique("users_google_id_key").on(table.googleId),
 ]);
 
 export const monthlyGoals = pgTable("monthly_goals", {
