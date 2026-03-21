@@ -430,6 +430,10 @@
   padding-bottom: 80px;
 }
 
+.tab-screen {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Desktop layout adjustments */
 @media (min-width: 1024px) {
   .screen-content {

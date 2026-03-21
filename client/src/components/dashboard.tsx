@@ -99,17 +99,21 @@ export default function Dashboard({ onOpenAddGig, onOpenAddExpense, tourStep, on
     retry: 1,
   });
 
-  // Smart refetch when tab becomes active again
-  const lastDashboardActiveRef = useRef<number>(Date.now());
+  // Smart refetch when tab becomes active — invalidate only if cache is actually stale
   useEffect(() => {
     if (!isActive) return;
-    const now = Date.now();
-    const elapsed = now - lastDashboardActiveRef.current;
-    lastDashboardActiveRef.current = now;
-    if (elapsed > 30_000) {
-      queryClient.invalidateQueries({ queryKey: ["/api/gigs"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+    const STALE_TIME = 30_000; // matches individual query staleTime
+    const keys: string[][] = [
+      ["/api/gigs"],
+      ["/api/dashboard/summary"],
+      ["/api/expenses"],
+    ];
+    const anyStale = keys.some(key => {
+      const state = queryClient.getQueryState(key);
+      return !state?.dataUpdatedAt || Date.now() - state.dataUpdatedAt > STALE_TIME;
+    });
+    if (anyStale) {
+      keys.forEach(key => queryClient.invalidateQueries({ queryKey: key }));
     }
   }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 

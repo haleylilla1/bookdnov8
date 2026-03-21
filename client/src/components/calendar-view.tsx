@@ -71,14 +71,12 @@ export default function CalendarView({ onGotPaid, isActive }: { onGotPaid?: (gig
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Smart refetch when calendar tab becomes active again
-  const lastCalendarActiveRef = useRef<number>(Date.now());
+  // Smart refetch when calendar tab becomes active — invalidate only if cache is actually stale
   useEffect(() => {
     if (!isActive) return;
-    const now = Date.now();
-    const elapsed = now - lastCalendarActiveRef.current;
-    lastCalendarActiveRef.current = now;
-    if (elapsed > 30_000) {
+    const STALE_TIME = 5 * 60 * 1000; // matches initial query staleTime
+    const state = queryClient.getQueryState(["/api/gigs", "initial"]);
+    if (!state?.dataUpdatedAt || Date.now() - state.dataUpdatedAt > STALE_TIME) {
       setAllGigs([]);
       setLoadedMonths(new Set());
       queryClient.removeQueries({ queryKey: ["/api/gigs"] });

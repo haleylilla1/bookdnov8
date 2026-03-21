@@ -414,7 +414,7 @@ export default function Home() {
         {/* Always-mounted tab screens — instant crossfade on switch */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}>
           {/* Dashboard */}
-          <div style={{
+          <div className="tab-screen" style={{
             position: "absolute", inset: 0, overflowY: "auto",
             opacity: currentScreen === "dashboard" ? 1 : 0,
             pointerEvents: currentScreen === "dashboard" ? "auto" : "none",
@@ -431,7 +431,7 @@ export default function Home() {
           </div>
 
           {/* Calendar */}
-          <div style={{
+          <div className="tab-screen" style={{
             position: "absolute", inset: 0, overflowY: "auto",
             opacity: currentScreen === "calendar" ? 1 : 0,
             pointerEvents: currentScreen === "calendar" ? "auto" : "none",
@@ -448,7 +448,7 @@ export default function Home() {
           </div>
 
           {/* Profile */}
-          <div style={{
+          <div className="tab-screen" style={{
             position: "absolute", inset: 0, overflowY: "auto",
             opacity: currentScreen === "profile" ? 1 : 0,
             pointerEvents: currentScreen === "profile" ? "auto" : "none",

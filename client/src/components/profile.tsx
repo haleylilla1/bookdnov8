@@ -212,6 +212,16 @@ export default function Profile({ onDemoComplete, isActive }: { onDemoComplete?:
     queryKey: ["/api/user"],
   });
 
+  // Smart refetch when profile tab becomes active — invalidate only if cache is actually stale
+  useEffect(() => {
+    if (!isActive) return;
+    const STALE_TIME = 5 * 60 * 1000; // matches global default staleTime
+    const state = queryClient.getQueryState(["/api/user"]);
+    if (!state?.dataUpdatedAt || Date.now() - state.dataUpdatedAt > STALE_TIME) {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    }
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const updateUserMutation = useMutation({
     mutationFn: async (userData: Partial<UserType>) => {
       const response = await apiRequest("PUT", "/api/user", userData);
