@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createWriteStream } from 'fs';
 import * as archiver from 'archiver';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export interface UserBackupData {
   user: any;
@@ -88,101 +88,159 @@ export class BackupManager {
     const backupData = await this.createUserBackup(userId);
     const filename = `bookd-export-${userId}-${Date.now()}.xlsx`;
     const filepath = path.join(this.backupDir, filename);
-    
-    // Create a new workbook
-    const workbook = XLSX.utils.book_new();
-    
+
+    const workbook = new ExcelJS.Workbook();
+
     // User Profile Sheet
-    const userSheet = XLSX.utils.json_to_sheet([{
-      'Name': backupData.user.name,
-      'Email': backupData.user.email,
-      'Phone': backupData.user.phone || '',
-      'Title': backupData.user.title || 'Gig Worker',
-      'Default Tax Rate (%)': backupData.user.defaultTaxPercentage || 23,
-      'Home Address': backupData.user.homeAddress || '',
-      'Business Name': backupData.user.businessName || '',
-      'Business Address': backupData.user.businessAddress || '',
-      'Business Phone': backupData.user.businessPhone || '',
-      'Business Email': backupData.user.businessEmail || '',
-      'Export Date': backupData.exportDate,
-      'Data Version': backupData.version
-    }]);
-    XLSX.utils.book_append_sheet(workbook, userSheet, 'Profile');
-    
+    const profileSheet = workbook.addWorksheet('Profile');
+    profileSheet.columns = [
+      { header: 'Name', key: 'name' },
+      { header: 'Email', key: 'email' },
+      { header: 'Phone', key: 'phone' },
+      { header: 'Title', key: 'title' },
+      { header: 'Default Tax Rate (%)', key: 'taxRate' },
+      { header: 'Home Address', key: 'homeAddress' },
+      { header: 'Business Name', key: 'businessName' },
+      { header: 'Business Address', key: 'businessAddress' },
+      { header: 'Business Phone', key: 'businessPhone' },
+      { header: 'Business Email', key: 'businessEmail' },
+      { header: 'Export Date', key: 'exportDate' },
+      { header: 'Data Version', key: 'version' },
+    ];
+    profileSheet.addRow({
+      name: backupData.user.name,
+      email: backupData.user.email,
+      phone: backupData.user.phone || '',
+      title: backupData.user.title || 'Gig Worker',
+      taxRate: backupData.user.defaultTaxPercentage || 23,
+      homeAddress: backupData.user.homeAddress || '',
+      businessName: backupData.user.businessName || '',
+      businessAddress: backupData.user.businessAddress || '',
+      businessPhone: backupData.user.businessPhone || '',
+      businessEmail: backupData.user.businessEmail || '',
+      exportDate: backupData.exportDate,
+      version: backupData.version,
+    });
+
     // Gigs Sheet
     if (backupData.gigs.length > 0) {
-      const gigsData = backupData.gigs.map(gig => ({
-        'Date': gig.date,
-        'Client': gig.clientName || '',
-        'Gig Type': gig.gigType || '',
-        'Location': gig.location || '',
-        'Status': gig.status || 'pending',
-        'Amount Expected ($)': gig.amount ? parseFloat(gig.amount) : 0,
-        'Amount Received ($)': gig.totalReceived ? parseFloat(gig.totalReceived) : 0,
-        'Parking Reimbursed ($)': gig.reimbursedParking ? parseFloat(gig.reimbursedParking) : 0,
-        'Other Reimbursed ($)': gig.reimbursedOther ? parseFloat(gig.reimbursedOther) : 0,
-        'Parking Expense ($)': gig.unreimbursedParking ? parseFloat(gig.unreimbursedParking) : 0,
-        'Other Expenses ($)': gig.unreimbursedOther ? parseFloat(gig.unreimbursedOther) : 0,
-        'Mileage': gig.mileage || 0,
-        'Notes': gig.notes || '',
-        'Created': gig.createdAt
-      }));
-      const gigsSheet = XLSX.utils.json_to_sheet(gigsData);
-      XLSX.utils.book_append_sheet(workbook, gigsSheet, 'Gigs');
+      const gigsSheet = workbook.addWorksheet('Gigs');
+      gigsSheet.columns = [
+        { header: 'Date', key: 'date' },
+        { header: 'Client', key: 'client' },
+        { header: 'Gig Type', key: 'gigType' },
+        { header: 'Location', key: 'location' },
+        { header: 'Status', key: 'status' },
+        { header: 'Amount Expected ($)', key: 'amountExpected' },
+        { header: 'Amount Received ($)', key: 'amountReceived' },
+        { header: 'Parking Reimbursed ($)', key: 'parkingReimbursed' },
+        { header: 'Other Reimbursed ($)', key: 'otherReimbursed' },
+        { header: 'Parking Expense ($)', key: 'parkingExpense' },
+        { header: 'Other Expenses ($)', key: 'otherExpenses' },
+        { header: 'Mileage', key: 'mileage' },
+        { header: 'Notes', key: 'notes' },
+        { header: 'Created', key: 'created' },
+      ];
+      for (const gig of backupData.gigs) {
+        gigsSheet.addRow({
+          date: gig.date,
+          client: gig.clientName || '',
+          gigType: gig.gigType || '',
+          location: gig.location || '',
+          status: gig.status || 'pending',
+          amountExpected: gig.amount ? parseFloat(gig.amount) : 0,
+          amountReceived: gig.totalReceived ? parseFloat(gig.totalReceived) : 0,
+          parkingReimbursed: gig.reimbursedParking ? parseFloat(gig.reimbursedParking) : 0,
+          otherReimbursed: gig.reimbursedOther ? parseFloat(gig.reimbursedOther) : 0,
+          parkingExpense: gig.unreimbursedParking ? parseFloat(gig.unreimbursedParking) : 0,
+          otherExpenses: gig.unreimbursedOther ? parseFloat(gig.unreimbursedOther) : 0,
+          mileage: gig.mileage || 0,
+          notes: gig.notes || '',
+          created: gig.createdAt,
+        });
+      }
     }
-    
+
     // Expenses Sheet
     if (backupData.expenses.length > 0) {
-      const expensesData = backupData.expenses.map(expense => ({
-        'Date': expense.date,
-        'Category': expense.category,
-        'Description': expense.description,
-        'Amount ($)': expense.amount ? parseFloat(expense.amount) : 0,
-        'Receipt': expense.receiptUrl ? 'Yes' : 'No',
-        'Business Related': expense.isBusinessExpense ? 'Yes' : 'No',
-        'Tax Deductible': expense.isTaxDeductible ? 'Yes' : 'No',
-        'Notes': expense.notes || '',
-        'Created': expense.createdAt
-      }));
-      const expensesSheet = XLSX.utils.json_to_sheet(expensesData);
-      XLSX.utils.book_append_sheet(workbook, expensesSheet, 'Expenses');
+      const expensesSheet = workbook.addWorksheet('Expenses');
+      expensesSheet.columns = [
+        { header: 'Date', key: 'date' },
+        { header: 'Category', key: 'category' },
+        { header: 'Description', key: 'description' },
+        { header: 'Amount ($)', key: 'amount' },
+        { header: 'Receipt', key: 'receipt' },
+        { header: 'Business Related', key: 'businessRelated' },
+        { header: 'Tax Deductible', key: 'taxDeductible' },
+        { header: 'Notes', key: 'notes' },
+        { header: 'Created', key: 'created' },
+      ];
+      for (const expense of backupData.expenses) {
+        expensesSheet.addRow({
+          date: expense.date,
+          category: expense.category,
+          description: expense.description,
+          amount: expense.amount ? parseFloat(expense.amount) : 0,
+          receipt: expense.receiptUrl ? 'Yes' : 'No',
+          businessRelated: expense.isBusinessExpense ? 'Yes' : 'No',
+          taxDeductible: expense.isTaxDeductible ? 'Yes' : 'No',
+          notes: expense.notes || '',
+          created: expense.createdAt,
+        });
+      }
     }
-    
+
     // Goals Sheet
     if (backupData.goals.length > 0) {
-      const goalsData = backupData.goals.map(goal => ({
-        'Month': goal.month,
-        'Year': goal.year,
-        'Goal Amount ($)': goal.goalAmount ? parseFloat(goal.goalAmount) : 0,
-        'Created': goal.createdAt,
-        'Updated': goal.updatedAt
-      }));
-      const goalsSheet = XLSX.utils.json_to_sheet(goalsData);
-      XLSX.utils.book_append_sheet(workbook, goalsSheet, 'Goals');
+      const goalsSheet = workbook.addWorksheet('Goals');
+      goalsSheet.columns = [
+        { header: 'Month', key: 'month' },
+        { header: 'Year', key: 'year' },
+        { header: 'Goal Amount ($)', key: 'goalAmount' },
+        { header: 'Created', key: 'created' },
+        { header: 'Updated', key: 'updated' },
+      ];
+      for (const goal of backupData.goals) {
+        goalsSheet.addRow({
+          month: goal.month,
+          year: goal.year,
+          goalAmount: goal.goalAmount ? parseFloat(goal.goalAmount) : 0,
+          created: goal.createdAt,
+          updated: goal.updatedAt,
+        });
+      }
     }
-    
+
     // Summary Sheet
-    const totalGigIncome = backupData.gigs.reduce((sum, gig) => 
+    const totalGigIncome = backupData.gigs.reduce((sum, gig) =>
       sum + (gig.totalReceived ? parseFloat(gig.totalReceived) : 0), 0);
-    const totalExpenses = backupData.expenses.reduce((sum, expense) => 
+    const totalExpenses = backupData.expenses.reduce((sum, expense) =>
       sum + (expense.amount ? parseFloat(expense.amount) : 0), 0);
-    const totalMileage = backupData.gigs.reduce((sum, gig) => 
+    const totalMileage = backupData.gigs.reduce((sum, gig) =>
       sum + (gig.mileage || 0), 0);
-    
-    const summarySheet = XLSX.utils.json_to_sheet([{
-      'Total Gigs': backupData.gigs.length,
-      'Total Income ($)': totalGigIncome.toFixed(2),
-      'Total Expenses ($)': totalExpenses.toFixed(2),
-      'Net Income ($)': (totalGigIncome - totalExpenses).toFixed(2),
-      'Total Mileage': totalMileage,
-      'Export Date': backupData.exportDate,
-      'Tax Year': new Date().getFullYear()
-    }]);
-    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-    
-    // Write the workbook to file
-    XLSX.writeFile(workbook, filepath);
-    
+
+    const summarySheet = workbook.addWorksheet('Summary');
+    summarySheet.columns = [
+      { header: 'Total Gigs', key: 'totalGigs' },
+      { header: 'Total Income ($)', key: 'totalIncome' },
+      { header: 'Total Expenses ($)', key: 'totalExpenses' },
+      { header: 'Net Income ($)', key: 'netIncome' },
+      { header: 'Total Mileage', key: 'totalMileage' },
+      { header: 'Export Date', key: 'exportDate' },
+      { header: 'Tax Year', key: 'taxYear' },
+    ];
+    summarySheet.addRow({
+      totalGigs: backupData.gigs.length,
+      totalIncome: totalGigIncome.toFixed(2),
+      totalExpenses: totalExpenses.toFixed(2),
+      netIncome: (totalGigIncome - totalExpenses).toFixed(2),
+      totalMileage,
+      exportDate: backupData.exportDate,
+      taxYear: new Date().getFullYear(),
+    });
+
+    await workbook.xlsx.writeFile(filepath);
+
     return filepath;
   }
 
