@@ -131,7 +131,7 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
         .slider-b.pulse::-moz-range-thumb { animation: pulse-b 1.5s ease-in-out infinite; }
       `}</style>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "36px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "56px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
         {showDots && <ProgressDots total={6} current={dotsIndex ?? 3} />}
 
         <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 6px" }}>
@@ -254,13 +254,9 @@ function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
       paddingTop: "env(safe-area-inset-top, 0px)",
       fontFamily: "'Montserrat', sans-serif",
     }}>
-      {/* Progress dots */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, paddingTop: 20, paddingBottom: 4, flexShrink: 0 }}>
-        <ProgressDots total={6} current={4} />
-      </div>
-
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "0 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "56px 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <ProgressDots total={6} current={4} />
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>
           Don't Let Them Forget You
         </p>
@@ -432,7 +428,7 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       fontFamily: "'Montserrat', sans-serif",
     }}>
       {/* Scrollable content — flex column so the spacer between header and features fills dead space */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "56px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
 
         {/* Header block */}
         <div style={{ flexShrink: 0 }}>
