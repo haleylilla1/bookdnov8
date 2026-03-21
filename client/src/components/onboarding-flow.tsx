@@ -449,7 +449,7 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
         </div>
 
         {/* Flexible spacer: expands to fill available height, capped so it doesn't get absurdly tall */}
-        <div style={{ flex: 1, minHeight: 28, maxHeight: 56 }} />
+        <div style={{ flex: 1, minHeight: 10, maxHeight: 20 }} />
 
         {/* Features list — sits naturally above the CTA */}
         <div style={{ flexShrink: 0 }}>
