@@ -80,6 +80,7 @@
   body {
     @apply antialiased bg-background text-foreground;
     font-family: var(--font-poppins);
+    overscroll-behavior: none;
   }
 
   /* iOS Safari zoom prevention and mobile fixes - GLOBAL APPLICATION */
@@ -196,6 +197,7 @@
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
       text-size-adjust: 100%;
+      overscroll-behavior: none;
     }
 
     body {

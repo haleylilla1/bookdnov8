@@ -387,7 +387,7 @@ export default function Home() {
   const isMainScreen = currentScreen === "calendar" || currentScreen === "dashboard" || currentScreen === "profile";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50" style={{ height: "100dvh", overflow: "hidden" }}>
       {/* Onboarding (full-screen overlay) */}
       <OnboardingFlow
         isOpen={showOnboarding}
