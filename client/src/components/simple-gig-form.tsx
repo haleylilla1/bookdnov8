@@ -8,13 +8,12 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DateInput } from "@/components/ui/date-input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGigSchema, type InsertGig, type User } from "@shared/schema";
 import { z } from "zod";
-import { X, Loader2, MapPin, Navigation } from "lucide-react";
+import { X, Loader2, MapPin } from "lucide-react";
 import { AddressAutocomplete } from "@/components/address-autocomplete";
 
 // Simplified form schema for planning gigs (detailed tracking happens in "Got Paid")
@@ -658,115 +657,31 @@ export default function SimpleGigForm({ onClose, defaultDate }: SimpleGigFormPro
               </div>
             )}
 
-            {/* Gig Location Section (Optional) */}
-            <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-gray-600" />
-                <span className="font-medium text-gray-800">Mileage Tracking (Optional)</span>
-              </div>
-              <p className="text-sm text-gray-600">
-                If you know the address, add it now. If not, you can add it once you get paid.
-              </p>
-              
-              {/* Starting Location (from profile) */}
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  <Navigation className="w-4 h-4 inline mr-1" />
-                  Starting from
-                </label>
-                <div className="p-3 bg-white border rounded-lg text-gray-700">
-                  {user?.homeAddress || "Set your home address in Profile to auto-fill"}
-                </div>
-              </div>
-
-              {/* Gig Location */}
-              <FormField
-                control={form.control}
-                name="gigAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      Gig Location
-                    </FormLabel>
-                    <FormControl>
-                      <AddressAutocomplete
-                        label=""
-                        value={field.value || ""}
-                        onChange={(address: string) => field.onChange(address)}
-                        placeholder="Enter gig address"
-                        biasLat={homeLat}
-                        biasLng={homeLng}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Round Trip Options */}
-              {form.watch("gigAddress") && (
-                <div className="space-y-3">
-                  <FormField
-                    control={form.control}
-                    name="isRoundTrip"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ${
-                          field.value 
-                            ? 'border-blue-500 bg-blue-50' 
-                            : 'border-gray-200 hover:border-blue-300'
-                        }`}
-                        onClick={() => field.onChange(!field.value)}>
-                          <input
-                            type="checkbox"
-                            id="isRoundTrip"
-                            checked={field.value || false}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                            className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
-                          />
-                          <div className="flex-1">
-                            <label htmlFor="isRoundTrip" className="text-sm font-medium cursor-pointer text-gray-900">
-                              Round trip (doubles the distance)
-                            </label>
-                          </div>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  {multiDayInfo.isMultiDay && form.watch("isRoundTrip") && (
-                    <FormField
-                      control={form.control}
-                      name="isRoundTripEachDay"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors cursor-pointer ml-4 ${
-                            field.value 
-                              ? 'border-blue-500 bg-blue-50' 
-                              : 'border-gray-200 hover:border-blue-300'
-                          }`}
-                          onClick={() => field.onChange(!field.value)}>
-                            <input
-                              type="checkbox"
-                              id="isRoundTripEachDay"
-                              checked={field.value || false}
-                              onChange={(e) => field.onChange(e.target.checked)}
-                              className="w-5 h-5 mt-0.5 rounded border-2 border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer checked:bg-blue-600 checked:border-blue-600"
-                            />
-                            <div className="flex-1">
-                              <label htmlFor="isRoundTripEachDay" className="text-sm font-medium cursor-pointer text-gray-900">
-                                Round trip each day ({multiDayInfo.dayCount} trips total)
-                              </label>
-                            </div>
-                          </div>
-                        </FormItem>
-                      )}
+            {/* Job Location (Optional) */}
+            <FormField
+              control={form.control}
+              name="gigAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1 text-gray-700">
+                    <MapPin className="w-4 h-4" />
+                    Job Location
+                    <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <AddressAutocomplete
+                      label=""
+                      value={field.value || ""}
+                      onChange={(address: string) => field.onChange(address)}
+                      placeholder="Enter job address"
+                      biasLat={homeLat}
+                      biasLng={homeLng}
                     />
-                  )}
-                </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
             {/* Payment Planning */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
