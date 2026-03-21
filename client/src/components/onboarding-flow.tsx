@@ -132,7 +132,7 @@ function GigGapBUI({ onContinue, ctaLabel, showDots, dotsIndex }: {
       `}</style>
 
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 16px", boxSizing: "border-box", maxWidth: "390px", width: "100%", margin: "0 auto" }}>
-        {showDots && <ProgressDots total={7} current={dotsIndex ?? 3} />}
+        {showDots && <ProgressDots total={7} current={dotsIndex ?? 4} />}
 
         <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 6px" }}>
           Your Deductions
@@ -263,7 +263,7 @@ function WarmUpStep({ onNext }: { onNext: (reminderWeeks: string) => void }) {
     }}>
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <ProgressDots total={7} current={4} />
+        <ProgressDots total={7} current={5} />
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>
           Don't Let Them Forget You
         </p>
@@ -440,7 +440,7 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
         {/* Header block */}
         <div style={{ flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-            <ProgressDots total={7} current={5} />
+            <ProgressDots total={7} current={6} />
           </div>
 
           <p style={{ fontSize: 10, fontWeight: 700, color: CYAN, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
@@ -686,8 +686,9 @@ function GoalsStep({ onNext }: { onNext: (goals: string[]) => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, backgroundColor: "#ffffff", zIndex: 9999, display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top, 0px)", fontFamily: "'Montserrat', sans-serif" }}>
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none", padding: "56px 22px 8px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-        <ProgressDots total={7} current={6} />
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "0 0 10px" }}>Your Goals</p>
+        <ProgressDots total={7} current={3} />
+        <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 4 of 4</span>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CYAN, margin: "10px 0 10px" }}>Your Goals</p>
         <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 24, color: NAVY, lineHeight: 1.25, margin: "0 0 10px" }}>
           What do you want <span style={{ color: CYAN }}>to improve</span> most?
         </h1>
@@ -728,7 +729,7 @@ function GoalsStep({ onNext }: { onNext: (goals: string[]) => void }) {
           cursor: isReady ? "pointer" : "default",
           boxShadow: isReady ? "0 4px 16px rgba(3,4,94,0.22)" : "none",
         }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: isReady ? "#fff" : "#9ca3af", lineHeight: 1.3, fontFamily: "'Poppins', sans-serif" }}>Let's get started →</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: isReady ? "#fff" : "#9ca3af", lineHeight: 1.3, fontFamily: "'Poppins', sans-serif" }}>Continue →</div>
           <div style={{ fontSize: 10, color: isReady ? "rgba(255,255,255,0.6)" : "#c0c0c0", marginTop: 3 }}>
             {isReady ? `${selected.size} goal${selected.size > 1 ? "s" : ""} selected — we've got you` : "Select at least one goal to continue"}
           </div>
@@ -793,7 +794,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
       defaultTaxPercentage: taxValue,
       gigTypes: resolvedGigTypes,
     });
-    setStep("gig-gap");
+    setStep("goals");
   };
 
   const containerStyle: React.CSSProperties = {
@@ -850,7 +851,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
         onContinue={() => setStep("warm-up")}
         ctaLabel="Continue →"
         showDots={true}
-        dotsIndex={3}
+        dotsIndex={4}
       />
     );
   }
@@ -869,7 +870,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
 
   /* ── What You Get ── */
   if (step === "what-you-get") {
-    return <WhatYouGetStep onNext={() => setStep("goals")} />;
+    return <WhatYouGetStep onNext={() => setStep("paywall")} />;
   }
 
   /* ── Goals ── */
@@ -880,9 +881,9 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           try {
             await apiRequest("POST", "/api/user/setup", { onboardingGoals: goals.join(",") });
           } catch {
-            // non-blocking — continue to paywall even if save fails
+            // non-blocking — continue to gig-gap even if save fails
           }
-          setStep("paywall");
+          setStep("gig-gap");
         }}
       />
     );
@@ -904,7 +905,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
             <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "#e0f7fa", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <MapPin size={18} color={CYAN} />
             </div>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 1 of 3</span>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 1 of 4</span>
           </div>
 
           <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "10px", marginTop: "12px" }}>
@@ -972,7 +973,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           <ProgressDots total={7} current={1} />
 
           <div style={{ marginBottom: "8px" }}>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 2 of 3</span>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 2 of 4</span>
           </div>
 
           <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "10px", marginTop: "12px" }}>
@@ -1062,7 +1063,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
           <ProgressDots total={7} current={2} />
 
           <div style={{ marginBottom: "8px" }}>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 3 of 3</span>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: CYAN, textTransform: "uppercase", letterSpacing: "0.05em" }}>Step 3 of 4</span>
           </div>
 
           <h1 style={{ fontSize: "26px", fontWeight: 700, color: NAVY, marginBottom: "10px", marginTop: "12px" }}>
