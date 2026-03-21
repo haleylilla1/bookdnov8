@@ -118,6 +118,7 @@ export interface IStorage {
   // Expenses
   getExpense(id: number): Promise<Expense | undefined>;
   getExpensesByUser(userId: number, limit?: number, offset?: number): Promise<{ expenses: Expense[], total: number }>;
+  getExpensesByGig(gigId: number, userId: number): Promise<Expense[]>;
   getExpensesByDateRange(userId: number, startDate: string, endDate: string): Promise<Expense[]>;
   createExpense(expense: InsertExpense): Promise<Expense>;
   updateExpense(id: number, expense: Partial<InsertExpense>): Promise<Expense | undefined>;
@@ -828,6 +829,15 @@ export class DatabaseStorage implements IStorage {
       .offset(offset);
     
     return { expenses: userExpenses, total };
+  }
+
+  async getExpensesByGig(gigId: number, userId: number): Promise<Expense[]> {
+    return await db.select().from(expenses)
+      .where(and(
+        eq(expenses.gigId, gigId),
+        eq(expenses.userId, userId)
+      ))
+      .orderBy(expenses.createdAt);
   }
 
   async getExpensesByDateRange(userId: number, startDate: string, endDate: string): Promise<Expense[]> {

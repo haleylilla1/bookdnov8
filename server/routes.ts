@@ -948,6 +948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .transform(val => sanitizeNumber(val, 0))
         .refine(val => val >= 0, 'Parking reimbursed cannot be negative'),
       otherExpenses: z.array(z.object({
+        id: z.number().optional(), // Present for pre-existing expenses; triggers PATCH instead of POST
         businessPurpose: z.string().transform(sanitizeText).refine(val => val.length > 0, 'Business purpose required'),
         amount: z.union([z.string(), z.number()]).transform(val => sanitizeNumber(val, 0)),
         category: z.string().transform(sanitizeText).refine(val => val.length > 0, 'Category required'),
@@ -1021,24 +1022,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use reimbursed amounts from individual expenses if provided, otherwise use the total
       const actualOtherReimbursed = totalOtherReimbursedFromExpenses > 0 ? totalOtherReimbursedFromExpenses : otherReimbursed;
       
-      // Create individual expense records for other expenses
+      // Create or update individual expense records for other expenses
       if (Array.isArray(otherExpenses) && otherExpenses.length > 0) {
         for (const expense of otherExpenses) {
           if (expense.amount > 0) {
             try {
-              await storage.createExpense({
-                userId,
-                date: gig.date,
-                amount: expense.amount.toString(),
-                merchant: gig.clientName || 'Unknown',
-                businessPurpose: expense.businessPurpose,
-                category: expense.category,
-                gigId: gigId,
-                reimbursedAmount: expense.reimbursedAmount.toString()
-              });
+              if (expense.id) {
+                // Pre-existing expense — update it so edits made in Got Paid are reflected everywhere
+                const existing = await storage.getExpense(expense.id);
+                if (existing && existing.userId === userId) {
+                  await storage.updateExpense(expense.id, {
+                    amount: expense.amount.toString(),
+                    businessPurpose: expense.businessPurpose,
+                    category: expense.category,
+                    reimbursedAmount: expense.reimbursedAmount.toString()
+                  });
+                }
+              } else {
+                // Brand-new expense — create it
+                await storage.createExpense({
+                  userId,
+                  date: gig.date,
+                  amount: expense.amount.toString(),
+                  merchant: gig.clientName || 'Unknown',
+                  businessPurpose: expense.businessPurpose,
+                  category: expense.category,
+                  gigId: gigId,
+                  reimbursedAmount: expense.reimbursedAmount.toString()
+                });
+              }
             } catch (expenseError) {
-              console.error('Error creating expense record:', expenseError);
-              // Continue processing - don't fail the entire operation if one expense fails
+              console.error('Error saving expense record:', expenseError);
+              // Continue processing — don't fail the entire operation if one expense fails
             }
           }
         }
@@ -1093,6 +1108,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error processing got paid:', error);
       res.status(500).json({ error: 'Failed to process payment' });
+    }
+  });
+
+  // Get expenses already linked to a specific gig (for Got Paid pre-fill)
+  app.get('/api/gigs/:id/expenses', requireAuth, async (req: any, res: Response) => {
+    try {
+      const userId = getUserId(req);
+      const gigId = parseInt(req.params.id);
+      const gigExpenses = await storage.getExpensesByGig(gigId, userId);
+      res.json(gigExpenses);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch gig expenses' });
     }
   });
 

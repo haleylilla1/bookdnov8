@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useEffect, useRef } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Check, Navigation, Loader2, RotateCcw } from "lucide-react";
@@ -24,6 +24,7 @@ const PAYMENT_METHODS = [
 const STEPS = ["Amount", "Expenses", "Mileage", "Tax Rate", "Summary"];
 
 interface OtherExpense {
+  id?: number;
   businessPurpose: string;
   amount: string;
   category: string;
@@ -62,6 +63,27 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
       ? [{ businessPurpose: _existingOtherDesc, amount: _existingOther.toFixed(2), category: "Supplies" }]
       : [{ businessPurpose: "", amount: "", category: "Supplies" }]
   );
+
+  // Fetch any expenses already linked to this gig so we can pre-fill step 2
+  const prefillInitialized = useRef(false);
+  const { data: linkedExpenses } = useQuery<any[]>({
+    queryKey: [`/api/gigs/${gig.id}/expenses`],
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (prefillInitialized.current) return;
+    if (!linkedExpenses || linkedExpenses.length === 0) return;
+    prefillInitialized.current = true;
+    const prefilledExpenses: OtherExpense[] = linkedExpenses.map((e: any) => ({
+      id: e.id,
+      businessPurpose: e.businessPurpose || "",
+      amount: String(parseFloat(e.amount) || ""),
+      category: e.category || "Supplies",
+    }));
+    setOtherExpenses(prefilledExpenses);
+    setHasOtherExpenses(true);
+  }, [linkedExpenses]);
 
   // Step 3: Mileage — addresses
   const [startingAddress, setStartingAddress] = useState(homeAddress || "");
@@ -112,6 +134,7 @@ export default function GotPaidSheet({ gig, homeAddress, defaultTaxPercentage, o
     ? otherExpenses
         .filter((e) => e.businessPurpose && e.amount)
         .map((e) => ({
+          id: e.id,
           businessPurpose: e.businessPurpose,
           amount: parseFloat(e.amount),
           category: e.category,
