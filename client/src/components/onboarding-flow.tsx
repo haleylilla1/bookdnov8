@@ -804,7 +804,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    overflowY: "auto",
+    overflowY: "hidden",
     paddingTop: "env(safe-area-inset-top, 0px)",
   };
 
@@ -967,7 +967,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     ];
 
     return (
-      <div style={containerStyle}>
+      <div style={{ ...containerStyle, overflowY: data.taxRate === "custom" ? "auto" : "hidden" }}>
         <div style={innerStyle}>
           <ProgressDots total={7} current={1} />
 
@@ -1057,7 +1057,7 @@ export function OnboardingFlow({ isOpen, onComplete, onClose }: OnboardingFlowPr
     };
 
     return (
-      <div ref={containerRef} style={containerStyle}>
+      <div ref={containerRef} style={{ ...containerStyle, overflowY: otherFocused ? "auto" : "hidden" }}>
         <div style={{ ...innerStyle, paddingBottom: otherFocused ? "360px" : "48px" }}>
           <ProgressDots total={7} current={2} />
 
