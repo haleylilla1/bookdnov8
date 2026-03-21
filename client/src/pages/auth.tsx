@@ -238,26 +238,135 @@ function LoginForm({ onGetStarted }: { onGetStarted: () => void }) {
   );
 }
 
+/* ── Reset password form (linked from email) ── */
+function ResetPasswordForm({ token }: { token: string }) {
+  const [newPassword, setNewPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  const input: React.CSSProperties = {
+    width: "100%", height: 52, fontSize: 16, padding: "0 14px",
+    border: "1.5px solid #e5e7eb", borderRadius: 12,
+    outline: "none", background: "#fff", color: "#111827",
+    fontFamily: "'Montserrat', sans-serif", boxSizing: "border-box",
+  };
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || data.error || "Reset failed. The link may have expired.");
+        return;
+      }
+      window.history.replaceState({}, '', '/auth');
+      setDone(true);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 28px", fontFamily: "'Montserrat', sans-serif" }}>
+        <img src={logoImage} alt="bookd" style={{ width: 140, marginBottom: 36 }} />
+        <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 22, color: NAVY, margin: "0 0 10px", textAlign: "center" }}>Password updated!</h2>
+        <p style={{ fontSize: 14, color: "#6b7280", textAlign: "center", lineHeight: 1.6, margin: "0 0 28px" }}>
+          You can now log in with your new password.
+        </p>
+        <button onClick={() => window.location.href = '/auth'} style={{ fontSize: 14, color: AQUA, fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>
+          Go to login →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#fff", display: "flex", flexDirection: "column", fontFamily: "'Montserrat', sans-serif", overflowY: "auto" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "60px 28px 24px", maxWidth: 430, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+        <img src={logoImage} alt="bookd" style={{ width: 120, marginBottom: 32, display: "block" }} />
+        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 28, color: NAVY, margin: "0 0 6px", lineHeight: 1.2 }}>Set new password</h1>
+        <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 30px", lineHeight: 1.5 }}>Enter your new password below. At least 8 characters.</p>
+        <form onSubmit={handleReset}>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>New password</label>
+          <div style={{ position: "relative", marginBottom: 24 }}>
+            <input
+              type={showPass ? "text" : "password"} placeholder="At least 8 characters" value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              style={{ ...input, paddingRight: 48 }}
+              autoComplete="new-password"
+            />
+            <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
+              {showPass ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="12" r="3" stroke="#9ca3af" strokeWidth="2"/></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/></svg>
+              )}
+            </button>
+          </div>
+          {error && <p style={{ fontSize: 13, color: "#ef4444", margin: "-16px 0 16px", textAlign: "center" }}>{error}</p>}
+          <button type="submit" disabled={newPassword.length < 8 || loading} style={{
+            width: "100%", background: newPassword.length >= 8 ? NAVY : "#e5e7eb",
+            border: "none", borderRadius: 12, height: 52, cursor: newPassword.length >= 8 ? "pointer" : "default",
+          }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: newPassword.length >= 8 ? "#fff" : "#9ca3af", fontFamily: "'Poppins', sans-serif" }}>
+              {loading ? "Saving…" : "Save new password"}
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Auth Page ── */
 export default function AuthPage() {
   const hasSeenWelcome = !!localStorage.getItem('bookd_welcome_seen');
 
-  // Returning/logged-out users: skip video screens entirely
-  const [view, setView] = useState<"welcome" | "splash" | "login" | "register">(
+  const [view, setView] = useState<"welcome" | "splash" | "login" | "register" | "reset">(
     hasSeenWelcome ? "splash" : "welcome"
   );
+  const [resetToken, setResetToken] = useState("");
 
-  // Handle Google OAuth errors — skip straight to login
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const errorKey = params.get('error');
-    if (errorKey && GOOGLE_ERROR_MESSAGES[errorKey]) {
+    const token = params.get('reset_token');
+
+    if (token) {
+      // Password reset link — show reset form regardless of welcome state
+      window.history.replaceState({}, '', '/auth');
+      setResetToken(token);
+      setView("reset");
+    } else if (errorKey && GOOGLE_ERROR_MESSAGES[errorKey]) {
+      // Google OAuth error — skip to login with toast-friendly message
       window.history.replaceState({}, '', '/auth');
       setView("login");
     }
   }, []);
 
-  // First-time user: 3 video screens → registration → onboarding
+  // Password reset via emailed link
+  if (view === "reset") {
+    return <ResetPasswordForm token={resetToken} />;
+  }
+
+  // First-time user: video screens → registration → onboarding
   if (view === "welcome") {
     return (
       <WelcomeSequence
@@ -279,7 +388,7 @@ export default function AuthPage() {
     return <SplashScreen onDone={() => setView("login")} />;
   }
 
-  // "Get started" from login → registration (skip video screens, already seen)
+  // "Get started" from login → registration (no video screens, already seen)
   if (view === "register") {
     return (
       <RegistrationStep

@@ -317,6 +317,38 @@ function EyeToggle({ visible, onToggle }: { visible: boolean; onToggle: () => vo
   );
 }
 
+function regFieldStyle(focused: boolean, err?: boolean) {
+  return {
+    display: "flex", alignItems: "center",
+    border: `1.5px solid ${err ? "#ef4444" : focused ? AQUA : "#e5e7eb"}`,
+    borderRadius: 12, background: "#fff", overflow: "hidden",
+    transition: "border-color 0.15s",
+  } as const;
+}
+
+function TextField({ label, placeholder, type = "text", value, onChange, inputRef, onEnter, suffix, err }: {
+  label: string; placeholder: string; type?: string; value: string;
+  onChange: (v: string) => void; inputRef?: ReturnType<typeof useRef<HTMLInputElement>>;
+  onEnter?: () => void; suffix?: React.ReactNode; err?: string;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ marginBottom: err ? 6 : 14 }}>
+      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: err ? "#ef4444" : focused ? AQUA : "#6b7280", marginBottom: 5, letterSpacing: "0.02em", transition: "color 0.15s" }}>{label}</label>
+      <div style={regFieldStyle(focused, !!err)}>
+        <input ref={inputRef} type={type} placeholder={placeholder} value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+          onKeyDown={(e) => { if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); } }}
+          style={{ flex: 1, height: 50, border: "none", outline: "none", padding: "0 14px", fontSize: 15, color: "#111827", background: "transparent" }}
+        />
+        {suffix}
+      </div>
+      {err && <p style={{ fontSize: 11, color: "#ef4444", margin: "4px 0 8px 2px" }}>{err}</p>}
+    </div>
+  );
+}
+
 export function RegistrationStep({ onDone, onLogin }: { onDone: () => void; onLogin?: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -362,36 +394,6 @@ export function RegistrationStep({ onDone, onLogin }: { onDone: () => void; onLo
       setError("Network error. Please check your connection and try again.");
       setLoading(false);
     }
-  }
-
-  const fieldStyle = (focused: boolean, err?: boolean) => ({
-    display: "flex", alignItems: "center",
-    border: `1.5px solid ${err ? "#ef4444" : focused ? AQUA : "#e5e7eb"}`,
-    borderRadius: 12, background: "#fff", overflow: "hidden",
-    transition: "border-color 0.15s",
-  } as const);
-
-  function TextField({ label, placeholder, type = "text", value, onChange, inputRef, onEnter, suffix, err }: {
-    label: string; placeholder: string; type?: string; value: string;
-    onChange: (v: string) => void; inputRef?: ReturnType<typeof useRef<HTMLInputElement>>;
-    onEnter?: () => void; suffix?: React.ReactNode; err?: string;
-  }) {
-    const [focused, setFocused] = useState(false);
-    return (
-      <div style={{ marginBottom: err ? 6 : 14 }}>
-        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: err ? "#ef4444" : focused ? AQUA : "#6b7280", marginBottom: 5, letterSpacing: "0.02em", transition: "color 0.15s" }}>{label}</label>
-        <div style={fieldStyle(focused, !!err)}>
-          <input ref={inputRef} type={type} placeholder={placeholder} value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-            onKeyDown={(e) => { if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); } }}
-            style={{ flex: 1, height: 50, border: "none", outline: "none", padding: "0 14px", fontSize: 15, color: "#111827", background: "transparent" }}
-          />
-          {suffix}
-        </div>
-        {err && <p style={{ fontSize: 11, color: "#ef4444", margin: "4px 0 8px 2px" }}>{err}</p>}
-      </div>
-    );
   }
 
   return (

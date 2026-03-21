@@ -4,6 +4,7 @@ import { queryClient } from '@/lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/lib/replit-auth';
 import HomePage from '@/pages/home';
+import AuthPage from '@/pages/auth';
 import ProfilePage from '@/pages/profile';
 import PrivacyPolicy from '@/pages/privacy-policy';
 import TermsOfService from '@/pages/terms-of-service';
@@ -18,6 +19,7 @@ function AppRouter() {
   return (
     <Switch>
       {/* Public routes - no auth required */}
+      <Route path="/auth" component={AuthPage} />
       <Route path="/waitlist" component={WaitlistPage} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />

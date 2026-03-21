@@ -4,9 +4,6 @@ import { setSentryUser, clearSentryUser, addSentryBreadcrumb } from './sentry';
 import { setRevenueCatUser, logoutRevenueCatUser } from './revenuecat';
 import React from 'react';
 
-// Lazy-loaded outside component to avoid infinite Suspense loop
-const AuthForm = React.lazy(() => import('../components/auth-form'));
-
 // User type for traditional auth
 export interface User {
   id: number;
@@ -117,27 +114,23 @@ export function useAuth() {
 
 // Auth guard component
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, login } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
+        <div style={{ width: 32, height: 32, border: "3px solid #e5e7eb", borderTopColor: "#00b4d8", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return (
-      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>}>
-        <AuthForm />
-      </React.Suspense>
-    );
+    // Preserve reset_token param so password reset links still work after redirect
+    const params = new URLSearchParams(window.location.search);
+    const resetToken = params.get('reset_token');
+    const target = resetToken ? `/auth?reset_token=${resetToken}` : '/auth';
+    window.location.href = target;
+    return null;
   }
 
   return <>{children}</>;
