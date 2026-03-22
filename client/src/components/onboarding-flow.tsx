@@ -435,11 +435,11 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
       paddingTop: "env(safe-area-inset-top, 0px)",
       fontFamily: "'Montserrat', sans-serif",
     }}>
-      {/* Scrollable content — flex column so the spacer between header and features fills dead space */}
-      <div style={{ flex: 1, overflowY: "hidden", padding: "56px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "24px 24px 16px", maxWidth: "390px", width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
 
         {/* Header block */}
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
             <ProgressDots total={7} current={6} />
           </div>
@@ -456,11 +456,8 @@ function WhatYouGetStep({ onNext }: { onNext: () => void }) {
           </p>
         </div>
 
-        {/* Flexible spacer: expands to fill available height, capped so it doesn't get absurdly tall */}
-        <div style={{ flex: 1, minHeight: 10, maxHeight: 20 }} />
-
-        {/* Features list — sits naturally above the CTA */}
-        <div style={{ flexShrink: 0 }}>
+        {/* Features list */}
+        <div>
           {FEATURES.map((f, i) => (
             <div key={i}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 14, paddingBottom: 14 }}>
