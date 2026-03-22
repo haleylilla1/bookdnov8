@@ -1,4 +1,4 @@
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect, useLayoutEffect, type CSSProperties } from "react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import CalendarView from "@/components/calendar-view";
 import SimpleGigForm from "@/components/simple-gig-form";
@@ -83,18 +83,13 @@ function TourOverlay({ step, onNext, onSkip }: {
   // Paint html + body black while the dark overlay is visible.
   // On iOS, the safe-area zones (status bar top, home indicator bottom) are
   // filled with the html/body background color — not by any position:fixed
-  // overlay. Setting both to #000 makes those zones match the dark dim instead
-  // of showing the default white background.
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtml = html.style.backgroundColor;
-    const prevBody = body.style.backgroundColor;
-    html.style.backgroundColor = "#000";
-    body.style.backgroundColor = "#000";
+  // overlay. Using useLayoutEffect (runs before paint) + a CSS class toggle
+  // ensures the safe zones are already black before the first frame is shown,
+  // eliminating any white-flash race condition.
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("tour-active");
     return () => {
-      html.style.backgroundColor = prevHtml;
-      body.style.backgroundColor = prevBody;
+      document.documentElement.classList.remove("tour-active");
     };
   }, []);
 

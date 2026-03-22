@@ -72,6 +72,11 @@
   --radius: 0.5rem;
 }
 
+html.tour-active,
+html.tour-active body {
+  background-color: #000 !important;
+}
+
 @layer base {
   * {
     @apply border-border;
