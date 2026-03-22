@@ -112,7 +112,7 @@ function EditSheet({
         backgroundColor: "#ffffff",
         borderRadius: "20px 20px 0 0",
         zIndex: 61,
-        paddingBottom: "env(safe-area-inset-bottom, 24px)",
+        paddingBottom: "calc(68px + env(safe-area-inset-bottom, 0px))",
       }}>
         <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px" }}>
           <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#e5e7eb" }} />
