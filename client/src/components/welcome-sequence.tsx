@@ -57,27 +57,33 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
     const video = videoRef.current;
     if (!video) return;
 
-    // iOS Safari requires muted+playsInline set as DOM properties (not just
-    // React props) before it will allow autoplay.
+    // React JSX `muted` prop does NOT set the HTML muted attribute — this is a
+    // well-known React bug. iOS sees <video autoplay> without a muted attribute
+    // and blocks autoplay immediately, before useEffect even runs. We must set
+    // the attribute + call load() so the browser re-evaluates with muted=true.
     video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
     video.playsInline = true;
     (video as any).webkitPlaysInline = true;
+
+    // load() resets the element's network state and starts fetching with the
+    // muted attribute now present — the browser will now allow autoplay.
+    video.load();
 
     const tryPlay = () => {
       video.play()
         .then(() => setVideoReady(true))
         .catch(() => {
-          // Autoplay blocked — poster <img> stays visible as a still frame.
-          // The webkit controls overlay is hidden via CSS below.
+          // Still blocked (e.g. Low Power Mode). Poster image stays visible.
         });
     };
 
-    if (video.readyState >= 1) {
-      tryPlay();
-    } else {
-      video.addEventListener("loadedmetadata", tryPlay, { once: true });
-      return () => video.removeEventListener("loadedmetadata", tryPlay);
-    }
+    // canplay fires as soon as the browser has enough data to start playback.
+    video.addEventListener("canplay", tryPlay, { once: true });
+    return () => video.removeEventListener("canplay", tryPlay);
   }, []);
 
   const coverStyle: CSSProperties = {
