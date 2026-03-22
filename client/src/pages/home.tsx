@@ -80,6 +80,24 @@ function TourOverlay({ step, onNext, onSkip }: {
   const [caretSide, setCaretSide] = useState<"bottom-right" | "bottom-center" | "bottom-left">("bottom-center");
   const isCompletion = step === TOTAL_TOOLTIP_STEPS;
 
+  // Paint html + body black while the dark overlay is visible.
+  // On iOS, the safe-area zones (status bar top, home indicator bottom) are
+  // filled with the html/body background color — not by any position:fixed
+  // overlay. Setting both to #000 makes those zones match the dark dim instead
+  // of showing the default white background.
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.backgroundColor;
+    const prevBody = body.style.backgroundColor;
+    html.style.backgroundColor = "#000";
+    body.style.backgroundColor = "#000";
+    return () => {
+      html.style.backgroundColor = prevHtml;
+      body.style.backgroundColor = prevBody;
+    };
+  }, []);
+
   useEffect(() => {
     if (isCompletion) return;
     setTooltipStyle({ opacity: 0, pointerEvents: "none" });
@@ -156,7 +174,7 @@ function TourOverlay({ step, onNext, onSkip }: {
   if (isCompletion) {
     return (
       <div
-        style={{ position: "fixed", top: "calc(-1 * env(safe-area-inset-top, 50px))", bottom: "calc(-1 * env(safe-area-inset-bottom, 34px))", left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.82)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px" }}
+        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.82)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px" }}
         onClick={onNext}
       >
         <div
@@ -193,7 +211,7 @@ function TourOverlay({ step, onNext, onSkip }: {
   const s = TOUR_STEPS[step];
 
   return (
-    <div style={{ position: "fixed", top: "calc(-1 * env(safe-area-inset-top, 50px))", bottom: "calc(-1 * env(safe-area-inset-bottom, 34px))", left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={onNext}>
+    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={onNext}>
       <div
         style={{
           ...tooltipStyle,
