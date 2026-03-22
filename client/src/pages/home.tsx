@@ -492,15 +492,16 @@ export default function Home() {
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 boxShadow: "0 4px 20px rgba(16,185,129,0.5), 0 0 0 5px rgba(16,185,129,0.12)",
                 flexShrink: 0,
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: 300,
-                fontStyle: "normal",
-                fontSize: "42px",
-                lineHeight: 1,
-                letterSpacing: "-0.02em",
               }}
             >
-              $
+              {/* Custom $ — S-curve with a shorter vertical line that stays within the S body */}
+              <svg width="16" height="21" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 4H7.5a3 3 0 0 0 0 6h1a3 3 0 0 1 0 6H4"
+                  stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                />
+                <line x1="8" y1="6" x2="8" y2="14" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
             </button>
             {/* + button */}
             <button
