@@ -255,50 +255,33 @@ export default function Home() {
   const [gotPaidSheetVisible, setGotPaidSheetVisible] = useState(false);
   const [gotPaidSelectedGig, setGotPaidSelectedGig] = useState<Gig | null>(null);
 
-  // Keyboard height tracking — pushes bottom sheets above the keyboard on iOS
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  // Visual viewport height — shrinks automatically when the iOS keyboard appears.
+  // We use this to size the sheet container so its bottom edge always aligns
+  // with the top of the keyboard, eliminating any gap.
+  const [vpHeight, setVpHeight] = useState(
+    () => window.visualViewport?.height ?? window.innerHeight
+  );
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      // Native iOS app: Capacitor Keyboard plugin gives exact keyboard height
+      // Native app: Capacitor Keyboard plugin gives exact keyboard height so we
+      // can derive the available height directly.
       let showHandle: any, hideHandle: any;
       Keyboard.addListener("keyboardWillShow", (info) => {
-        setKeyboardOffset(info.keyboardHeight);
+        setVpHeight((window.visualViewport?.height ?? window.innerHeight) - info.keyboardHeight);
       }).then(h => { showHandle = h; });
       Keyboard.addListener("keyboardWillHide", () => {
-        setKeyboardOffset(0);
+        setVpHeight(window.visualViewport?.height ?? window.innerHeight);
       }).then(h => { hideHandle = h; });
-      return () => {
-        showHandle?.remove();
-        hideHandle?.remove();
-      };
+      return () => { showHandle?.remove(); hideHandle?.remove(); };
     } else {
-      // Web (Safari/browser): use visualViewport + fallbacks
+      // Web / PWA: visualViewport.height is the canonical "visible area" value.
+      // It updates synchronously as the keyboard animates in/out, so the sheet
+      // container shrinks in lockstep — no gap ever appears.
       const update = () => {
-        const vp = window.visualViewport;
-        if (vp) {
-          const kh = Math.max(0, window.innerHeight - vp.height - vp.offsetTop);
-          setKeyboardOffset(kh);
-        }
+        setVpHeight(window.visualViewport?.height ?? window.innerHeight);
       };
       window.visualViewport?.addEventListener("resize", update);
-      window.visualViewport?.addEventListener("scroll", update);
-      window.addEventListener("resize", update);
-      const onFocusIn = (e: Event) => {
-        if ((e.target as HTMLElement)?.matches("input, textarea, select")) {
-          setTimeout(update, 100);
-          setTimeout(update, 400);
-        }
-      };
-      const onFocusOut = () => setTimeout(update, 150);
-      document.addEventListener("focusin", onFocusIn);
-      document.addEventListener("focusout", onFocusOut);
-      return () => {
-        window.visualViewport?.removeEventListener("resize", update);
-        window.visualViewport?.removeEventListener("scroll", update);
-        window.removeEventListener("resize", update);
-        document.removeEventListener("focusin", onFocusIn);
-        document.removeEventListener("focusout", onFocusOut);
-      };
+      return () => window.visualViewport?.removeEventListener("resize", update);
     }
   }, []);
 
@@ -616,22 +599,40 @@ export default function Home() {
               style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 55, transition: "opacity 320ms ease", opacity: gotPaidSheetVisible ? 1 : 0 }}
               onClick={closeGotPaidSheet}
             />
-            {/* Sheet */}
+            {/*
+              Sheet container — fills exactly the visual viewport height (vpHeight).
+              When the iOS keyboard opens, visualViewport.height shrinks and vpHeight
+              follows synchronously, so the container bottom edge tracks the keyboard
+              top in real-time — eliminating the calendar-bleed gap entirely.
+              pointer-events:none so taps on the transparent top area close the sheet
+              via the backdrop above.
+            */}
             <div style={{
               position: "fixed",
-              bottom: keyboardOffset,
-              left: "50%",
-              transform: gotPaidSheetVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(100%)",
-              transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1), bottom 120ms ease-out",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: vpHeight,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              zIndex: 56,
+              pointerEvents: "none",
+            }}>
+            {/* White sheet panel — slides in from bottom */}
+            <div style={{
               width: "100%",
               maxWidth: "480px",
               backgroundColor: "#ffffff",
               borderRadius: "20px 20px 0 0",
-              zIndex: 56,
-              paddingBottom: keyboardOffset > 0 ? "12px" : "max(env(safe-area-inset-bottom, 24px), 24px)",
-              maxHeight: `min(85vh, calc(100vh - ${keyboardOffset}px - 40px))`,
+              paddingBottom: "max(env(safe-area-inset-bottom, 16px), 16px)",
+              maxHeight: `${vpHeight - 48}px`,
               display: "flex",
               flexDirection: "column",
+              transform: gotPaidSheetVisible ? "translateY(0)" : "translateY(100%)",
+              transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+              pointerEvents: "all",
             }}>
               {/* Grabber */}
               <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "4px", flexShrink: 0 }}>
@@ -713,6 +714,7 @@ export default function Home() {
               </div>
             </>
           )}
+            </div>
             </div>
           </div>
         )}
