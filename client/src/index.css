@@ -439,7 +439,7 @@
 }
 
 .screen-content {
-  padding-bottom: 80px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
 }
 
 .tab-screen {
