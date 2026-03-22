@@ -170,7 +170,7 @@ function TourOverlay({ step, onNext, onSkip }: {
     return (
       <div
         style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.82)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px" }}
-        onClick={onNext}
+        onClick={() => { hapticLight(); onNext(); }}
       >
         <div
           style={{ backgroundColor: NAVY, borderRadius: "24px", border: `2.5px solid ${CYAN}`, padding: "32px 28px", textAlign: "center", maxWidth: "340px", width: "100%" }}
@@ -194,9 +194,9 @@ function TourOverlay({ step, onNext, onSkip }: {
           </p>
           <button
             style={{ width: "100%", backgroundColor: CYAN, color: "#ffffff", border: "none", borderRadius: "100px", padding: "16px", fontSize: "16px", fontWeight: 700, cursor: "pointer", minHeight: "unset" }}
-            onClick={onNext}
+            onClick={() => { hapticSuccess(); onNext(); }}
           >
-            Let's go
+            Add your first gig →
           </button>
         </div>
       </div>
@@ -206,7 +206,7 @@ function TourOverlay({ step, onNext, onSkip }: {
   const s = TOUR_STEPS[step];
 
   return (
-    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={onNext}>
+    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.72)", zIndex: 10000 }} onClick={() => { hapticLight(); onNext(); }}>
       <div
         style={{
           ...tooltipStyle,
@@ -218,7 +218,7 @@ function TourOverlay({ step, onNext, onSkip }: {
           padding: "18px 20px 16px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
         }}
-        onClick={(e) => { e.stopPropagation(); onNext(); }}
+        onClick={(e) => { e.stopPropagation(); hapticLight(); onNext(); }}
       >
         <div style={{ fontSize: "15px", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.3 }}>
           {s.title}
@@ -363,10 +363,11 @@ export default function Home() {
 
   const handleTourNext = () => {
     if (tourStep === null) return;
-    // Completion modal — dismiss and stay on dashboard
+    // Completion modal — dismiss and open the add gig form
     if (tourStep >= TOTAL_TOOLTIP_STEPS) {
       markTourDone();
       setTourStep(null);
+      setCurrentScreen("gig-form");
     } else {
       setTourStep(tourStep + 1);
     }
