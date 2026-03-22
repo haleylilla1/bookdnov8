@@ -492,12 +492,12 @@ export default function Home() {
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 boxShadow: "0 4px 20px rgba(16,185,129,0.5), 0 0 0 5px rgba(16,185,129,0.12)",
                 flexShrink: 0,
-                fontFamily: "'Georgia', 'Times New Roman', serif",
-                fontWeight: 400,
+                fontFamily: "'Poppins', sans-serif",
+                fontWeight: 300,
                 fontStyle: "normal",
-                fontSize: "38px",
+                fontSize: "42px",
                 lineHeight: 1,
-                letterSpacing: "0em",
+                letterSpacing: "-0.02em",
               }}
             >
               $
