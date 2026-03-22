@@ -462,7 +462,7 @@ html.tour-active body {
 
 /* Got Paid FAB — override global button { font-size: 16px !important } */
 #fab-paid {
-  font-size: 42px !important;
+  font-size: 30px !important;
   padding: 0 !important;
   min-height: unset !important;
 }
