@@ -56,20 +56,20 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
     const video = videoRef.current;
     if (!video) return;
 
-    // React doesn't reliably apply the `muted` attribute to <video> elements —
-    // set it and playsInline programmatically so the browser allows autoplay.
+    // Set muted and playsInline programmatically — React doesn't reliably
+    // apply the `muted` attribute as an HTML attribute, which iOS requires
+    // for autoplay to be permitted.
     video.muted = true;
     video.playsInline = true;
 
     const attempt = () => {
       video.play().catch(() => {
-        // Silently ignore — the `poster` attribute already shows a still frame;
-        // no play button appears on muted videos without `controls`.
+        // Silently ignore — poster <img> beneath the video shows a still frame
+        // while we wait. No browser play-button overlay appears because we
+        // intentionally omit the `poster` attribute from the <video> element.
       });
     };
 
-    // Wait until the browser has enough metadata before calling play(),
-    // otherwise play() rejects with AbortError before any data is buffered.
     if (video.readyState >= 1) {
       attempt();
     } else {
@@ -78,14 +78,13 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
     }
   }, []);
 
-  const mediaStyle: CSSProperties = {
+  const coverStyle: CSSProperties = {
     position: "absolute",
     inset: 0,
     width: "100%",
     height: "100%",
     objectFit: "cover",
     objectPosition,
-    zIndex: 1,
   };
 
   return (
@@ -96,21 +95,24 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
       overflow: "hidden",
       background: "#EAF9FF",
     }}>
+      {/* Poster shown as a plain image — no browser play-button overlay */}
+      <img src={poster} alt="" style={{ ...coverStyle, zIndex: 1 }} />
+      {/* Video layered on top; no `poster` attr so iOS never shows its native
+          play button — the img beneath acts as the loading placeholder */}
       <video
         ref={videoRef}
         src={src}
-        poster={poster}
         autoPlay
         loop
         muted
         playsInline
-        style={mediaStyle}
+        style={{ ...coverStyle, zIndex: 2 }}
       />
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         height: 32,
         background: "linear-gradient(to bottom, transparent, #ffffff)",
-        zIndex: 2, pointerEvents: "none",
+        zIndex: 3, pointerEvents: "none",
       }} />
     </div>
   );
