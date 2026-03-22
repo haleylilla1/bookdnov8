@@ -483,28 +483,29 @@ export default function Home() {
             </div>
           </div>
 
-          {/* FABs — absolute inside tab area, floating just above the nav */}
-          {currentScreen !== "profile" && isMainScreen && (
-            <div className="lg:hidden" style={{ position: "absolute", bottom: 88, right: 24, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
-              {/* Got Paid $ button */}
-              <button
-                id="fab-paid"
-                onClick={() => { hapticSuccess(); setFabOpen(false); openGotPaidSheet(); }}
-                style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: GREEN, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(16,185,129,0.45)", flexShrink: 0 }}
-              >
-                <DollarSign size={36} strokeWidth={1.5} />
-              </button>
-              {/* + button */}
-              <button
-                id="fab-toggle"
-                onClick={() => { hapticLight(); setFabOpen(!fabOpen); }}
-                style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: NAVY, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(3,4,94,0.35)", flexShrink: 0 }}
-              >
-                <Plus size={36} strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
         </div>
+
+        {/* FABs — fixed to screen, always above the nav */}
+        {currentScreen !== "profile" && isMainScreen && (
+          <div className="lg:hidden" style={{ position: "fixed", bottom: 84, right: 24, zIndex: 49, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+            {/* Got Paid $ button */}
+            <button
+              id="fab-paid"
+              onClick={() => { hapticSuccess(); setFabOpen(false); openGotPaidSheet(); }}
+              style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: GREEN, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(16,185,129,0.45)", flexShrink: 0 }}
+            >
+              <DollarSign size={36} strokeWidth={1.5} />
+            </button>
+            {/* + button */}
+            <button
+              id="fab-toggle"
+              onClick={() => { hapticLight(); setFabOpen(!fabOpen); }}
+              style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: NAVY, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(3,4,94,0.35)", flexShrink: 0 }}
+            >
+              <Plus size={36} strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
 
         {/* Overlay screens — full-screen on top of tab layer */}
         {currentScreen === "gig-form" && (
