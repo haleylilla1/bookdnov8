@@ -460,6 +460,13 @@ html.tour-active body {
   min-height: unset !important;
 }
 
+/* Got Paid FAB — override global button { font-size: 16px !important } */
+#fab-paid {
+  font-size: 80px !important;
+  padding: 0 !important;
+  min-height: unset !important;
+}
+
 /* Kill the iOS native play-button overlay on all <video> elements.
    -webkit-media-controls-start-playback-button is the large pill iOS paints
    over any <video> that hasn't started yet. Hiding this means the poster
