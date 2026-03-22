@@ -51,30 +51,32 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
   src: string; poster: string; objectPosition?: string; height?: number;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Set muted and playsInline programmatically — React doesn't reliably
-    // apply the `muted` attribute as an HTML attribute, which iOS requires
-    // for autoplay to be permitted.
+    // iOS Safari requires muted+playsInline set as DOM properties (not just
+    // React props) before it will allow autoplay.
     video.muted = true;
     video.playsInline = true;
+    (video as any).webkitPlaysInline = true;
 
-    const attempt = () => {
-      video.play().catch(() => {
-        // Silently ignore — poster <img> beneath the video shows a still frame
-        // while we wait. No browser play-button overlay appears because we
-        // intentionally omit the `poster` attribute from the <video> element.
-      });
+    const tryPlay = () => {
+      video.play()
+        .then(() => setVideoReady(true))
+        .catch(() => {
+          // Autoplay blocked — poster <img> stays visible as a still frame.
+          // The webkit controls overlay is hidden via CSS below.
+        });
     };
 
     if (video.readyState >= 1) {
-      attempt();
+      tryPlay();
     } else {
-      video.addEventListener("loadedmetadata", attempt, { once: true });
-      return () => video.removeEventListener("loadedmetadata", attempt);
+      video.addEventListener("loadedmetadata", tryPlay, { once: true });
+      return () => video.removeEventListener("loadedmetadata", tryPlay);
     }
   }, []);
 
@@ -95,10 +97,32 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
       overflow: "hidden",
       background: "#EAF9FF",
     }}>
-      {/* Poster shown as a plain image — no browser play-button overlay */}
-      <img src={poster} alt="" style={{ ...coverStyle, zIndex: 1 }} />
-      {/* Video layered on top; no `poster` attr so iOS never shows its native
-          play button — the img beneath acts as the loading placeholder */}
+      {/*
+        CSS kills the iOS native play-button overlay on <video>.
+        -webkit-media-controls-start-playback-button is the large pill button
+        iOS paints over every <video> that hasn't started playing yet.
+      */}
+      <style>{`
+        .bookd-video::-webkit-media-controls { display: none !important; }
+        .bookd-video::-webkit-media-controls-panel { display: none !important; }
+        .bookd-video::-webkit-media-controls-play-button { display: none !important; }
+        .bookd-video::-webkit-media-controls-start-playback-button { display: none !important; }
+      `}</style>
+
+      {/* Poster image — always shown until the video is playing */}
+      <img
+        src={poster}
+        alt=""
+        style={{
+          ...coverStyle,
+          zIndex: 1,
+          opacity: videoReady ? 0 : 1,
+          transition: "opacity 0.3s ease",
+        }}
+      />
+
+      {/* Video on top — no `poster` attr (that triggers the iOS play overlay).
+          The img above acts as the placeholder while it loads. */}
       <video
         ref={videoRef}
         src={src}
@@ -106,8 +130,15 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
         loop
         muted
         playsInline
-        style={{ ...coverStyle, zIndex: 2 }}
+        className="bookd-video"
+        style={{
+          ...coverStyle,
+          zIndex: 2,
+          opacity: videoReady ? 1 : 0,
+          transition: "opacity 0.3s ease",
+        }}
       />
+
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         height: 32,

@@ -455,6 +455,18 @@
   min-height: unset !important;
 }
 
+/* Kill the iOS native play-button overlay on all <video> elements.
+   -webkit-media-controls-start-playback-button is the large pill iOS paints
+   over any <video> that hasn't started yet. Hiding this means the poster
+   <img> underneath shows cleanly while autoplay initialises. */
+.bookd-video::-webkit-media-controls,
+.bookd-video::-webkit-media-controls-panel,
+.bookd-video::-webkit-media-controls-play-button,
+.bookd-video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 .tab-screen {
   -webkit-overflow-scrolling: touch;
 }
