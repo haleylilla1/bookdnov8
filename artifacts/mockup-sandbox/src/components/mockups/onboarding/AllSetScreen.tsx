@@ -51,12 +51,12 @@ export default function AllSetScreen() {
 
         {/* Body */}
         <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.75)", lineHeight: 1.65, marginBottom: "10px", margin: "0 0 10px" }}>
-          Bookd will track every gig, every payment, and every dollar you're owed — so you can stay focused on the work you love.
+          Bookd will track every gig, mile and dollar. We'll worry about the admin work, so you can stay focused on the work you love.
         </p>
 
         {/* Signature */}
         <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", marginBottom: "28px", fontStyle: "italic", margin: "0 0 28px" }}>
-          Thanks for supporting this app. — Haley
+          Thanks for supporting this app!
         </p>
 
         {/* CTA */}

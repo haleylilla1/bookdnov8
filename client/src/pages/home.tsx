@@ -187,10 +187,10 @@ function TourOverlay({ step, onNext, onSkip }: {
             You're all set!
           </div>
           <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.75)", lineHeight: 1.65, marginBottom: "10px" }}>
-            Bookd will track every gig, every payment, and every dollar you're owed — so you can stay focused on the work you love.
+            Bookd will track every gig, mile and dollar. We'll worry about the admin work, so you can stay focused on the work you love.
           </p>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", marginBottom: "28px", fontStyle: "italic" }}>
-            Thanks for supporting this app. — Haley
+            Thanks for supporting this app!
           </p>
           <button
             style={{ width: "100%", backgroundColor: CYAN, color: "#ffffff", border: "none", borderRadius: "100px", padding: "16px", fontSize: "16px", fontWeight: 700, cursor: "pointer", minHeight: "unset" }}
