@@ -51,18 +51,30 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
   src: string; poster: string; objectPosition?: string; height?: number;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    // Imperatively call play() so iOS honors autoplay even without a prior gesture
-    const p = video.play();
-    if (p !== undefined) {
-      p.catch(() => {
-        // Autoplay was blocked — silently swap to the poster screenshot, no play button
-        setUseFallback(true);
+
+    // React doesn't reliably apply the `muted` attribute to <video> elements —
+    // set it and playsInline programmatically so the browser allows autoplay.
+    video.muted = true;
+    video.playsInline = true;
+
+    const attempt = () => {
+      video.play().catch(() => {
+        // Silently ignore — the `poster` attribute already shows a still frame;
+        // no play button appears on muted videos without `controls`.
       });
+    };
+
+    // Wait until the browser has enough metadata before calling play(),
+    // otherwise play() rejects with AbortError before any data is buffered.
+    if (video.readyState >= 1) {
+      attempt();
+    } else {
+      video.addEventListener("loadedmetadata", attempt, { once: true });
+      return () => video.removeEventListener("loadedmetadata", attempt);
     }
   }, []);
 
@@ -84,21 +96,16 @@ function VideoPanel({ src, poster, objectPosition = "center", height = 240 }: {
       overflow: "hidden",
       background: "#EAF9FF",
     }}>
-      {useFallback ? (
-        <img src={poster} alt="" style={mediaStyle} />
-      ) : (
-        <video
-          ref={videoRef}
-          src={src}
-          poster={poster}
-          autoPlay
-          loop
-          muted
-          playsInline
-          onError={() => setUseFallback(true)}
-          style={mediaStyle}
-        />
-      )}
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={mediaStyle}
+      />
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         height: 32,
