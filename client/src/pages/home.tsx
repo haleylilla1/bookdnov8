@@ -493,7 +493,7 @@ export default function Home() {
                 boxShadow: "0 4px 20px rgba(16,185,129,0.5), 0 0 0 5px rgba(16,185,129,0.12)",
                 flexShrink: 0,
                 fontFamily: "'Poppins', sans-serif",
-                fontWeight: 800,
+                fontWeight: 600,
                 fontStyle: "normal",
                 fontSize: "30px",
                 lineHeight: 1,
