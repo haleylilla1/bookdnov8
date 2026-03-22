@@ -14,7 +14,7 @@ import { WelcomeSequence } from "@/components/welcome-sequence";
 import { useAuth } from "@/lib/replit-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Gig } from "@shared/schema";
-import { Plus, Briefcase, Receipt, ChevronRight, DollarSign, Check, Sparkles } from "lucide-react";
+import { Plus, Briefcase, Receipt, ChevronRight, Check, Sparkles } from "lucide-react";
 import GotPaidSheet from "@/components/got-paid-sheet";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { Capacitor } from "@capacitor/core";
@@ -485,9 +485,22 @@ export default function Home() {
             <button
               id="fab-paid"
               onClick={() => { hapticSuccess(); setFabOpen(false); openGotPaidSheet(); }}
-              style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: GREEN, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(16,185,129,0.45)", flexShrink: 0 }}
+              style={{
+                width: 64, height: 64, borderRadius: "50%",
+                border: "2px solid rgba(0,180,216,0.55)",
+                backgroundColor: GREEN, color: "#ffffff",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 4px 20px rgba(16,185,129,0.5), 0 0 0 5px rgba(16,185,129,0.12)",
+                flexShrink: 0,
+                fontFamily: "'Poppins', sans-serif",
+                fontWeight: 900,
+                fontStyle: "italic",
+                fontSize: "30px",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
+              }}
             >
-              <DollarSign size={36} strokeWidth={1.5} />
+              $
             </button>
             {/* + button */}
             <button
