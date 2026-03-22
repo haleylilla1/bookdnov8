@@ -482,6 +482,28 @@ export default function Home() {
               <LegalFooter className="border-t border-gray-200 bg-white" />
             </div>
           </div>
+
+          {/* FABs — absolute inside tab area, floating just above the nav */}
+          {currentScreen !== "profile" && isMainScreen && (
+            <div className="lg:hidden" style={{ position: "absolute", bottom: 16, right: 24, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+              {/* Got Paid $ button */}
+              <button
+                id="fab-paid"
+                onClick={() => { hapticSuccess(); setFabOpen(false); openGotPaidSheet(); }}
+                style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: GREEN, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(16,185,129,0.45)", flexShrink: 0 }}
+              >
+                <DollarSign size={36} strokeWidth={1.5} />
+              </button>
+              {/* + button */}
+              <button
+                id="fab-toggle"
+                onClick={() => { hapticLight(); setFabOpen(!fabOpen); }}
+                style={{ width: 64, height: 64, borderRadius: "50%", border: "none", backgroundColor: NAVY, color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(3,4,94,0.35)", flexShrink: 0 }}
+              >
+                <Plus size={36} strokeWidth={1.5} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Overlay screens — full-screen on top of tab layer */}
@@ -694,61 +716,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Unified bottom bar — FABs always sit exactly above nav, never covered */}
-        <div className="lg:hidden" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", zIndex: 50 }}>
-          {/* FABs — absolute positioned above the nav bar via bottom: 100% */}
-          {currentScreen !== "profile" && isMainScreen && (
-            <div style={{ position: "absolute", bottom: "100%", right: "24px", paddingBottom: "12px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
-              {/* Got Paid $ button */}
-              <button
-                id="fab-paid"
-                onClick={() => {
-                  hapticSuccess();
-                  setFabOpen(false);
-                  openGotPaidSheet();
-                }}
-                style={{
-                  width: "64px",
-                  height: "64px",
-                  borderRadius: "50%",
-                  border: "none",
-                  backgroundColor: GREEN,
-                  color: "#ffffff",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 4px 16px rgba(16,185,129,0.45)",
-                  flexShrink: 0,
-                }}
-              >
-                <DollarSign size={36} strokeWidth={1.5} />
-              </button>
-
-              {/* + button */}
-              <button
-                id="fab-toggle"
-                onClick={() => { hapticLight(); setFabOpen(!fabOpen); }}
-                style={{
-                  width: "64px",
-                  height: "64px",
-                  borderRadius: "50%",
-                  border: "none",
-                  backgroundColor: NAVY,
-                  color: "#ffffff",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 4px 16px rgba(3,4,94,0.35)",
-                  flexShrink: 0,
-                }}
-              >
-                <Plus size={36} strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
-
+        {/* Bottom Navigation — flex child, sits at bottom, content ends above it naturally */}
+        <div className="lg:hidden" style={{ flexShrink: 0 }}>
           <BottomNavigation
             currentScreen={currentScreen}
             onScreenChange={setCurrentScreen}
