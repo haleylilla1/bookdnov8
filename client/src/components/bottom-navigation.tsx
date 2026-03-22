@@ -42,6 +42,7 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
             key={item.id}
             id={`${item.id}-tab`}
             onClick={() => { hapticLight(); onScreenChange(item.id); }}
+            className="bottom-nav-btn"
             style={{
               flex: 1,
               display: "flex",

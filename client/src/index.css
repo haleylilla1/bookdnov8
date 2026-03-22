@@ -442,6 +442,12 @@
   padding-bottom: 80px;
 }
 
+/* Override the global button padding/min-height reset for nav tab buttons */
+.bottom-nav-btn {
+  padding: 4px 0 2px !important;
+  min-height: unset !important;
+}
+
 .tab-screen {
   -webkit-overflow-scrolling: touch;
 }
