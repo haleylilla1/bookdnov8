@@ -26,8 +26,8 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
         width: "100%",
         backgroundColor: "#ffffff",
         borderTop: "1px solid #f0f0f0",
-        paddingTop: "6px",
-        paddingBottom: "14px",
+        paddingTop: "4px",
+        paddingBottom: "8px",
         display: "flex",
         boxShadow: "0 -2px 16px rgba(0,0,0,0.06)",
         zIndex: 50,
@@ -48,8 +48,8 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: "3px",
-              padding: "4px 0 2px",
+              gap: "2px",
+              padding: "3px 0 2px",
               background: "none",
               border: "none",
               cursor: "pointer",
@@ -60,14 +60,14 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
           >
             <div style={{ position: "relative" }}>
               <Icon
-                size={22}
+                size={20}
                 strokeWidth={isActive ? 2.5 : 1.8}
                 color={isActive ? NAVY : "#b0b0b0"}
               />
               {isActive && (
                 <div style={{
                   position: "absolute",
-                  bottom: "-6px",
+                  bottom: "-4px",
                   left: "50%",
                   transform: "translateX(-50%)",
                   width: "4px",
@@ -78,10 +78,10 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
               )}
             </div>
             <span style={{
-              fontSize: "11px",
+              fontSize: "10px",
               fontWeight: isActive ? 600 : 400,
               color: isActive ? NAVY : "#b0b0b0",
-              marginTop: "4px",
+              marginTop: "2px",
             }}>
               {item.label}
             </span>

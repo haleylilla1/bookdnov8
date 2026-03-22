@@ -487,7 +487,7 @@ export default function Home() {
 
         {/* FABs — fixed to screen, always above the nav */}
         {currentScreen !== "profile" && isMainScreen && (
-          <div className="lg:hidden" style={{ position: "fixed", bottom: 84, right: 24, zIndex: 49, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+          <div className="lg:hidden" style={{ position: "fixed", bottom: 68, right: 24, zIndex: 49, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
             {/* Got Paid $ button */}
             <button
               id="fab-paid"

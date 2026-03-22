@@ -451,7 +451,7 @@
 
 /* Override the global button padding/min-height reset for nav tab buttons */
 .bottom-nav-btn {
-  padding: 4px 0 2px !important;
+  padding: 3px 0 2px !important;
   min-height: unset !important;
 }
 
