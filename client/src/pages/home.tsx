@@ -485,7 +485,7 @@ export default function Home() {
 
           {/* FABs — absolute inside tab area, floating just above the nav */}
           {currentScreen !== "profile" && isMainScreen && (
-            <div className="lg:hidden" style={{ position: "absolute", bottom: 16, right: 24, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+            <div className="lg:hidden" style={{ position: "absolute", bottom: 88, right: 24, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
               {/* Got Paid $ button */}
               <button
                 id="fab-paid"
@@ -716,8 +716,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Bottom Navigation — flex child, sits at bottom, content ends above it naturally */}
-        <div className="lg:hidden" style={{ flexShrink: 0 }}>
+        {/* Bottom Navigation — fixed to physical screen bottom */}
+        <div className="lg:hidden">
           <BottomNavigation
             currentScreen={currentScreen}
             onScreenChange={setCurrentScreen}

@@ -20,6 +20,9 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
   return (
     <nav
       style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
         width: "100%",
         backgroundColor: "#ffffff",
         borderTop: "1px solid #f0f0f0",
@@ -27,6 +30,7 @@ export default function BottomNavigation({ currentScreen, onScreenChange }: Bott
         paddingBottom: "14px",
         display: "flex",
         boxShadow: "0 -2px 16px rgba(0,0,0,0.06)",
+        zIndex: 50,
       }}
     >
       {navItems.map((item) => {
