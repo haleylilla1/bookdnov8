@@ -77,16 +77,23 @@
     @apply border-border;
   }
 
-  html, body {
-    /* Lock html+body so iOS Safari cannot rubber-band the document at all */
+  html {
+    /* overscroll-behavior alone is enough on html — position:fixed would make
+       html the containing block for position:fixed descendants, trapping the
+       nav at the safe-viewport bottom (34px above the physical screen edge). */
+    overscroll-behavior: none;
+    overflow: hidden;
+  }
+
+  body {
+    /* position:fixed on body prevents rubber-band without creating a
+       containing block for fixed descendants (only transform/filter do that).
+       Fixed elements remain relative to the actual viewport / physical screen. */
     position: fixed;
     width: 100%;
     height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
-  }
-
-  body {
     @apply antialiased bg-background text-foreground;
     font-family: var(--font-poppins);
   }
