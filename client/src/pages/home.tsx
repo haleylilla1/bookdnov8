@@ -255,32 +255,29 @@ export default function Home() {
   const [gotPaidSheetVisible, setGotPaidSheetVisible] = useState(false);
   const [gotPaidSelectedGig, setGotPaidSelectedGig] = useState<Gig | null>(null);
 
-  // Visual viewport height — shrinks automatically when the iOS keyboard appears.
-  // We use this to size the sheet container so its bottom edge always aligns
-  // with the top of the keyboard, eliminating any gap.
-  const [vpHeight, setVpHeight] = useState(
-    () => window.visualViewport?.height ?? window.innerHeight
-  );
+  // Track visual viewport height as a CSS variable instead of React state.
+  // React batches all setState calls during the keyboard animation into a single
+  // re-render at the END of the animation — causing a visible gap the whole time.
+  // Writing directly to a CSS variable bypasses React's scheduler entirely and
+  // the browser picks it up each frame, so the sheet bottom tracks the keyboard
+  // top with zero lag.
   useEffect(() => {
+    const setVar = (h: number) =>
+      document.documentElement.style.setProperty("--vp-height", `${h}px`);
+
     if (Capacitor.isNativePlatform()) {
-      // Native app: Capacitor Keyboard plugin gives exact keyboard height so we
-      // can derive the available height directly.
       let showHandle: any, hideHandle: any;
       Keyboard.addListener("keyboardWillShow", (info) => {
-        setVpHeight((window.visualViewport?.height ?? window.innerHeight) - info.keyboardHeight);
+        setVar((window.visualViewport?.height ?? window.innerHeight) - info.keyboardHeight);
       }).then(h => { showHandle = h; });
       Keyboard.addListener("keyboardWillHide", () => {
-        setVpHeight(window.visualViewport?.height ?? window.innerHeight);
+        setVar(window.visualViewport?.height ?? window.innerHeight);
       }).then(h => { hideHandle = h; });
       return () => { showHandle?.remove(); hideHandle?.remove(); };
     } else {
-      // Web / PWA: visualViewport.height is the canonical "visible area" value.
-      // It updates synchronously as the keyboard animates in/out, so the sheet
-      // container shrinks in lockstep — no gap ever appears.
-      const update = () => {
-        setVpHeight(window.visualViewport?.height ?? window.innerHeight);
-      };
+      const update = () => setVar(window.visualViewport?.height ?? window.innerHeight);
       window.visualViewport?.addEventListener("resize", update);
+      update(); // set initial value
       return () => window.visualViewport?.removeEventListener("resize", update);
     }
   }, []);
@@ -600,10 +597,10 @@ export default function Home() {
               onClick={closeGotPaidSheet}
             />
             {/*
-              Sheet container — fills exactly the visual viewport height (vpHeight).
-              When the iOS keyboard opens, visualViewport.height shrinks and vpHeight
-              follows synchronously, so the container bottom edge tracks the keyboard
-              top in real-time — eliminating the calendar-bleed gap entirely.
+              Sheet container — fills exactly the visual viewport height via CSS var.
+              --vp-height is set by a visualViewport "resize" listener that writes
+              directly to the DOM (bypassing React's batching), so the container
+              shrinks in lockstep with the keyboard animation — zero gap, zero lag.
               pointer-events:none so taps on the transparent top area close the sheet
               via the backdrop above.
             */}
@@ -612,7 +609,7 @@ export default function Home() {
               top: 0,
               left: 0,
               width: "100%",
-              height: vpHeight,
+              height: "var(--vp-height, 100dvh)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "flex-end",
@@ -627,7 +624,7 @@ export default function Home() {
               backgroundColor: "#ffffff",
               borderRadius: "20px 20px 0 0",
               paddingBottom: "max(env(safe-area-inset-bottom, 16px), 16px)",
-              maxHeight: `${vpHeight - 48}px`,
+              maxHeight: "calc(var(--vp-height, 100dvh) - 48px)",
               display: "flex",
               flexDirection: "column",
               transform: gotPaidSheetVisible ? "translateY(0)" : "translateY(100%)",
