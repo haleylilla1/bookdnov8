@@ -495,9 +495,9 @@ export default function Home() {
                 fontFamily: "'Poppins', sans-serif",
                 fontWeight: 900,
                 fontStyle: "italic",
-                fontSize: "30px",
+                fontSize: "38px",
                 lineHeight: 1,
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.04em",
               }}
             >
               $
