@@ -77,10 +77,23 @@
     @apply border-border;
   }
 
+  html, body {
+    /* Lock html+body so iOS Safari cannot rubber-band the document at all */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   body {
     @apply antialiased bg-background text-foreground;
     font-family: var(--font-poppins);
-    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   /* iOS Safari zoom prevention and mobile fixes - GLOBAL APPLICATION */
@@ -201,10 +214,7 @@
     }
 
     body {
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-      min-height: 100vh;
-      /* Allow normal touch actions for scrolling */
+      /* Inherit the fixed lock from base — do NOT re-enable body scroll here */
       touch-action: pan-y pinch-zoom;
     }
 
